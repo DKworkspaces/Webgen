@@ -13,5 +13,10 @@
     "slug": "contact",
     "title": "Get in Touch",
     "content": "Contact us via our public GitHub repository profile."
+  },
+  {
+    "slug": "index",
+    "title": "Welcome home",
+    "content": "let it work."
   }
 ]
