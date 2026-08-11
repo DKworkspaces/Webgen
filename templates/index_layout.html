@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the Directory</title>
+</head>
+<body>
+    <h1>Site Directory</h1>
+    <p>This landing page is automatically compiled from your JSON data.</p>
+    <hr>
+    
+    <h3>Available Pages:</h3>
+    <ul>
+        {% for link in nav_links %}
+            <li>
+                <a href="{{ link.url }}"><strong>{{ link.title }}</strong></a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
