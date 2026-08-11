@@ -27,19 +27,23 @@ for p in pages_data:
 
 # 2. Setup Jinja2 environment
 env = Environment(loader=FileSystemLoader(template_dir))
-template = env.get_template('layout.html')
-
-# 3. Loop through array and generate each individual page
+# 3. Loop through array and generate each individual sub-page
+sub_page_template = env.get_template('layout.html')
 for page in pages_data:
     filename = f"{page['slug']}.html"
     output_path = os.path.join(output_dir, filename)
     
-    # Pass both the specific page data and the shared navigation
-    rendered_html = template.render(page=page, nav_links=nav_links)
-    
+    rendered_html = sub_page_template.render(page=page, nav_links=nav_links)
     with open(output_path, 'w') as f:
         f.write(rendered_html)
-    
-    print(f"Generated: {output_path}")
+    print(f"Generated sub-page: {output_path}")
 
-print("All multiple pages successfully generated!")
+# 4. Generate the automatic index.html landing page
+index_template = env.get_template('index_layout.html')
+index_output_path = os.path.join(output_dir, 'index.html')
+
+rendered_index = index_template.render(nav_links=nav_links)
+with open(index_output_path, 'w') as f:
+    f.write(rendered_index)
+print(f"Generated landing page: {index_output_path}")
+print("All files including landing page successfully generated!")
