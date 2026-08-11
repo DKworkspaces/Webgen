@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 
 # Set up paths
 template_dir = 'templates'
-data_file = 'data/content.json'
+data_file = 'data/basic_pages.json'
 output_dir = 'dist'  # Saving pages in a separate folder keeps the repo clean
 
 # Ensure output directory exists and is empty
