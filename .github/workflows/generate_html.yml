@@ -1,0 +1,39 @@
+name: Generate Multiple HTML Pages
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'data/**'
+      - 'templates/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Jinja2
+        run: pip install jinja2
+
+      - name: Generate Pages
+        run: python scripts/render.py
+
+      - name: Commit and Push Generated Directory
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add dist/
+          git diff-index --quiet HEAD || git commit -m "Automated multi-page update"
+          git push
+          
