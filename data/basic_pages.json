@@ -1,0 +1,17 @@
+[
+  {
+    "slug": "about",
+    "title": "About Us",
+    "content": "This page explains what our automated platform does."
+  },
+  {
+    "slug": "features",
+    "title": "Core Features",
+    "content": "We offer speed, efficiency, and zero operational costs."
+  },
+  {
+    "slug": "contact",
+    "title": "Get in Touch",
+    "content": "Contact us via our public GitHub repository profile."
+  }
+]
