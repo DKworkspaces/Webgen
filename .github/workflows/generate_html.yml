@@ -1,39 +1,54 @@
-name: Generate Multiple HTML Pages
+name: Deploy Static Jinja Site
 
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - 'data/**'
-      - 'templates/**'
+    branches:
+      - main  # Triggers the build whenever you push to your main branch
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  build-html:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
+      - name: Checkout Source Code
         uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: '3.11'
+          cache: 'pip'
 
-      - name: Install Jinja2
-        run: pip install jinja2
-
-      - name: Generate Pages
-        run: python scripts/render.py
-
-      - name: Commit and Push Generated Directory
+      - name: Install Dependencies
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          git add dist/
-          git diff-index --quiet HEAD || git commit -m "Automated multi-page update"
-          git push
-          
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Python Generator Script
+        run: python script/generate_html.py
+
+      - name: Setup GitHub Pages Environment
+        uses: actions/configure-pages@v5
+
+      - name: Upload Production Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Tell GitHub to upload the folder built by Python
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
