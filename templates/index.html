@@ -1,6 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Welcome Home{% endblock %}
+
+{% block title %}Welcome | My Site{% endblock %}
+
 {% block content %}
-    <h1>{{ heading }}</h1>
-    <p>{{ description }}</p>
+    <h1>{{ site_title }}</h1>
+    <p>{{ introduction }}</p>
+    
+    <h2>Project Roadmap:</h2>
+    <ul>
+    {% for milestone in steps %}
+        <li><strong>{{ milestone.phase }}</strong>: {{ milestone.desc }}</li>
+    {% endfor %}
+    </ul>
 {% endblock %}
