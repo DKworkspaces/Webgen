@@ -1,0 +1,37 @@
+name: Compile HTML Templates
+
+on:
+  push:
+    branches: [ html ]
+
+jobs:
+  build-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Template Files
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Template Compiler & HTML Minifier
+        run: npm install nunjucks-cli html-minifier-terser -g
+
+      - name: Compile and Minify HTML
+        run: |
+          mkdir -p dist
+          # Compile templates/macros into flat HTML
+          nunjucks src/templates/*.njk src/templates/macros/ --output dist/
+          # Minify compiled HTML files
+          for f in dist/*.html; do [ -e "$f" ] && html-minifier-terser --collapse-whitespace --remove-comments --minify-js true --minify-css true -o "$f" "$f"; done
+
+      - name: Deploy to Production Branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: production
+          target-folder: . # Deploys straight to root of production branch
+          clean: false
+          
