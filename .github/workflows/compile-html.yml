@@ -1,4 +1,4 @@
-name: Compile and Minify HTML
+name: Compile HTML to Production
 
 on:
   push:
@@ -7,32 +7,34 @@ on:
     paths:
       - 'templates/**'
       - 'data/**'
+  workflow_dispatch: # Allows manual trigger button in GitHub UI
 
 permissions:
   contents: write
 
 jobs:
-  build-html:
+  build-and-minify-html:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout html branch
         uses: actions/checkout@v4
 
       - name: Setup Python environment
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
-      - name: Install Jinja2
-        run: pip install jinja2
+          cache: 'pip'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
+          cache: 'npm'
 
-      - name: Install HTML Minifier
-        run: npm install -g html-minifier-cli
+      - name: Install Dependencies
+        run: |
+          pip install jinja2 markdown
+          npm install -g html-minifier-cli
 
       - name: Render Jinja2 Templates
         run: |
@@ -57,23 +59,34 @@ jobs:
                       f.write(template.render(context))
           "
 
-      - name: Minify HTML Files
+      - name: Compress and Minify HTML
         run: |
           for f in website/*.html; do
             if [ -f "$f" ]; then
-              html-minifier --collapse-whitespace --remove-comments --minify-css true --minify-js true -o "$f" "$f"
+              html-minifier --collapse-whitespace --remove-comments --collapse-boolean-attributes -o "$f" "$f"
             fi
           done
 
-      - name: Commit and Push Compiled HTML
+      - name: Checkout Production Branch
+        uses: actions/checkout@v4
+        with:
+          ref: production
+          path: prod-branch
+
+      - name: Sync and Push to Production Branch
         run: |
+          mkdir -p prod-branch/website
+          cp -r website/*.html prod-branch/website/
+          
+          cd prod-branch
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
           git add website/*.html
+          
           if git diff --staged --quiet; then
-            echo "No HTML changes to commit"
+            echo "No HTML changes to deploy"
           else
-            git commit -m "build: compile and minify templates [skip ci]"
-            git push origin html
+            git commit -m "deploy: compile and compress production HTML [skip ci]"
+            git push origin production
           fi
           
