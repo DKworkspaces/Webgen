@@ -1,105 +1,16 @@
-
-
-{# Component: SVG #}
-{% macro render_reuseabable_svg() %}
-<!-- 1. Master Reusable SVG Canvas (Loaded exactly once) -->
-<svg xmlns="http://w3.org" style="display: none;" aria-hidden="true">
-<symbol id="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<polyline points="6 9 12 15 18 9"/>
-</symbol></svg>
-{% endmacro %}
-{# Component: Search #}
-{% macro render_search() %}
-<!-- Integrated Search Block Inside UL (Natively morphs positions via CSS) -->
-<li class="sw" id="h-sb">
-<form class="sf" role="search">
-<input type="search" placeholder="Search..." aria-label="Search site">
-<button type="submit" aria-label="Submit Search">
-<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-<circle cx="11" cy="11" r="8"></circle>
-<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-</svg>
-</button>
-</form>
-</li>
-{% endmacro %}
-{# Component: Standard Dropdown Menu #}
-{% macro render_dropdown(item) %}
-<!-- Standard Dropdown Wrapper -->
-<li class="hp">
-<input type="checkbox" id="h-dss" class="v-h h-md" aria-hidden="true">
-<label for="h-dss" class="pt">{{ item.title }}
-<!-- 3. Clean Multi-Instance Reference Pull -->
-<svg class="ch"><use href="#icon-chevron"/></svg>
-</label>
-<ul class="dm" id="sm">
-{% for child in item.children %}
-<li>
-<a href="{{ child.url }}">{{ child.title }}</a>
-</li>{% endfor %}
-</ul>
-</li>
-{% endmacro %}
-{# Component: Mega Menu #}
-{% macro render_mega(item) %}
-<!-- Mega Menu Wrapper -->
-<li class="hp">
-<input type="checkbox" id="h-dlx" class="v-h h-md" aria-hidden="true">
-<label for="h-dlx" class="pt">{{ item.title }}
-<!-- 3. Clean Multi-Instance Reference Pull -->
-<svg class="ch"><use href="#icon-chevron"/></svg>
-</label>
-<div class="mm" id="mm">
-<div class="mg">
-{% for cat in item.categories %}
-<div class="mc">
-<h3>{{ cat.cat_title }}</h3>
-<ul>{% for link in cat.links %}
-<li>
-<a href="{{ link.url }}">{{ link.title }}</a>
-</li>
-{% endfor %}
-</ul>
-</div>
-{% endfor %}
-</div>
-</div>
-</li>
-{% endmacro %}
-{# Component: Mode Selector #}
-{% macro render_mode(item) %}
-<!-- Embedded Mode Selector Component -->
-<li class="ms">
-<div class="mw">
-<select class="me" id="theme-selector" aria-label="Select Theme Mode">
-{% for child in item.children %}
-<option value="{{ child.val }}">{{ child.title }}</option>
-{% endfor %}
-</select>
-<!-- 4. Clean Multi-Instance Reference Pull -->
-<svg class="sc"><use href="#icon-chevron"/></svg>
-</div>
-</li>
-{% endmacro %}
-
-
-
-{# Component: Navigation bar #}
-{% macro render_nav(a) %}
-<header class="sh">render_reuseabable_svg()<nav class="nc" aria-label="Main Navigation">
-<div class="nl"><a href="/" class="ll">{{ a.logo }}</a></div>
+{% import 'macros.html' as comp %}
+<header class="sh">{{ comp.render_reuseabable_svg() }}<nav class="nc" aria-label="Main Navigation"><div class="nl"><a href="/" class="ll">{{ a.logo }}</a></div>
 <!-- Hidden Master Hamburger Toggle State Box -->
 <input type="checkbox" id="h-mts" class="v-h h-mt" aria-hidden="true"><!-- Label wrapper element acting as the visible interactive hamburger button --><label for="h-mts" class="mt" id="h-mtb" aria-label="Toggle navigation menu"><span class="hb"><span class="hi"></span></span></label>
 <!-- Nav Container Wrapper Drawer Sits Exactly Next To Checkbox Elements -->
 <div class="nw" id="h-nd">
 <ul class="lk">
 {% for item in a.menus %}
-{% if item.type == "megamenu" %}render_mega(item)
-{% elif item.type == "dropdown" %}render_dropdown(item)
-{% elif item.type == "select" %}render_mode(item)
-{% elif item.type == "search" %}render_search()
+{% if item.type == "megamenu" %}{{ comp.render_mega(item) }}
+{% elif item.type == "dropdown" %}{{ comp.render_dropdown(item) }}
+{% elif item.type == "select" %}{{ comp.render_mode(item) }}
+{% elif item.type == "search" %}{{ comp.render_search() }}
 {% else %}<li><a class="li" href="{{ item.url }}">{{ item.title }}</a></li>
 {% endif %}
 {% endfor %}
 </ul></div></nav></header>
-{% endmacro %}
