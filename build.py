@@ -22,11 +22,11 @@ def generate_layout_snippets(header_data, footer_data):
     # 1. Compile and save plain header snippet
     header_template = env.get_template('header.html')
     with open('templates/temp/header.html', 'w', encoding='utf-8') as h_out:
-        h_out.write(header_template.render(header_data))
+        h_out.write(header_template.render(a=header_data))
     # 2. Compile and save plain footer snippet
     footer_template = env.get_template('footer.html')
     with open('templates/temp/footer.html', 'w', encoding='utf-8') as f_out:
-        f_out.write(footer_template.render(footer_data))
+        f_out.write(footer_template.render(a=footer_data))
 
     print("Success: Standalone layout modules compiled into templates/temp/")
 
