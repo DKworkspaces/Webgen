@@ -1,17 +1,17 @@
-We are going to automate this so you never have to minify code manually again. We will set up a workflow that watches the assets branch, minifies the code automatically, and commits it back.
+In short, the assets branch workflow handles your frontend performance optimization like this:
 
-This Branch we only add CSS code n JS code
-
-The Automation Strategy
 
 Triggers: 
-Runs only on pushes to the assets branch.
+  It stays asleep until you push changes specifically to your raw src/js/ or src/css/ folders.
 
-Path Filters: 
-Runs only when files in src/js/ or src/css/ change.
+Minifies: 
+  It instantly runs Node.js utilities (terser for JavaScript and clean-css for style sheets) to compress your asset files.
 
-Tools: 
-Uses standard npm packages (terser and clean-css-cli) without heavy frameworks.
+Optimizes: 
+  It strips out all heavy developer comments, spaces, and formatting to make file sizes as small as possible.
 
-Output: 
-Saves minified files into a dist/ folder (e.g., dist/js/ and dist/css/).
+Saves Separate: 
+  It keeps your original source files completely clean and safe inside src/, while saving the optimized versions into website/js/ and website/css/.
+
+Commits: 
+  It pushes the updated production-ready .min.js and .min.css files back to your repository automatically without creating a loop.
