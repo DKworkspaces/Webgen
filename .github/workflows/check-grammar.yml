@@ -1,0 +1,64 @@
+name: Automated Blog Proofreader
+
+on:
+  push:
+    branches:
+      - html
+    paths:
+      - 'blogs/**'
+  pull_request:
+    branches:
+      - html
+    paths:
+      - 'blogs/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  proofread:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Linting Tools
+        run: |
+          npm install -g textlint \
+          textlint-rule-common-misconceptions \
+          textlint-rule-period-in-list-item \
+          textlint-rule-write-good
+
+      - name: Initialize Textlint Config
+        run: |
+          echo '{
+            "rules": {
+              "common-misconceptions": true,
+              "period-in-list-item": true,
+              "write-good": true
+            }
+          }' > .textlintrc
+
+      - name: Run Grammar Check & Auto-Fix
+        run: |
+          # --fix automatically repairs basic stylistic/spacing errors
+          textlint --fix "blogs/**/*.md" || echo "Grammar issues found that require human review."
+
+      - name: Commit Auto-Fixed Grammar Changes
+        if: github.event_name == 'push'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add blogs/
+          if git diff --staged --quiet; then
+            echo "No grammar fixes needed"
+          else
+            git commit -m "style: automated spelling & grammar corrections [skip ci]"
+            git push origin html
+          fi
