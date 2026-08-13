@@ -46,7 +46,7 @@ jobs:
       - name: Pack Production Workspace
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' # Package the root folder directory
+          path: './dist' # Package the root folder directory
 
       - name: Publish Live to GitHub Pages
         id: deployment
