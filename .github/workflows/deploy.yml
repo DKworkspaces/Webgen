@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - main # Run whenever code pushes to main
-
+# 1. FORCE THE INTERNAL RUNNER ENGINE TO USE NODE 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 # Set system token permissions to allow GitHub Pages hosting
 permissions:
   contents: read
