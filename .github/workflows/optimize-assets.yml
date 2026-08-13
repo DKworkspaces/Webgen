@@ -46,6 +46,14 @@ jobs:
               terser "$file" --compress --mangle -o "web/js/$filename"
             done
           fi
+          
+      - name: Pre-compress JS and CSS with Brotli
+        uses: stefh/ghaction-CompressFiles@v2
+        with:
+          path: './web/js,./web/css'           # <-- Change this to your actual build/output folder
+          extensions: '.js,.css'               # <-- Only targets text assets
+          tools: 'brotli'                      # <-- Runs Brotli only (excluding gzip)
+          
 
       # --- IMAGE CONVERSION & COMPRESSION ---
       - name: Convert Images to WebP
@@ -69,6 +77,7 @@ jobs:
           git config --global user.email "github-actions[bot]@://github.com"
           
           git add web/css/ web/js/ media/images/
+          git add web/js/*.br web/css/*.br
           
           # Only commit if there are actual changes to prevent workflow failure
           if git diff --staged --quiet; then
