@@ -40,7 +40,6 @@ def generate_index_page(header_data, footer_data):
     full_page_context = {
         **header_data,
         **footer_data,
-        **index_config
     }
 
     # Load master layout structure and output final production build
