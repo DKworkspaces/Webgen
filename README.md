@@ -11,7 +11,7 @@ Optimizes:
   It strips out all heavy developer comments, spaces, and formatting to make file sizes as small as possible.
 
 Saves Separate: 
-  It keeps your original source files completely clean and safe inside src/, while saving the optimized versions into website/js/ and website/css/.
+  It keeps your original source files completely clean and safe inside src/, while saving the optimized versions into dist/js/ and dist/css/.
 
 Commits: 
   It pushes the updated production-ready .min.js and .min.css files back to your repository automatically without creating a loop.
