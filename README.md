@@ -1,3 +1,7 @@
+We are going to automate this so you never have to minify code manually again. We will set up a workflow that watches the assets branch, minifies the code automatically, and commits it back.
+
+This Branch we only add CSS code n JS code
+
 The Automation Strategy
 
 Triggers: 
