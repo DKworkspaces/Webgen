@@ -1,37 +1,79 @@
-name: Compile HTML Templates
+name: Compile and Minify HTML
 
 on:
   push:
-    branches: [ html ]
+    branches:
+      - html
+    paths:
+      - 'templates/**'
+      - 'data/**'
+
+permissions:
+  contents: write
 
 jobs:
   build-html:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Template Files
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Jinja2
+        run: pip install jinja2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 'lts/*'
 
-      - name: Install Template Compiler & HTML Minifier
-        run: npm install nunjucks-cli html-minifier-terser -g
+      - name: Install HTML Minifier
+        run: npm install -g html-minifier-cli
 
-      - name: Compile and Minify HTML
+      - name: Render Jinja2 Templates
         run: |
-          mkdir -p dist
-          # Compile templates/macros into flat HTML
-          nunjucks src/templates/*.njk src/templates/macros/ --output dist/
-          # Minify compiled HTML files
-          for f in dist/*.html; do [ -e "$f" ] && html-minifier-terser --collapse-whitespace --remove-comments --minify-js true --minify-css true -o "$f" "$f"; done
+          python -c "
+          import os, json
+          from jinja2 import Environment, FileSystemLoader
+          
+          os.makedirs('website', exist_ok=True)
+          env = Environment(loader=FileSystemLoader('templates'))
+          
+          data_file = 'data/global.json'
+          context = {}
+          if os.path.exists(data_file):
+              with open(data_file, 'r') as f:
+                  context = json.load(f)
+          
+          for template_name in os.listdir('templates'):
+              if template_name.endswith('.html') and not template_name.startswith('_'):
+                  template = env.get_template(template_name)
+                  output_path = os.path.join('website', template_name)
+                  with open(output_path, 'w') as f:
+                      f.write(template.render(context))
+          "
 
-      - name: Deploy to Production Branch
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: dist
-          branch: production
-          target-folder: . # Deploys straight to root of production branch
-          clean: false
+      - name: Minify HTML Files
+        run: |
+          for f in website/*.html; do
+            if [ -f "$f" ]; then
+              html-minifier --collapse-whitespace --remove-comments --minify-css true --minify-js true -o "$f" "$f"
+            fi
+          done
+
+      - name: Commit and Push Compiled HTML
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add website/*.html
+          if git diff --staged --quiet; then
+            echo "No HTML changes to commit"
+          else
+            git commit -m "build: compile and minify templates [skip ci]"
+            git push origin html
+          fi
           
