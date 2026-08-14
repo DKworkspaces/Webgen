@@ -60,8 +60,8 @@ jobs:
         run: |
           mkdir -p media/images
           sudo apt-get update && sudo apt-get install -y webp
-          if [ -d "src/media" ]; then
-            for file in src/media/*.{jpg,jpeg,png,tiff}; do
+          if [ -d "src/media/clean/" ]; then
+            for file in src/media/clean/*.{jpg,jpeg,png,tiff}; do
               [ -e "$file" ] || continue
               filename=$(basename "$file")
               filename_no_ext="${filename%.*}"
