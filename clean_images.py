@@ -4,7 +4,7 @@ import cv2
 from remove_ai_watermarks import remove_all
 
 # Directory containing images to process
-IMAGE_DIR = "images"
+IMAGE_DIR = "media/images"
 SUPPORTED_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.webp"]
 
 def process_repository_images():
