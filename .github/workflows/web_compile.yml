@@ -1,0 +1,82 @@
+name: 1. Compile Jinja2 to Web Folder
+
+on:
+  push:
+    branches:
+      - html
+    paths:
+      - 'templates/**'
+      - 'data/**'
+      - 'build.py'
+      - 'requirements.txt'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
+permissions:
+  contents: write # Required to push compiled files back to the repo
+
+jobs:
+  build-and-save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: html
+
+      - name: Initialize Python Runtime
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Engine Compiler
+        run: python build.py
+
+      # Updates the web directory with fresh builds on the html branch
+      - name: Sync and Commit Web Folder
+        id: git_commit
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          
+          # Force git to see the web folder even if it is ignored
+          git add -f web/
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: compile template assets to web/ [skip ci]"
+            git push origin html
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No physical changes detected in generated web files."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      # NEW STEP: Dynamically map and purge every file inside web/ via jsDelivr API
+      - name: Purge jsDelivr Cache for Web Folder
+        if: steps.git_commit.outputs.changed == 'true'
+        run: |
+          # Give GitHub origin servers a few seconds to update before hitting the CDN
+          sleep 5
+          
+          echo "Scanning web folder for physical files to purge..."
+          
+          # Create a structured JSON array payload of CDN file URL paths
+          cd web/
+          PATHS_JSON=$(find . -type f | sed 's|^\./||' | awk -v repo="${{ github.repository }}" '{print "\"/gh/" repo "@html/web/" $0 "\""}' | paste -sd, -)
+          PAYLOAD="{\"path\": [$PATHS_JSON]}"
+          
+          echo "Sending purge payload to jsDelivr:"
+          echo "$PAYLOAD"
+          
+          # Send a combined POST request to flush the CDN cache instantly
+          curl -X POST https://jsdelivr.net \
+               -H "Content-Type: application/json" \
+               -d "$PAYLOAD"
