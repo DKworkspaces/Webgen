@@ -1,0 +1,61 @@
+name: CSS Optimization Pipeline
+
+on:
+  push:
+    paths:
+      - 'src/css/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  process-css:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Minify CSS (src/css/ -> src/css/clean/)
+        run: |
+          mkdir -p src/css/clean
+          npm install -g clean-css-cli
+          if [ -d "src/css" ]; then
+            for file in src/css/*.css; do
+              [ -e "$file" ] || continue
+              filename=$(basename "$file")
+              cleancss -o "src/css/clean/$filename" "$file"
+            done
+          fi
+
+      - name: Brotli Compress CSS (src/css/clean/ -> web/css/)
+        uses: stefh/ghaction-CompressFiles@v2
+        with:
+          path: './src/css/clean'
+          extensions: '.css'
+          tools: 'brotli'
+
+      - name: Move Compressed Files & Delete Clean Folder
+        run: |
+          mkdir -p web/css
+          if [ -d "src/css/clean" ]; then
+            cp src/css/clean/*.br web/css/ 2>/dev/null || true
+            rm -rf src/css/clean
+          fi
+
+      - name: Commit and Push CSS Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add web/css/
+          git rm -r --cached src/css/clean/ 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: optimize and compress css assets [skip ci]"
+            git push
+          fi
+          
