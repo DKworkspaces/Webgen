@@ -32,7 +32,7 @@
 <input type="checkbox" id="h-dss" class="v-h h-md" aria-hidden="true">
 <label for="h-dss" class="pt">{{ item.title }}
 <!-- 3. Clean Multi-Instance Reference Pull -->
-<svg class="ch"><use href="#icon-chevron"/></svg>
+<svg class="ch"width="18"height="18"><use href="#icon-chevron"/></svg>
 </label>
 <ul class="dm" id="sm">
 {% for child in item.children %}
@@ -50,7 +50,7 @@
 <input type="checkbox" id="h-dlx" class="v-h h-md" aria-hidden="true">
 <label for="h-dlx" class="pt">{{ item.title }}
 <!-- 3. Clean Multi-Instance Reference Pull -->
-<svg class="ch"><use href="#icon-chevron"/></svg>
+<svg class="ch"width="18"height="18"><use href="#icon-chevron"/></svg>
 </label>
 <div class="mm" id="mm">
 <div class="mg">
@@ -81,7 +81,7 @@
 {% endfor %}
 </select>
 <!-- 4. Clean Multi-Instance Reference Pull -->
-<svg class="sc"><use href="#icon-chevron"/></svg>
+<svg class="sc"width="18"height="18"><use href="#icon-chevron"/></svg>
 </div>
 </li>
 {% endmacro %}
@@ -92,7 +92,7 @@
 <!-- Column -->
 <div class="f-mc"><input type="checkbox" id="{{ col.id }}" class="f-st" aria-hidden="true"><label for="{{ col.id }}" class="f-pt">{{ col.title }}
 <!-- Pulling the master Chevron asset initialized inside the header frame -->
-<svg class="f-ch" aria-hidden="true"><use href="#icon-chevron"/></svg>
+<svg class="f-ch"width="18"height="18"aria-hidden="true"><use href="#icon-chevron"/></svg>
 </label><ul class="ml" id="{{ col.link_id }}">{% for lk in col.links %}<li><a href="{{ lk.url }}">{{ lk.title }}</a></li>{% endfor %}</ul></div>
 {% endfor %}
 {% endmacro %}
