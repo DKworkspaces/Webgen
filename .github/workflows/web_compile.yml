@@ -56,25 +56,3 @@ jobs:
             echo "No physical changes detected in generated web files."
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
-
-      # NEW STEP: Dynamically map and purge every file inside web/ via jsDelivr API
-      - name: Purge jsDelivr Cache for Web Folder
-        if: steps.git_commit.outputs.changed == 'true'
-        run: |
-          # Give GitHub origin servers a few seconds to update before hitting the CDN
-          sleep 5
-          
-          echo "Scanning web folder for physical files to purge..."
-          
-          # Create a structured JSON array payload of CDN file URL paths
-          cd web/
-          PATHS_JSON=$(find . -type f | sed 's|^\./||' | awk -v repo="${{ github.repository }}" '{print "\"/gh/" repo "@html/web/" $0 "\""}' | paste -sd, -)
-          PAYLOAD="{\"path\": [$PATHS_JSON]}"
-          
-          echo "Sending purge payload to jsDelivr:"
-          echo "$PAYLOAD"
-          
-          # Send a combined POST request to flush the CDN cache instantly
-          curl -X POST https://jsdelivr.net \
-               -H "Content-Type: application/json" \
-               -d "$PAYLOAD"
