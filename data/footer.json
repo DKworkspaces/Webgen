@@ -40,7 +40,7 @@
     {
       "title":"Platform",
       "id":"f-t1",
-      "link-id":"m1",
+      "link_id":"m1",
       "links": [
         {
           "title":"Core Engine",
@@ -63,7 +63,7 @@
     {
       "title":"Resources",
       "id":"f-t2",
-      "link-id":"m2",
+      "link_id":"m2",
       "links": [
         {
           "title":"Documentation",
@@ -86,7 +86,7 @@
     {
       "title":"Company",
       "id":"f-t3",
-      "link-id":"m3",
+      "link_id":"m3",
       "links": [
         {
           "title":"About Us",
@@ -109,7 +109,7 @@
     {
       "title":"Governance",
       "id":"f-t4",
-      "link-id":"m4",
+      "link_id":"m4",
       "links": [
         {
           "title":"Compliance",
