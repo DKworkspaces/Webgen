@@ -1,0 +1,44 @@
+name: 2. Deploy Web Folder to Pages
+
+on:
+  push:
+    branches:
+      - html
+    paths:
+      - 'web/**' # Triggers strictly when physical production files change
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy-site:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v5
+        with:
+          ref: html
+
+      - name: Configure GitHub Pages Target
+        uses: actions/configure-pages@v5
+
+      - name: Pack Production Workspace
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './web'
+
+      - name: Publish Live to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
