@@ -1,0 +1,40 @@
+name: jsDelivr CDN Cache Purge
+
+on:
+  workflow_run:
+    workflows: ["CSS Optimization Pipeline", "JS Optimization Pipeline"]
+    types:
+      - completed
+
+jobs:
+  purge-cache:
+    # Only execute if the triggering parent workflow successfully finished and pushed code
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Required to analyze the last commit differential
+
+      - name: Purge Modified Production Assets from jsDelivr
+        run: |
+          echo "Analyzing assets updated in the latest commit..."
+          
+          # Isolate updated production CSS, JS, and compressed Brotli targets
+          FILES=$(git diff --name-only HEAD^ HEAD | grep -E '^(web/css/|web/js/)' || true)
+          
+          if [ -z "$FILES" ]; then
+            echo "No production web assets were modified in this commit. Skipping purge."
+            exit 0
+          fi
+
+          for FILE in $FILES; do
+            # Formats public jsDelivr purge endpoints: https://jsdelivr.net
+            PURGE_URL="https://jsdelivr.net{{ github.repository }}@${{ github.event.workflow_run.head_branch }}/$FILE"
+            
+            echo "Sending invalidation request for: $PURGE_URL"
+            RESPONSE=$(curl -s -X POST "$PURGE_URL")
+            echo "jsDelivr Response: $RESPONSE"
+          done
