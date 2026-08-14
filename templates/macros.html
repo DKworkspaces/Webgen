@@ -93,7 +93,6 @@
 <div class="f-mc"><input type="checkbox" id="{{ col.id }}" class="f-st" aria-hidden="true"><label for="{{ col.id }}" class="f-pt">{{ col.title }}
 <!-- Pulling the master Chevron asset initialized inside the header frame -->
 <svg class="f-ch" aria-hidden="true"><use href="#icon-chevron"/></svg>
-</label><ul class="ml" id="{{ col.link-id }}">{% for link in col.links %}<li><a href="{{ link.url }}">{{ link.title }}</a></li>
-{% endfor %}</ul></div>
+</label><ul class="ml" id="{{ col.link-id }}">{% for link in col.links %}<li><a href="{{ link.url }}">{{ link.title }}</a></li>{% endfor %}</ul></div>
 {% endfor %}
 {% endmacro %}
