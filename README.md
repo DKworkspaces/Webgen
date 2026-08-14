@@ -1,5 +1,54 @@
 In short, the assets branch workflow handles your frontend performance optimization like this:
 
+Input File Locations
+  CSS Files:
+    src/css/*.css
+  JavaScript Files:
+    src/js/*.js
+  Brotli Compression 
+    Target Files: 
+    ./web/js and ./web/css (targets .js and .css files inside these folders)
+  Images: 
+    src/media/clean/*.{jpg,jpeg,png,tiff}
+
+Output Folders
+  Minified CSS: 
+    web/css/
+  Minified JS: 
+    web/js/
+  Brotli Compressed Files: 
+    web/js/ and web/css/ (creates .js.br and .css.br files inline)
+  WebP Images: 
+    media/images/
+
+Trigger Paths (Events)
+  The workflow does not use path-based filtering (such as on: push: paths:). Instead, it runs based on the following triggers:
+  Scheduled Trigger: 
+    Runs automatically every day at midnight (0 0 * * *) via a cron job.
+  Manual Trigger: 
+    Can be started manually at any time using the workflow_dispatch button in your GitHub repository actions tab.
+
+
+
+
+Input File Locations
+  Trigger Target Files:
+    src/images/** (any changes here trigger the workflow)
+  Processing Files: 
+    The exact target files are handled internally by the custom script clean_images.py.
+
+Output Folders
+  Cleaned Files Destination: 
+    src/clean/images/* (this is the directory pattern tracked for commits)
+
+Trigger Paths (Events)
+  Path-Based Trigger: 
+    Automatically runs on a push event, but only when changes occur inside the src/images/** directory.
+  Manual Trigger: 
+    Can be started manually at any time using the workflow_dispatch event in the Actions tab.
+
+
+
 
 Triggers: 
   It stays asleep until you push changes specifically to your raw src/js/ or src/css/ folders.
