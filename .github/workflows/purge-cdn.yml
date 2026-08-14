@@ -2,7 +2,7 @@ name: jsDelivr CDN Cache Purge
 
 on:
   workflow_run:
-    workflows: ["CSS Optimization Pipeline", "JS Optimization Pipeline"]
+    workflows: ["CSS Optimization Pipeline", "JS Optimization Pipeline", "Image Processing Pipeline"]
     types:
       - completed
 
@@ -23,7 +23,7 @@ jobs:
           echo "Analyzing assets updated in the latest commit..."
           
           # Isolate updated production CSS, JS, and compressed Brotli targets
-          FILES=$(git diff --name-only HEAD^ HEAD | grep -E '^(web/css/|web/js/)' || true)
+          FILES=$(git diff --name-only HEAD^ HEAD | grep -E '^(web/css/|web/js/|web/images/)' || true)
           
           if [ -z "$FILES" ]; then
             echo "No production web assets were modified in this commit. Skipping purge."
