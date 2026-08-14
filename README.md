@@ -1,6 +1,27 @@
 In short, the html branch workflow automates static site generation like this:
 
 
+
+
+Input File Locations
+  Jinja2 Templates Directory:
+    templates/ (ignores files starting with an underscore, like _*)
+  Context Data File:
+    data/global.json
+    
+Output Folders
+  Production HTML Directory:
+    website/ (files are rendered and minified directly inside this folder)
+
+Trigger Paths (Events)
+  Path & Branch Trigger:
+    Automatically runs on a push event, but only if the push is to the html branch and changes occur in either the templates/** or data/** directories.
+  Manual Trigger:
+    Can be started manually at any time using the workflow_dispatch button in your GitHub UI.
+
+
+
+
 Triggers:
   It stays asleep until you push changes specifically to the data/ or templates/ folders.
 
