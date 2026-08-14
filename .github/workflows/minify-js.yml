@@ -1,0 +1,60 @@
+name: JS Optimization Pipeline
+
+on:
+  push:
+    paths:
+      - 'src/js/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  process-js:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Minify JS (src/js/ -> src/js/clean/)
+        run: |
+          mkdir -p src/js/clean
+          npm install -g terser
+          if [ -d "src/js" ]; then
+            for file in src/js/*.js; do
+              [ -e "$file" ] || continue
+              filename=$(basename "$file")
+              terser "$file" --compress --mangle -o "src/js/clean/$filename"
+            done
+          fi
+
+      - name: Brotli Compress JS (src/js/clean/ -> web/js/)
+        uses: stefh/ghaction-CompressFiles@v2
+        with:
+          path: './src/js/clean'
+          extensions: '.js'
+          tools: 'brotli'
+
+      - name: Move Compressed Files & Delete Clean Folder
+        run: |
+          mkdir -p web/js
+          if [ -d "src/js/clean" ]; then
+            cp src/js/clean/*.br web/js/ 2>/dev/null || true
+            rm -rf src/js/clean
+          fi
+
+      - name: Commit and Push JS Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add web/js/
+          git rm -r --cached src/js/clean/ 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: optimize and compress js assets [skip ci]"
+            git push
+          fi
