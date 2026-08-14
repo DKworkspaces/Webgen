@@ -1,0 +1,65 @@
+name: Image Processing Pipeline
+
+on:
+  push:
+    paths:
+      - 'src/images/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  process-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+       Alexander: Install Image Dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y libgl1-mesa-glx webp
+          pip install --upgrade pip
+          pip install remove-ai-watermarks opencv-python
+
+      - name: Strip AI Fingerprints (src/images/ -> src/images/clean/)
+        run: |
+          mkdir -p src/images/clean
+          if [ -f "clean_images.py" ]; then
+            python clean_images.py
+          else
+            echo "clean_images.py missing! Falling back to direct copy..."
+            cp src/images/* src/images/clean/ 2>/dev/null || true
+          fi
+
+      - name: Convert to WebP & Delete Clean Folder (src/images/clean/ -> web/images/)
+        run: |
+          mkdir -p web/images
+          if [ -d "src/images/clean/" ]; then
+            for file in src/images/clean/*.{jpg,jpeg,png,tiff}; do
+              [ -e "$file" ] || continue
+              filename=$(basename "$file")
+              filename_no_ext="${filename%.*}"
+              cwebp -q 75 "$file" -o "web/images/${filename_no_ext}.webp"
+            done
+            rm -rf src/images/clean
+          fi
+
+      - name: Commit and Push Image Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add web/images/
+          git rm -r --cached src/images/clean/ 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: strip fingerprints and convert images to webp [skip ci]"
+            git push
+          fi
+          
