@@ -67,26 +67,16 @@ jobs:
             fi
           done
 
-      - name: Checkout Production Branch
-        uses: actions/checkout@v4
-        with:
-          ref: production
-          path: prod-branch
-
       - name: Sync and Push to Production Branch
         run: |
-          mkdir -p prod-branch/website
-          cp -r website/*.html prod-branch/website/
-          
-          cd prod-branch
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
-          git add website/*.html
+          git add website/
           
           if git diff --staged --quiet; then
             echo "No HTML changes to deploy"
           else
             git commit -m "deploy: compile and compress production HTML [skip ci]"
-            git push origin production
+            git push origin html
           fi
           
