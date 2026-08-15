@@ -1,0 +1,133 @@
+{
+  "company": "Acme Corp",
+  "desc": "Building scalable, next-generation digital experiences for global forward-thinkers.",
+  "add": "123 Innovation Way, Tech District,<br>Silicon Valley, CA 94025",
+  "tel": "+15551234567",
+  "mail": "hello@acme.corp",
+  "year": "2026",
+  "social": [
+    {
+      "type": "X",
+      "sym": "X",
+      "url": "#"
+    },
+    {
+      "type": "LimkednkedIn",
+      "sym": "In",
+      "url": "#"
+    },
+    {
+      "type": "Github",
+      "sym": "Git",
+      "url": "#"
+    }
+  ],
+  "links": [
+    {
+      "title": "Sitemap",
+      "url": "#"
+    },
+    {
+      "title": "Privacy Policy",
+      "url": "#"
+    },
+    {
+      "title": "Terms of Use",
+      "url": "#"
+    }
+  ],
+  "columns":[
+    {
+      "title":"Platform",
+      "id":"f-t1",
+      "link_id":"m1",
+      "links": [
+        {
+          "title":"Core Engine",
+          "url":"#"
+        },
+        {
+          "title":"Integrations",
+          "url":"#"
+        },
+        {
+          "title":"Security Specs",
+          "url":"#"
+        },
+        {
+          "title":"Pricing Plans",
+          "url":"#"
+        }
+      ]
+    },
+    {
+      "title":"Resources",
+      "id":"f-t2",
+      "link_id":"m2",
+      "links": [
+        {
+          "title":"Documentation",
+          "url":"#"
+        },
+        {
+          "title":"API Reference",
+          "url":"#"
+        },
+        {
+          "title":"System Status",
+          "url":"#"
+        },
+        {
+          "title":"Open Source",
+          "url":"#"
+        }
+      ]
+    },
+    {
+      "title":"Company",
+      "id":"f-t3",
+      "link_id":"m3",
+      "links": [
+        {
+          "title":"About Us",
+          "url":"#"
+        },
+        {
+          "title":"Careers",
+          "url":"#"
+        },
+        {
+          "title":"Press Kit",
+          "url":"#"
+        },
+        {
+          "title":"Contact",
+          "url":"#"
+        }
+      ]
+    },
+    {
+      "title":"Governance",
+      "id":"f-t4",
+      "link_id":"m4",
+      "links": [
+        {
+          "title":"Compliance",
+          "url":"#"
+        },
+        {
+          "title":"GDPR Rules",
+          "url":"#"
+        },
+        {
+          "title":"Trust Center",
+          "url":"#"
+        },
+        {
+          "title":"SLA Pact",
+          "url":"#"
+        }
+      ]
+    }
+  ]
+}
