@@ -1,16 +1,6 @@
 {% import 'macro/_footer.html' as comp %}
-<header class="sh">{{ comp.r_svg() }}<nav class="nc" aria-label="Main Navigation"><div class="nl"><a href="/" class="ll">{{ a.logo }}</a></div>
-<!-- Hidden Master Hamburger Toggle State Box -->
-<input type="checkbox" id="h-mts" class="v-h h-mt" aria-hidden="true"><!-- Label wrapper element acting as the visible interactive hamburger button --><label for="h-mts" class="mt" id="h-mtb" aria-label="Toggle navigation menu"><span class="hb"><span class="hi"></span></span></label>
-<!-- Nav Container Wrapper Drawer Sits Exactly Next To Checkbox Elements -->
-<div class="nw" id="h-nd">
-<ul class="lk">
-{% for item in a.menus %}
-{% if item.type == "megamenu" %}{{ comp.r_mega(item) }}
-{% elif item.type == "dropdown" %}{{ comp.r_dropdown(item) }}
-{% elif item.type == "select" %}{{ comp.r_mode(item) }}
-{% elif item.type == "search" %}{{ comp.r_search() }}
-{% else %}<li><a class="li" href="{{ item.url }}">{{ item.title }}</a></li>
-{% endif %}
-{% endfor %}
-</ul></div></nav></header>
+<footer id="sf-i" class="f-sf"><div class="fc">
+<div class="fb">
+  <div class="f-brand-card"><h3 class="ft">{{ a.company }}</h3><p class="fd">{{ a.desc }}</p><address class="fr">{{ a.add }}</address><div class="f-ct"><a href="tel:{{ a.tel }}" class="fl-a">{{ a.tel }}</a><a href="mailto:{{ a.mail }}" class="fl-a">{{ a.mail }}</a></div><div class="fs">{% for li in a.social %}<a href="{{ li.url }}" aria-label="{{ li.type}}" class="si">{{ li.sym}}</a>{% endfor %}</div></div>
+  <div class="f-sub"><h4 class="f-st">Stay Updated</h4><form class="sf-f" onsubmit="event.preventDefault();"><input type="email" placeholder="Enter your email" aria-label="Email address" required class="sf-in"><button type="submit" class="sf-btn">Subscribe</button></form></div></div>
+  <nav class="fn" id="fa" aria-label="Footer Mega Menu">{{ comp.r_fmega(a.columns) }}</nav></div><!-- Bottom Legal Split Bar --><div class="fl"><div class="fl-c"><div class="fl-l">{% for l in a.links %}<a href="{{ l.url }}">{{ l.title }}</a>{% endfor %}</div><div class="f-cr"><p>&copy; {{ a.year }} {{ a.company }}. All rights reserved.</p></div></div></div></footer>
