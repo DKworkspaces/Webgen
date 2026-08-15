@@ -5,7 +5,7 @@ on:
     branches:
       - html
     paths:
-      - 'web/**' # Triggers strictly when physical production files change
+      - 'dist/**' # Triggers strictly when physical production files change
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
