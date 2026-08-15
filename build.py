@@ -20,11 +20,11 @@ def generate_layout_snippets(header_data, footer_data):
     os.makedirs('templates/temp', exist_ok=True)
     
     # 1. Compile and save plain header snippet
-    header_template = env.get_template('header.html')
+    header_template = env.get_template('_header.html')
     with open('templates/temp/header.html', 'w', encoding='utf-8') as h_out:
         h_out.write(header_template.render(a=header_data))
     # 2. Compile and save plain footer snippet
-    footer_template = env.get_template('footer.html')
+    footer_template = env.get_template('_footer.html')
     with open('templates/temp/footer.html', 'w', encoding='utf-8') as f_out:
         f_out.write(footer_template.render(a=footer_data))
 
@@ -43,7 +43,7 @@ def generate_index_page(header_data, footer_data):
     }
 
     # Load master layout structure and output final production build
-    base_template = env.get_template('base.html')
+    base_template = env.get_template('_base.html')
     output_target = os.path.join('dist', 'index.html')
     
     with open(output_target, 'w', encoding='utf-8') as out_file:
