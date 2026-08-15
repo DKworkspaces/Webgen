@@ -44,6 +44,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
+
+          mkdir -p web && touch web/.gitkeep
           
           # Force git to see the web folder even if it is ignored
           git add -f web/
