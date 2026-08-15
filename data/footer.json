@@ -1,9 +1,9 @@
 {
-  "company": "Acme Corp",
-  "desc": "Building scalable, next-generation digital experiences for global forward-thinkers.",
+  "company": "Xocumentary",
+  "desc": "We analyze the global landscape through the <br>interconnected lenses of geopolitics, science,<br>and history. Our documentary blog and video <br>channels deliver rigorous, fact-based insights <br>into the forces changing our world. Join us as <br>we break down complex international events from <br>the ground up.",
   "add": "123 Innovation Way, Tech District,<br>Silicon Valley, CA 94025",
   "tel": "+15551234567",
-  "mail": "hello@acme.corp",
+  "mail": "test+contact@gmail.com",
   "year": "2026",
   "social": [
     {
@@ -12,13 +12,18 @@
       "url": "#"
     },
     {
-      "type": "LimkednkedIn",
-      "sym": "In",
+      "type": "Instagram",
+      "sym": "Ig",
+      "url": "#"
+    },
+    {
+      "type": "Facebook",
+      "sym": "Fb",
       "url": "#"
     },
     {
       "type": "Github",
-      "sym": "Git",
+      "sym": "Gh",
       "url": "#"
     }
   ],
@@ -38,93 +43,93 @@
   ],
   "columns":[
     {
-      "title":"Platform",
+      "title":"Explore Content",
       "id":"f-t1",
       "link_id":"m1",
       "links": [
         {
-          "title":"Core Engine",
+          "title":"Latest Release",
           "url":"#"
         },
         {
-          "title":"Integrations",
+          "title":"Most Popular Archives",
           "url":"#"
         },
         {
-          "title":"Security Specs",
+          "title":"RSS Feed",
           "url":"#"
         },
         {
-          "title":"Pricing Plans",
+          "title":"Interactive Maps/Timeline",
           "url":"#"
         }
       ]
     },
     {
-      "title":"Resources",
+      "title":"Browse",
       "id":"f-t2",
       "link_id":"m2",
       "links": [
         {
-          "title":"Documentation",
+          "title":"All Topics Index",
           "url":"#"
         },
         {
-          "title":"API Reference",
+          "title":"Categories Index",
           "url":"#"
         },
         {
-          "title":"System Status",
+          "title":"Indo-pacific",
           "url":"#"
         },
         {
-          "title":"Open Source",
+          "title":"Europe & Eurasia",
+          "url":"#"
+        },
+        {
+          "title":"MiddleEast & Africa",
+          "url":"#"
+        },
+        {
+          "title":"The Americas",
           "url":"#"
         }
       ]
     },
     {
-      "title":"Company",
+      "title":"Connect & Follow",
       "id":"f-t3",
       "link_id":"m3",
       "links": [
         {
-          "title":"About Us",
+          "title":"Youtube Channel",
           "url":"#"
         },
         {
-          "title":"Careers",
+          "title":"Dailymotion Channel",
           "url":"#"
         },
         {
-          "title":"Press Kit",
-          "url":"#"
-        },
-        {
-          "title":"Contact",
+          "title":"Facebook Page",
           "url":"#"
         }
       ]
     },
     {
-      "title":"Governance",
+      "title":"Legal & Compliance",
       "id":"f-t4",
       "link_id":"m4",
       "links": [
         {
-          "title":"Compliance",
+          "title":"Editorial Policy",
           "url":"#"
         },
         {
-          "title":"GDPR Rules",
+          "title":"Affiliate & Ad Disclosure",
           "url":"#"
         },
         {
-          "title":"Trust Center",
-          "url":"#"
-        },
-        {
-          "title":"SLA Pact",
+          "title":"Fact Checking Policy",
           "url":"#"
         }
       ]
