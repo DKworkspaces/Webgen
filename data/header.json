@@ -1,53 +1,47 @@
 {
-  "logo": "DESIGNCO",
+  "logo": "Xocumentary",
   "menus": [
     {
       "type": "search"
     },
     {
-      "title": "Services",
-      "type": "dropdown",
-      "children": [
-        {
-          "title": "Web Development", 
-          "url": "#"
-        },
-        {
-          "title": "UI/UX Design",
-          "url": "#"
-        },
-        {
-          "title": "DevOps",
-          "url": "#"
-        }
-      ]
-    },
-    {
-      "title":"Solutions",
+      "title":"Categories",
       "type":"megamenu",
       "categories":[
         {
-          "cat_title": "Enterprise",
+          "cat_title": "By Region",
           "links": [
             {
-              "title": "Cloud Scale",
+              "title": "Indo-Pacific",
               "url": "#"
             },
             {
-              "title": "Data Logistics",
+              "title": "Eruope & Eurasia",
+              "url": "#"
+            },
+            {
+              "title": "MiddleEast & Africa",
+              "url": "#"
+            },
+            {
+              "title": "The Americas",
               "url": "#"
             }
           ]
         },
         {
-          "cat_title": "Security",
+          "cat_title": "By Subject",
           "links": [
             {
-              "title": "Zero Trust Access",
+              "title": "Geopolitics",
               "url": "#"
             },
             {
-              "title": "Identity Vault",
+              "title": "History",
+              "url": "#"
+            },
+            {
+              "title": "Science",
               "url": "#"
             }
           ]
@@ -72,7 +66,12 @@
       ]
     },
     {
-      "title":"About",
+      "title":"About Us",
+      "url":"#",
+      "type":"standard"
+    },
+    {
+      "title":"Contact Us",
       "url":"#",
       "type":"standard"
     }
