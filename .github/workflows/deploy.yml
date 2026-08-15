@@ -37,7 +37,7 @@ jobs:
       - name: Pack Production Workspace
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './web'
+          path: 'web/'
 
       - name: Publish Live to GitHub Pages
         id: deployment
