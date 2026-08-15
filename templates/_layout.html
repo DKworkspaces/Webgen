@@ -1,0 +1,27 @@
+{% extends "_base.html" %}
+
+{% block layout_container %}
+<div class="article-layout {% if no_sidebar %}no-sidebar{% endif %}">
+{% block prelayout_content %}
+{% endblock %}
+<!-- LEFT TRACK COLUMN: Universal Sticky Table of Contents Component Block -->
+<aside class="col-toc">
+{% block l_sidebar %}
+{% endblock %}
+</aside>
+<!-- CENTER TRACK STREAM: Main Article Prose Component Container Area Slot -->
+<main class="col-content">
+<article class="prose">
+{% block main_content %}
+{% endblock %}
+</article>
+</main>
+<!-- RIGHT TRACK COLUMN: Auxiliary Widget Sidebar Element Block Component Modules -->
+{% if not no_sidebar %}
+<aside class="col-widgets">
+{% block r_sidebar %}
+{% endblock %}
+</aside>
+{% endif %}
+</div>
+{% endblock %}
