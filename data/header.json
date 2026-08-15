@@ -1,0 +1,80 @@
+{
+  "logo": "DESIGNCO",
+  "menus": [
+    {
+      "type": "search"
+    },
+    {
+      "title": "Services",
+      "type": "dropdown",
+      "children": [
+        {
+          "title": "Web Development", 
+          "url": "#"
+        },
+        {
+          "title": "UI/UX Design",
+          "url": "#"
+        },
+        {
+          "title": "DevOps",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "title":"Solutions",
+      "type":"megamenu",
+      "categories":[
+        {
+          "cat_title": "Enterprise",
+          "links": [
+            {
+              "title": "Cloud Scale",
+              "url": "#"
+            },
+            {
+              "title": "Data Logistics",
+              "url": "#"
+            }
+          ]
+        },
+        {
+          "cat_title": "Security",
+          "links": [
+            {
+              "title": "Zero Trust Access",
+              "url": "#"
+            },
+            {
+              "title": "Identity Vault",
+              "url": "#"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "children": [
+        {
+          "title": "System Mode",
+          "val": "system"
+        },
+        {
+          "title": "Light Mode",
+          "val": "light"
+        },
+        {
+          "title": "Dark Mode",
+          "val": "dark"
+        }
+      ]
+    },
+    {
+      "title":"About",
+      "url":"#",
+      "type":"standard"
+    }
+  ]
+}
