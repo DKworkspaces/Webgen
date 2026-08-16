@@ -5,9 +5,14 @@
 
 {# 2. Simulate your incoming JSON data #}
 {% set json_data = {
-    "long_text": "Please click {{ render_button('Activate Account', '/verify') }} to proceed."
-} %}
+  "long_text": "Thank you for joining. Please click [BUTTON_TOKEN] to verify your email."
+}
+%}
 
+{# 3. Execute the macro ahead of time and save its HTML output to a variable #}
+{% set compiled_button %}
+    {{ render_button('Verify Email Now', '/auth/verify') }}
+{% endset %}
 
 
 
@@ -27,9 +32,10 @@
 <h2>Welcome to home page</h2>
 <p>Your web content goes here.</p>
   
-{# 3. Pure Jinja Execution: Convert string to template and render it instantly #}
-<div class="content">{% include template_from_string(json_data.long_text) %}</div>
-  
+{# 3. Inject it into the text block using pure Jinja filters #}
+<div class="content-block">{{ json_data.long_text | replace('[BUTTON_TOKEN]', compiled_button) | safe }}</div>
+
+    
 </main>
 {% include 'temp/footer.html' %}
 </body></html>
