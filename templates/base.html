@@ -1,3 +1,19 @@
+{# 1. Define your macros #}
+{% macro render_button(text, url) %}
+    <a href="{{ url }}" class="btn">{{ text }}</a>
+{% endmacro %}
+
+{# 2. Simulate your incoming JSON data #}
+{% set json_data = {
+    "long_text": "Please click {{ render_button('Activate Account', '/verify') }} to proceed."
+} %}
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <title>{{ page_title }}</title>
@@ -10,6 +26,10 @@
 <main>
 <h2>Welcome to home page</h2>
 <p>Your web content goes here.</p>
+  
+{# 3. Pure Jinja Execution: Convert string to template and render it instantly #}
+<div class="content">{% include template_from_string(json_data.long_text) %}</div>
+  
 </main>
 {% include 'temp/footer.html' %}
 </body></html>
