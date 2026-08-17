@@ -1,4 +1,19 @@
-  <form class="f" method="POST" action="{{ submit_url }}">
+{% extends "_base.html" %}
+
+<!-- Macro definition: Behaves like a reusable HTML component function -->
+{% macro render_field(id, label, type="text", placeholder="", required=True, minlength=None, value="") %}
+  <div class="f__i">
+    <label for="{{ id }}">{{ label }}</label>
+    <input type="{{ type }}" id="{{ id }}" name="{{ id }}" 
+           value="{{ value }}" 
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %} 
+           {% if minlength %}minlength="{{ minlength }}"{% endif %} 
+           {% if required %}required{% endif %}>
+  </div>
+{% endmacro %}
+
+{% block layout_container %}
+<form class="f" method="POST" action="{{ submit_url }}">
     <!-- Dynamic Header Elements -->
     <h1>{{ 'Provision Account' if mode == 'register' else 'Console Login' }}</h1>
     <p class="f__m">{{ 'Initialize a new operator profile node.' if mode == 'register' else 'Enter node credentials to connect.' }}</p>
@@ -8,12 +23,10 @@
     {% endif %}
     {{ render_field('email', 'Node Address', type='email', placeholder='operator@domain.local', value=request.form.get('email', '')) }}
     {{ render_field('password', ('Configure Passkey' if mode == 'register' else 'Secure Passkey'), type='password', minlength=(8 if mode == 'register' else None)) }}
-    
     <!-- Submit Button & Footer Toggles -->
     <button type="submit" class="f__b">
       {{ 'Generate Security Credentials' if mode == 'register' else 'Authenticate Instance' }}
     </button>
-    
     <p class="f__f">
       {% if mode == 'register' %}
         Linked node active? <a href="{{ login_url }}">Access terminal</a>
@@ -21,4 +34,5 @@
         New connection? <a href="{{ register_url}}">Provision account</a>
       {% endif %}
     </p>
-  </form>
+</form>
+{% endblock %}
