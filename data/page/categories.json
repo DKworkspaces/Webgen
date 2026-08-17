@@ -1,0 +1,19 @@
+{
+  "categories": [
+    {
+      "title": "Technology Innovations",
+      "description": "Deep dives into software engineering, artificial intelligence, and hardware updates.",
+      "url":"/technology_innovations"
+    },
+    {
+      "title": "Modern Lifestyle",
+      "description": "Tips on work-life balance, digital nomad life, and personal wellness.",
+      "url":"/modern_lifestyle"
+    },
+    {
+      "title": "Personal Finance & Markets",
+      "description": "Smart strategies for budgeting, investing, and achieving financial independence.",
+      "url":"/personal_finance"
+    }
+  ]
+}
