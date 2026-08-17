@@ -28,16 +28,15 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Start Public Tunnel
-      # This creates a public link to port 5000 and saves the link to logs
+    - name: Start Public HTTPS Tunnel
+      # This securely tunnels port 5000 and dumps the live https address into your logs
       run: |
-        npm install -g localtunnel
-        lt --port 5000 > tunnel_url.txt &
-        echo "Waiting for public URL to generate..."
-        sleep 5
-        echo "=== YOUR PUBLIC FLASK URL IS BELOW ==="
-        cat tunnel_url.txt
-        echo "======================================"
-
+        ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:5000 qr@free.pinggy.io > tunnel_info.txt &
+        echo "Waiting for secure HTTPS link to generate..."
+        sleep 8
+        echo "=== YOUR SECURE PUBLIC FLASK URLS ARE BELOW ==="
+        cat tunnel_info.txt
+        echo "================================================"
+        
     - name: Run 5-Hour Script
       run: python runner.py
