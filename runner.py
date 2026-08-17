@@ -7,7 +7,7 @@ SLEEP_TIME = 10  # 10 seconds
 if __name__ == "__main__":
   print("Starting Flask app for a single 5-hour run...")
   # Start the Flask server as a background subprocess
-  process = subprocess.Popen(["python", "/app/app.py"])
+  process = subprocess.Popen(["python", "app.py"])
 
   # Let it run for exactly 5 hours
   time.sleep(RUN_TIME)
