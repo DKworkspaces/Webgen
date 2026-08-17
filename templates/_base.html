@@ -8,6 +8,16 @@
 }) %}
 {% endif %}
 
+
+
+
+
+{% set home_Url = "https://github.com" %}
+
+{% set base_url = "https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/" %}
+{% set css_base = "{{ base_url }}css/mgr/0.1/" %}
+{% set js_base = "{{ base_url }}js/mgr/0.1/" %}
+
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge">
 <!-- 2. Security (Place HERE for max performance) -->
 {%- block page_security %}<meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">{%- endblock %}
@@ -22,7 +32,12 @@
 <!-- 7. Critical CSS (Inline for LCP - Largest Contentful Paint) -->
 {%- block critical_css %}{%- endblock %}
 <!-- 8. Core CSS (Always Loaded) -->
-{%- block global_css %}{%- endblock %}
+{%- block global_css %}
+<link rel="stylesheet" href="{{ css_base }}base.css">
+<link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
+<script src="{{ js_base }}common.js" defer></script>
+{%- endblock %}
 <!-- 9. Page-Specific CSS Block -->
 {%- block page_css %}{%- endblock %}
 <!-- 10. Favicon & Icons (Always Loaded) -->
@@ -32,40 +47,25 @@
 <!-- 12. RSS & Sitemap (Always Loaded) -->
 {%- block global_rss %}
   {%- set fb = request.url.rstrip('/') %}
-  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ fb }}/feed.xml">
-  <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ fb }}/atom.xml">
-  <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ fb }}/sitemap.xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ home_Url }}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ home_Url }}/atom.xml">
+  <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ home_Url }}/sitemap.xml">
   {%- endblock %}
 <!-- 13. JSON-LD Schema -->
 {%- block page_schema %}{%- endblock %}
 <!-- 14. Head Close Hook (For any final cleanup) -->
 {%- block head_close %}{%- endblock %}
 </head><body>
-{%- block content %}{%- endblock %}
+{% include 'temp/header.html' %}
+{%- block layout_container %}
+{%- endblock %}
+{% include 'temp/footer.html' %}
+    
+
 <!-- 15. Core JS (Always Loaded) -->
 {%- block global_js %}{%- endblock %}
 <!-- 16. Page-Specific JS Block -->
 {%- block page_js %}{%- endblock %}
 <!-- 17. Analytics (Async)(Always Loaded) -->
 {%- block global_analytics %}{%- endblock %}
-</body></html>
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
-<title>{{ page_title }}</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/css/mgr/0.1/base.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/css/mgr/0.1/footer.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/css/mgr/0.1/footer.css"></noscript>
-<script src="https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/js/mgr/0.1/common.js" defer></script>
-</head><body>
-{% include 'temp/header.html' %}
-{% block layout_container %}
-{% endblock %}
-{% include 'temp/footer.html' %}
 </body></html>
