@@ -1,39 +1,14 @@
 
-<!-- Macro Definition: Generates clean, structured search list result items -->
-{% macro render_result_item(category, title, url, snippet) %}
-  <article class="i">
-    <span class="i__m">{{ category }}</span>
-    <h2 class="i__t"><a href="{{ url }}">{{ title }}</a></h2>
-    <p class="i__s">{{ snippet }}</p>
-  </article>
-{% endmacro %}
-
-
-
-      {% for item in results %}
-        <!-- Execution of our item card macro component -->
-        {{ render_result_item(item.category, item.title, item.url, item.snippet) }}
-      {% else %}
-    
-
-
-
 {% set raw_json_list %}
 [
-  {"category": "History", "title": "10.0.0.1 hosted", "snippet": "this is active connection"},
-  {"category": "Geopolitics", "title": "10.0.0.2 hosted", "snippet": "this is inactive connection"},
-  {"category": "Science", "title": "10.0.0.3 hosted", "snippet": "this is highly active connection"}
+  {"category": "History", "title": "10.0.0.1 hosted","url":"host/10.0.0.1/", "snippet": "this is active connection"},
+  {"category": "Geopolitics", "title": "10.0.0.2 hosted","url":"host/10.0.0.2/", "snippet": "this is inactive connection"},
+  {"category": "Science", "title": "10.0.0.3 hosted","url":"host/10.0.0.3/", "snippet": "this is highly active connection"}
 ]
 {% endset %}
 
 {# 2. Parse the string into a loopable Jinja list #}
-{% set servers = raw_json_list | from_json %}
-
-
-
-
-
-
+{% set results = raw_json_list | from_json %}
 
 {% set query = "testing" %}
 {% set seach_url = "/search?q="{{ query }}" %}
