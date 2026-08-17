@@ -1,3 +1,61 @@
+{% from 'website/comp/base.html' import render_page_identity,render_canonical,render_page_social_meta %}
+{% if page_type != 'CollectionPage' %}
+{% set _ = page_data.social.update({
+    'desc': "Expert guides on web development, AI, and enterprise Flask architectures.",
+    'twitter_site_Handler': site_config.twitter_site,'type': 'website','media':'image',
+    'og': {'img': site_config.image_base_url ~ 'main_og.jpg','alt': 'Img Description.'},
+    'pin': {'img': site_config.image_base_url ~ 'main_pin.jpg','alt': 'Img Description.'}
+}) %}
+{% endif %}
+
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- 2. Security (Place HERE for max performance) -->
+{%- block page_security %}<meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">{%- endblock %}
+<!-- 3. Page Identity & SEO -->
+{%- block page_identity %}{{ render_page_identity(page_data) }}{%- endblock %}
+<!-- 4. Canonical & Robots (SEO Protection) -->
+{%- block canonical %}{{ render_canonical(page_data.robots, page_data.canonical_url) }}{%- endblock %}
+<!-- 5. Social & Other Meta -->
+{%- block page_social_meta %}{{ render_page_social_meta(page_data.social) }}{%- endblock %}
+<!-- 6. Resource Hints (Place HERE for max performance) -->
+{%- block page_resource_hints %}{%- endblock %}
+<!-- 7. Critical CSS (Inline for LCP - Largest Contentful Paint) -->
+{%- block critical_css %}{%- endblock %}
+<!-- 8. Core CSS (Always Loaded) -->
+{%- block global_css %}{%- endblock %}
+<!-- 9. Page-Specific CSS Block -->
+{%- block page_css %}{%- endblock %}
+<!-- 10. Favicon & Icons (Always Loaded) -->
+{%- block global_icons %}{%- endblock %}
+<!-- 11. Verification Tokens (Always Loaded) -->
+  {%- block global_verification %}{%- endblock %}
+<!-- 12. RSS & Sitemap (Always Loaded) -->
+{%- block global_rss %}
+  {%- set fb = request.url.rstrip('/') %}
+  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ fb }}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ fb }}/atom.xml">
+  <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ fb }}/sitemap.xml">
+  {%- endblock %}
+<!-- 13. JSON-LD Schema -->
+{%- block page_schema %}{%- endblock %}
+<!-- 14. Head Close Hook (For any final cleanup) -->
+{%- block head_close %}{%- endblock %}
+</head><body>
+{%- block content %}{%- endblock %}
+<!-- 15. Core JS (Always Loaded) -->
+{%- block global_js %}{%- endblock %}
+<!-- 16. Page-Specific JS Block -->
+{%- block page_js %}{%- endblock %}
+<!-- 17. Analytics (Async)(Always Loaded) -->
+{%- block global_analytics %}{%- endblock %}
+</body></html>
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <title>{{ page_title }}</title>
