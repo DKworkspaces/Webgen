@@ -1,0 +1,40 @@
+<!-- Macro Definition: Generates clean, structured search list result items -->
+{% macro render_result_item(category, title, url, snippet) %}
+  <article class="i">
+    <span class="i__m">{{ category }}</span>
+    <h2 class="i__t"><a href="{{ url }}">{{ title }}</a></h2>
+    <p class="i__s">{{ snippet }}</p>
+  </article>
+{% endmacro %}
+
+
+  <main class="s">
+    
+    <!-- Inline Search Action Control -->
+    <form class="f__i f__i--inline" method="GET" action="{{ search_url }}">
+      <input type="search" name="q" value="{{ query }}" placeholder="Query cluster logs..." aria-label="Search items">
+      <button type="submit" class="f__b">Filter</button>
+    </form>
+
+    <!-- Query Summary Info Block -->
+    <header class="s__m">
+      <p>
+        Showing {{ results|length }} matching {{ 'node' if results|length == 1 else 'nodes' }} 
+        for <strong>"{{ query }}"</strong> (computed in {{ execution_time }}s)
+      </p>
+    </header>
+
+    <!-- Linear Clean Text Content Results Stream -->
+    <div class="s__s">
+      {% for item in results %}
+        <!-- Execution of our item card macro component -->
+        {{ render_result_item(item.category, item.title, item.url, item.snippet) }}
+      {% else %}
+        <!-- Safe fallback fallback if no logs match the cluster keywords -->
+        <article class="i" style="text-align: center; padding: 40px 0;">
+          <p class="i__s">No network nodes found matching configuration keywords.</p>
+        </article>
+      {% endfor %}
+    </div>
+    
+  </main>
