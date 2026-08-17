@@ -11,9 +11,9 @@
 
 
 
-
+<!-- domain home url -->
 {% set home_Url = "https://github.com" %}
-
+<!-- css n js code domain urls  -->
 {% set base_url = "https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/" %}
 {% set css_base = "{{ base_url }}css/mgr/0.1/" %}
 {% set js_base = "{{ base_url }}js/mgr/0.1/" %}
@@ -46,7 +46,6 @@
   {%- block global_verification %}{%- endblock %}
 <!-- 12. RSS & Sitemap (Always Loaded) -->
 {%- block global_rss %}
-  {%- set fb = request.url.rstrip('/') %}
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ home_Url }}/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ home_Url }}/atom.xml">
   <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ home_Url }}/sitemap.xml">
