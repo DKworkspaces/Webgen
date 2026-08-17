@@ -1,0 +1,57 @@
+name: Compile and Deploy Jinja2 Site
+
+on:
+  push:
+    branches:
+      - main # Run whenever code pushes to main
+# 1. FORCE THE INTERNAL RUNNER ENGINE TO USE NODE 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
+# Set system token permissions to allow GitHub Pages hosting
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Prevent overlapping parallel builds
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy-site:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v5
+
+      - name: Initialize Python Runtime
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Engine Compiler
+        run: python build.py
+
+      - name: Configure GitHub Pages Target
+        uses: actions/configure-pages@v5
+
+      - name: Pack Production Workspace
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Package the root folder directory
+
+      - name: Publish Live to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
