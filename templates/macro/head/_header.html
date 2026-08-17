@@ -1,0 +1,80 @@
+{% macro render_page_identity(data) %}
+<title>{{ data.title }}</title>
+<meta name="description" content="{{ data.desc }}">
+{% endmacro %}
+
+{% macro render_canonical(robots,canonical_url) %}
+<meta name="robots" content="{{ robots }}, noai, noimageai">
+<meta name="google-extended" content="noindex">
+<meta name="gptbot" content="noindex">
+<link rel="canonical" href="{{ canonical_url }}">
+<meta property="og:url" content="{{ canonical_url }}">
+{% endmacro %}
+
+{% macro render_page_resource_hints(type=None) %}
+  {% if type == 'youtube' %}
+      <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
+      <link rel="preconnect" href="https://www.youtube.com" crossorigin>
+      <link rel="dns-prefetch" href="https://www.youtube.com">
+      <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
+      <link rel="dns-prefetch" href="https://img.youtube.com">
+  {% elif type == 'dailymotion' %}
+      <link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
+      <link rel="dns-prefetch" href="https://www.dailymotion.com">
+  {% endif %}
+{% endmacro %}
+
+
+{% macro render_page_social_meta(data,type='website', card='summary_large_image') %}
+<meta property="og:title" content="{{ data.title }}">
+<meta property="og:description" content="{{ data.desc }}">
+<meta property="og:type" content="{{ type }}">
+<meta name="twitter:site" content="{{ data.twitter_site_Handler }}">
+{% if data.media == 'video' %}
+<meta name="twitter:card" content="player"/>
+{% else %}
+<meta name="twitter:card" content="{{ card }}">
+{% endif %}
+{% if data.media == 'video' %}
+  {% if data.video.type == 'youtube' %}
+    <meta property="og:video" content="https://www.youtube-nocookie.com/embed/{{ data.video.id }}"/>
+    <meta name="twitter:player" content="https://www.youtube-nocookie.com/embed/{{ data.video.id }}"/>
+    <meta property="og:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg"/>
+    <meta name="twitter:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg"/>
+  {% elif platform == 'dailymotion' %}
+    <meta property="og:video" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}"/>
+    <meta name="twitter:player" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}"/>
+    <meta property="og:image" content="https://www.dailymotion.com/thumbnail/video/{{ data.video.id }}"/>
+    <meta name="twitter:image" content="https://www.dailymotion.com/thumbnail/video/{{ data.video.id }}"/>
+  {% endif %}
+  {% elif data.media == 'image' %}
+    {% if data.og %}
+      <meta property="og:image" content="{{ data.og.img }}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+      <meta name="twitter:image" content="{{ data.og.img }}">
+      <meta property="og:image:alt" content="{{ data.og.alt }}">
+      <meta name="twitter:image:alt" content="{{data.og.alt}}">
+    {% endif %}
+  {% endif %}
+  <meta name="pinterest:rich_pins" content="true">
+  <meta property="og:image" content="{{ data.pin.img }}"><meta property="og:image:width" content="1000"><meta property="og:image:height" content="1500">
+  <meta property="og:image:alt" content="{{ data.pin.alt }}">
+{% endmacro %}
+
+{% macro render_page_social_article(data,type=None) %}
+  {% if type == 'article' %}
+    {% if data.published_time %}<meta property="article:published_time" content="{{ data.published_time }}">{% endif %}
+    {% if data.modified_time %}<meta property="article:modified_time" content="{{ data.modified_time }}">{% endif %}
+    {% if data.author_url %}<meta property="article:author" content="{{ data.author_url }}">{% endif %}
+    {% if data.publisher %}<meta property="article:publisher" content="{{ data.publisher }}">{% endif %}
+    {% if data.section %}<meta property="article:section" content="{{ data.section }}">{% endif %}
+    {% for tag in data.tags %}<meta property="article:tag" content="{{ tag }}">{% endfor %}
+        <meta name="twitter:creator" content="{{data.twitter_creator_Handler}}">
+  {% endif %}
+{% endmacro %}
+
+{% macro render_global_icons() %}
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+{% endmacro %}
+
