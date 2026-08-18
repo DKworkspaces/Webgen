@@ -66,8 +66,7 @@ def set_global():
     env.globals.update(gb)
 def gen_home():
     hm= load_json ('data/page/home.json')
-    md = { 'page_data': hm }
-    generate_page('home.html','dist','index.html', **md)
+    generate_page('home.html','dist','index.html', page_data=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','dist','about_us.html',hm)
