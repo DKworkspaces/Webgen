@@ -2,5 +2,7 @@
   "site_name": "Xocumentary",
   "seperator": "|",
   "twitter_site":"@Xocumantary",
+  "image_base_url":"",
+  "base_url":"https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/",
   "home_url": "https://dkworkspaces.github.io/Webgen/"
 }
