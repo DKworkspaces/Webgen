@@ -13,31 +13,60 @@ jobs:
   process-images:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-        
+          python-with-version: '3.11'
 
-      # Alexander: Install Image Dependencies
-      - name: Install Dependencies
+      - name: Install Metadata and Pixel Utilities
         run: |
-          sudo apt-get update && sudo apt-get install -y libgl1-mesa-glx webp
-          pip install --upgrade pip
-          pip install remove-ai-watermarks opencv-python
-
-      - name: Strip AI Fingerprints (src/images/ -> src/images/clean/)
+          sudo apt-get update && sudo apt-get install -y exiftool
+          python -m pip install --upgrade pip
+          pip install remove-ai-watermarks pillow
+          
+      - name: Install Metadata and Pixel Utilities
+        run: |
+          sudo apt-get update && sudo apt-get install -y exiftool
+          python -m pip install --upgrade pip
+          pip install remove-ai-watermarks pillow
+          
+        
+      - name: Strip AI Signatures & Humanize Pixels
         run: |
           mkdir -p src/images/clean
-          if [ -f "clean_images.py" ]; then
-            python clean_images.py
-          else
-            echo "clean_images.py missing! Falling back to direct copy..."
-            cp src/images/* src/images/clean/ 2>/dev/null || true
-          fi
+          
+          # Target all common web image formats inside your image folder
+          for file in src/images/*.{png,jpg,jpeg,webp}; do
+            # Skip if the file extension matching found nothing
+            [ -e "$file" ] || continue
+            
+            filename=$(basename "$file")
+            echo "Processing $filename..."
+
+            # Step 1: Wipe all tracking metadata, C2PA, EXIF, and XMP manifests
+            exiftool -all= "$file" -o "src/images/clean/$filename"
+
+            # Step 2: Use Python to subtly disrupt invisible pixel structures 
+            # and passive AI classifiers via minor compression/noise shift
+            python -c "
+from PIL import Image
+import os
+
+img_path = 'src/images/clean/$filename'
+if os.path.exists(img_path):
+    img = Image.open(img_path)
+    # Convert RGBA to RGB if saving as JPEG to prevent crashes
+    if img.mode in ('RGBA', 'LA') and img_path.lower().endswith(('.jpg', '.jpeg')):
+        img = img.convert('RGB')
+    
+    # Save with custom quality encoding to alter model-specific pixel distribution
+    img.save(img_path, quality=92, subsampling=0)
+print('Finished pixel smoothing for $filename')
+"
+          done
 
       - name: Convert to WebP & Delete Clean Folder (src/images/clean/ -> web/images/)
         run: |
