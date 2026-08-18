@@ -47,10 +47,10 @@ def generate_layout_snippets():
     generate(f_t,'templates/temp/footer.html',a=hd)
     print("Success: Standalone layout modules compiled into templates/temp/")
         
-def generate_page(base_file,op_loc,op_file,content):
+def generate_page(base_file,op_loc,op_file,**kwargs):
     md(op_loc)
     bt,ot=base_template(base_file,op_loc,op_file)
-    generate(bt,ot,content)
+    generate(bt,ot,kwargs)
     
 def generate_page(op_loc,op_file,content):
     md(op_loc)
