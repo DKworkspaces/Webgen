@@ -11,7 +11,7 @@
     'about': { "@id": site_config.home_Url ~ '/#organization'  ,"@type": "Organization"}
     ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
 } %}
-{% extends "website/base.html" %}
+{% extends "_base.html" %}
 {% block page_schema %}
 {{ PageSchema('WebPage', page_data, site_config) }}
 {% endblock %}
