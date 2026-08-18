@@ -62,14 +62,13 @@ def gen_headfoot():
     hd = load_data_profiles()
     # Step 2: Build the raw snippet dependencies first
     generate_layout_snippets()
-    
+
+def set_global():
+    gb= load_json ('data/global.json')
+    env.globals.update(gb)
 def gen_home():
     hm= load_json ('data/page/home.json')
-    gb= load_json ('data/global.json')
-    # 3. Merge: Unpack root variables and insert nested data into a key
-    md = {**gb,"page_data": hm }
-
-
+    md = {"page_data": hm }
     generate_page('home.html','dist','index.html', **md)
 def gen_about():
     hm= load_json ('data/page/about.json')
@@ -105,6 +104,7 @@ def gen_404():
 
 def main():
     """Main orchestrator running the operations in order."""
+    set_global()
     gen_home()
    
 if __name__ == '__main__':
