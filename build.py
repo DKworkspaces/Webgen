@@ -63,7 +63,7 @@ def gen_headfoot():
 
 def set_global():
     gb= load_json ('data/global.json')
-    env.globals.update(gb)
+    env.globals.update(site_config=gb)
 def gen_home():
     hm= load_json ('data/page/home.json')
     generate_page('home.html','dist','index.html', page_data=hm)
