@@ -2,6 +2,9 @@ name: Anti-Forensic Image Pipeline
 
 on:
   push:
+    # Restrict workflow execution strictly to the production branch
+    branches:
+      - production
     paths:
       # Trigger the pipeline ONLY when standard images are added to input_images
       - 'ipimages/**/*.jpg'
