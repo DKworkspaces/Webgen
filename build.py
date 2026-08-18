@@ -50,7 +50,7 @@ def generate_layout_snippets():
 def generate_page(base_file,op_loc,op_file,**kwargs):
     md(op_loc)
     bt,ot=base_template(base_file,op_loc,op_file)
-    generate(bt,ot,**kwargs)
+    generate(bt,op_loc+"/"+op_file,**kwargs)
     
 def generate_template_page(op_loc,op_file,content):
     md(op_loc)
@@ -66,22 +66,22 @@ def set_global():
     env.globals.update(site_config=gb)
 def gen_home():
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','dist','index.html', page_diiata=hm)
+    generate_page('home.html','web','index.html', page_diiata=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
-    generate_page('about.html','dist','about_us.html',hm)
+    generate_page('about.html','web','about_us.html',hm)
 def gen_contact():
     hm= load_json ('data/page/contact.json')
-    generate_page('contact.html','dist','contact_us.html',hm)
+    generate_page('contact.html','web','contact_us.html',hm)
 def gen_privacy():
     hm= load_json ('data/page/privacy.json')
-    generate_page('privacy.html','dist','privacy_policy.html',hm)
+    generate_page('privacy.html','web','privacy_policy.html',hm)
 def gen_editorial():
     hm= load_json ('data/page/edit.json')
-    generate_page('edit.html','dist','editorial_policy.html',hm)
+    generate_page('edit.html','web','editorial_policy.html',hm)
 def gen_terms():
     hm= load_json ('data/page/terms.json')
-    generate_page('terms.html','dist','terms_conditions.html',hm)
+    generate_page('terms.html','web','terms_conditions.html',hm)
 
 def gen_404():
     template_content = """<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>404 Page Not Found</title><style>
@@ -93,7 +93,7 @@ def gen_404():
         .btn {display:inline-block;margin-top:25px;background-color:#3182ce;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold}
         .btn:hover { background-color: #2b6cb0; }</style>
         </head><body><div class="container"><h1>404</h1><p>Sorry, the page you are looking for does not exist.</p><p>You tried to visit: <span id="broken-url" class="url-display"></span></p><a href="/index.html" class="btn">Return to Home</a></div></body></html>"""
-    generate_template_page('dist','dist/404.html',template_content)
+    generate_template_page('dist','web/404.html',template_content)
     
                   
     
