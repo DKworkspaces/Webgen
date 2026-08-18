@@ -1,0 +1,18 @@
+{% from 'macro/head/_header.html' import PageSchema %}
+
+{% set page_data = {
+    'ishome':'true',
+    'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
+    'desc': "Leading resource for enterprise-grade Flask architectures.",
+    'robots': "index, follow, max-image-preview:large",
+    'canonical_url': request.url.rstrip('/'),
+      'datePublished': site_config.launch_date,
+      'dateModified': "2026-07-20",
+    'about': { "@id": site_config.home_Url ~ '/#organization'  ,"@type": "Organization"}
+    ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
+} %}
+{% extends "website/base.html" %}
+{% block page_schema %}
+{{ PageSchema('WebPage', page_data, site_config) }}
+{% endblock %}
+{% block content %} Welcome Home{% endblock %}
