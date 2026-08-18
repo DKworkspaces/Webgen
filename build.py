@@ -52,7 +52,7 @@ def generate_page(base_file,op_loc,op_file,**kwargs):
     bt,ot=base_template(base_file,op_loc,op_file)
     generate(bt,ot,kwargs)
     
-def generate_page(op_loc,op_file,content):
+def generate_template_page(op_loc,op_file,content):
     md(op_loc)
     template = Template(content)
     generate(template,op_file)
@@ -93,7 +93,7 @@ def gen_404():
         .btn {display:inline-block;margin-top:25px;background-color:#3182ce;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold}
         .btn:hover { background-color: #2b6cb0; }</style>
         </head><body><div class="container"><h1>404</h1><p>Sorry, the page you are looking for does not exist.</p><p>You tried to visit: <span id="broken-url" class="url-display"></span></p><a href="/index.html" class="btn">Return to Home</a></div></body></html>"""
-    generate_page('dist','dist/404.html',template_content)
+    generate_template_page('dist','dist/404.html',template_content)
     
                   
     
