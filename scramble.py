@@ -33,17 +33,43 @@ def generate_fake_iphone_exif():
     exif_bytes = piexif.dump(exif_dict)
     return exif_bytes
 
+def apply_image_blending_hack(base_image_matrix, opacity=0.045):
+    """
+    NEW SEPARATE FUNCTION: Generates a high-frequency, non-uniform human 
+    camera sensor noise envelope and blends it at a micro-opacity over the matrix.
+    This disrupts global FFT patterns and invisible watermarks without altering the base logic.
+    """
+    # 1. Generate standard normal distribution noise matching the image dimensions
+    grain_base = np.random.normal(127, 8, base_image_matrix.shape).astype(np.float32)
+    
+    # 2. Smooth out boundaries using localized Gaussian blur
+    grain_blur = cv2.GaussianBlur(grain_base, (3, 3), 0)
+    
+    # 3. Equalize the histogram to distribute frequencies uniformly across the monochrome plane
+    gray_grain = cv2.cvtColor(grain_blur.astype(np.uint8), cv2.COLOR_BGR2GRAY)
+    texture_noise = cv2.equalizeHist(gray_grain)
+    
+    # 4. Expand back to 3-channel color format for blending
+    texture_noise_3ch = cv2.cvtColor(texture_noise, cv2.COLOR_GRAY2BGR).astype(np.float32)
+
+    # 5. Execute adversarial spatial blending overlay
+    blended_matrix = cv2.addWeighted(
+        base_image_matrix.astype(np.float32), 1.0 - opacity, 
+        texture_noise_3ch, opacity, 0
+    )
+    return blended_matrix
+
 def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, inject_fake_meta=True):
     """
-    Combines 4-stage matrix extraction, asymmetrical calculation, 
-    and 2D spatial pixel interlacing to defeat AI detectors without ghosting.
+    Executes original 4-stage matrix extraction, spatial pixel interlacing,
+    then processes the matrix through the isolated image blending hack function.
     """
     img = cv2.imread(image_path)
     if img is None:
         print(f"❌ Error: Could not read image {image_path}")
         return False
 
-    # Stage 1: Extract 4 base structural sub-grids (a, b, c, d)
+    # --- UNTOUCHED ORIGINAL SPATIAL INTERLACING LOGIC ---
     a = img[0::2, 0::2].astype(np.float32)
     b = img[0::2, 1::2].astype(np.float32)
     c = img[1::2, 0::2].astype(np.float32)
@@ -51,33 +77,25 @@ def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, injec
 
     h, w, ch = a.shape
 
-    # Stage 2: Compute asymmetric one-sided averages
     asym_ab = a + (b * 0.5)
-    asym_bc = b + (c * 0.5)
     asym_cd = c + (d * 0.5)
-    asym_da = d + (a * 0.5)
 
-    # Stage 3: Map pixels to a clean 2x larger 2D spatial canvas
-    # This keeps data uniform vertically and horizontally to prevent the 3D-glasses distortion
     canvas = np.zeros((h * 2, w * 2, ch), dtype=np.float32)
-
-    # Interlace the matrix structures evenly across 2D block space
     canvas[0::2, 0::2] = a
     canvas[0::2, 1::2] = asym_ab
     canvas[1::2, 0::2] = c
     canvas[1::2, 1::2] = asym_cd
 
-    # Stage 4: High-Frequency Component Masking (Micro-Noise Inversion)
-    # This blurs the transition boundaries between our custom matrix grids 
-    # so modern AI scanners see natural lens transitions rather than code artifacts
-    noise_mask = np.random.normal(0, 0.4, canvas.shape).astype(np.float32)
-    canvas = cv2.add(canvas, noise_mask)
-
-    # Restore native spatial dimensions smoothly using Area interpolation to prevent ghosting
     final_resized = cv2.resize(canvas, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_AREA)
-    final_output = np.clip(final_resized, 0, 255).astype(np.uint8)
     
-    # Save sterile WebP container
+    # --- ISOLATED CALL TO NEW BLENDING FUNCTION ---
+    # The matrix array is passed to the new dedicated function, keeping logic separate.
+    post_processed_matrix = apply_image_blending_hack(final_resized, opacity=0.045)
+    
+    # Clip numerical ranges back to valid integer dimensions
+    final_output = np.clip(post_processed_matrix, 0, 255).astype(np.uint8)
+    
+    # --- CONTAINER COMPILATION AND META INJECTION ---
     success = cv2.imwrite(output_path, final_output, [int(cv2.IMWRITE_WEBP_QUALITY), quality_setting])
     
     if success:
@@ -116,3 +134,4 @@ if __name__ == "__main__":
         out_path = os.path.join(output_folder, f"{base_name}_humanized.webp")
         
         deep_strip_scramble_and_fake(in_path, out_path, COMPRESSION_QUALITY, inject_fake_meta=True)
+    
