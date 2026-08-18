@@ -50,7 +50,7 @@ def generate_layout_snippets():
 def generate_page(base_file,op_loc,op_file,**kwargs):
     md(op_loc)
     bt,ot=base_template(base_file,op_loc,op_file)
-    generate(bt,ot,kwargs)
+    generate(bt,ot,**kwargs)
     
 def generate_template_page(op_loc,op_file,content):
     md(op_loc)
