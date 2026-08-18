@@ -7,9 +7,9 @@ on:
       - production
     paths:
       # Trigger the pipeline ONLY when standard images are added to input_images
-      - 'ipimages/**/*.jpg'
-      - 'ipimages/**/*.jpeg'
-      - 'ipimages/**/*.png'
+      - 'ipimages/*.jpg'
+      - 'ipimages/*.jpeg'
+      - 'ipimages/*.png'
   workflow_dispatch: # Allows you to run it manually via GitHub UI
 
 jobs:
@@ -21,6 +21,8 @@ jobs:
     steps:
     - name: Checkout repository code
       uses: actions/checkout@v4
+      with:
+        ref: production
 
     - name: Set up Python Environment
       uses: actions/setup-python@v5
@@ -47,5 +49,5 @@ jobs:
           echo "No new humanized images to commit."
         else
           git commit -m "chore: auto-generated scrambled humanized webp images [skip ci]"
-          git push
+          git push origin production
         fi
