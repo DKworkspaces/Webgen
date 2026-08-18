@@ -1,0 +1,8 @@
+{
+  "isHome": true,
+  "title":"Xocumentary | Home",
+  "desc":"concise summary of the oage content. forsearch engine and social previews.",
+  "robots":"index,follow,max-image-preview:large",
+  "canonical_url":"https://DKworkspaces.github.com",
+  "social":{"title":"Xocumentry | Home"}
+}
