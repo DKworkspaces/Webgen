@@ -38,6 +38,28 @@ jobs:
         run: |
           mkdir -p src/images/clean
           
+          cat << 'EOF' > humanize.py
+import sys
+import os
+from PIL import Image
+
+def process_image(img_path):
+    if os.path.exists(img_path):
+        img = Image.open(img_path)
+        # Convert RGBA to RGB if saving as JPEG to prevent crashes
+        if img.mode in ('RGBA', 'LA') and img_path.lower().endswith(('.jpg', '.jpeg')):
+            img = img.convert('RGB')
+        
+        # Save with custom quality encoding to alter model-specific pixel distribution
+        img.save(img_path, quality=92, subsampling=0)
+        print(f"Finished pixel smoothing for {img_path}")
+
+if __name__ == "__main__":
+    process_image(sys.argv[1])
+EOF
+
+          
+          
           # Target all common web image formats inside your image folder
           for file in src/images/*.{png,jpg,jpeg,webp}; do
             # Skip if the file extension matching found nothing
@@ -49,24 +71,13 @@ jobs:
             # Step 1: Wipe all tracking metadata, C2PA, EXIF, and XMP manifests
             exiftool -all= "$file" -o "src/images/clean/$filename"
 
-            # Step 2: Use Python to subtly disrupt invisible pixel structures 
-            # and passive AI classifiers via minor compression/noise shift
-            python -c "
-from PIL import Image
-import os
-
-img_path = 'src/images/clean/$filename'
-if os.path.exists(img_path):
-    img = Image.open(img_path)
-    # Convert RGBA to RGB if saving as JPEG to prevent crashes
-    if img.mode in ('RGBA', 'LA') and img_path.lower().endswith(('.jpg', '.jpeg')):
-        img = img.convert('RGB')
-    
-    # Save with custom quality encoding to alter model-specific pixel distribution
-    img.save(img_path, quality=92, subsampling=0)
-print('Finished pixel smoothing for $filename')
-"
+            # Step 2: Run the isolated Python file passing the target image path
+            python humanize.py "src/images/clean/$filename"
           done
+          
+          # Clean up the script file
+          rm humanize.py
+
 
       - name: Convert to WebP & Delete Clean Folder (src/images/clean/ -> web/images/)
         run: |
