@@ -19,9 +19,9 @@ def base_template(basefile, op_loc, op_file):
     op_tg = os.path.join(op_loc, op_file)
     return base_temp, op_tg
 
-def generate (base_temp,op_tg,content=""):
+def generate (base_temp,op_tg,**kwargs):
     with open(op_tg, 'w', encoding='utf-8') as o_f:
-        o_f.write(base_temp.render(content))
+        o_f.write(base_temp.render(kwargs))
     print(f"Success: Isolated page generated explicitly at: {op_tg}")
 
 
