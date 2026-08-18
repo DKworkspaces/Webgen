@@ -58,7 +58,7 @@ def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, injec
     asym_cd = c + (d * 0.5)
     asym_da = d + (a * 0.5)
 
-    max_slots = 7
+    max_slots = 4
     canvas = np.zeros((h, w * max_slots, ch), dtype=np.float32)
 
     for y in range(h):
