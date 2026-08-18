@@ -32,20 +32,19 @@ def load_json (json_file):
 
 def load_data_profiles():
     """Loads header n footer JSON files needed for compilation."""
-    hd= load_json ('data/header.json')
-    fd= load_json ('data/footer.json')
-    return hd, fd
+    hd= load_json ('data/header_footer.json')
+    return hd
 
-def generate_layout_snippets(header_data, footer_data):
+def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
     md('templates/temp')
-    hd,fd= load_data_profiles()
+    hd= load_data_profiles()
     # 1. Compile and save plain header snippet
     h_t=base_f('header.html')
     generate(h_t,'templates/temp/header.html',a=hd)
     # 2. Compile and save plain footer snippet
     f_t=base_f('footer.html')
-    generate(f_t,'templates/temp/footer.html',a=fd)
+    generate(f_t,'templates/temp/footer.html',a=hd)
     print("Success: Standalone layout modules compiled into templates/temp/")
         
 def generate_page(base_file,op_loc,op_file,content):
@@ -60,15 +59,14 @@ def generate_page(op_loc,op_file,content):
     
 def gen_headfoot():
     # Step 1: Load all data profiles
-    hd, fd = load_data_profiles()
+    hd = load_data_profiles()
     # Step 2: Build the raw snippet dependencies first
-    generate_layout_snippets(hd, fd)
+    generate_layout_snippets()
     
 def gen_home():
     hm= load_json ('data/page/home.json')
     gb= load_json ('data/global.json')
-    a = {**gb,"page_data":hm}
-    generate_page('home.html','dist','index.html',**a)
+    generate_page('home.html','dist','index.html',hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','dist','about_us.html',hm)
