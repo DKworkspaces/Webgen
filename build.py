@@ -66,7 +66,11 @@ def gen_headfoot():
 def gen_home():
     hm= load_json ('data/page/home.json')
     gb= load_json ('data/global.json')
-    generate_page('home.html','dist','index.html',hm)
+    # 3. Merge: Unpack root variables and insert nested data into a key
+    md = {**gb,"page_data": hm }
+
+
+    generate_page('home.html','dist','index.html', **md)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','dist','about_us.html',hm)
