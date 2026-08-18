@@ -67,7 +67,8 @@ def gen_headfoot():
 def gen_home():
     hm= load_json ('data/page/home.json')
     gb= load_json ('data/global.json')
-    generate_page('home.html','dist','index.html',{"page_data":hm,**gb})
+    a = {"page_data":hm,**gb }
+    generate_page('home.html','dist','index.html',**a)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','dist','about_us.html',hm)
