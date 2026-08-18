@@ -1,4 +1,4 @@
-{% from 'macro/head/_header.html' import render_page_identity,render_canonical,render_page_social_meta %}
+{% from 'macro/head/_header.html' import r_page_id,r_can,render_page_social_meta %}
 {% if page_type != 'CollectionPage' %}
 {% set _ = page_data.social.update({
     'desc': "Expert guides on web development, AI, and enterprise Flask architectures.",
