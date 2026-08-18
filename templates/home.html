@@ -5,7 +5,7 @@
     'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
     'desc': "Leading resource for enterprise-grade Flask architectures.",
     'robots': "index, follow, max-image-preview:large",
-    'canonical_url': request.url.rstrip('/'),
+    'canonical_url': site_config.home_Url,
       'datePublished': site_config.launch_date,
       'dateModified': "2026-07-20",
     'about': { "@id": site_config.home_Url ~ '/#organization'  ,"@type": "Organization"}
