@@ -35,16 +35,15 @@ def generate_fake_iphone_exif():
 
 def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, inject_fake_meta=True):
     """
-    Reads raw pixels, shuffles individual pixel positions randomly within 
-
-    their micro-sequences to avoid blocking artifacts, and writes a sterile WebP.
+    Combines 4-stage matrix extraction, asymmetrical calculation, 
+    and 2D spatial pixel interlacing to defeat AI detectors without ghosting.
     """
     img = cv2.imread(image_path)
     if img is None:
         print(f"❌ Error: Could not read image {image_path}")
         return False
 
-    # Extract base structural sub-grids (a, b, c, d)
+    # Stage 1: Extract 4 base structural sub-grids (a, b, c, d)
     a = img[0::2, 0::2].astype(np.float32)
     b = img[0::2, 1::2].astype(np.float32)
     c = img[1::2, 0::2].astype(np.float32)
@@ -52,52 +51,30 @@ def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, injec
 
     h, w, ch = a.shape
 
-    # Compute asymmetric one-sided averages
+    # Stage 2: Compute asymmetric one-sided averages
     asym_ab = a + (b * 0.5)
     asym_bc = b + (c * 0.5)
     asym_cd = c + (d * 0.5)
     asym_da = d + (a * 0.5)
 
-    max_slots = 4
-    canvas = np.zeros((h, w * max_slots, ch), dtype=np.float32)
+    # Stage 3: Map pixels to a clean 2x larger 2D spatial canvas
+    # This keeps data uniform vertically and horizontally to prevent the 3D-glasses distortion
+    canvas = np.zeros((h * 2, w * 2, ch), dtype=np.float32)
 
-    for y in range(h):
-        seq_choice = random.choice([1, 2, 3])
-        
-        if seq_choice == 1:
-            # Stack the 7 components into a 3D matrix of shape (7, w, ch)
-            stacked = np.stack([a[y], asym_ab[y], b[y], asym_bc[y], c[y], asym_cd[y], d[y]], axis=0)
-        elif seq_choice == 2:
-            # Stack 6 components
-            stacked = np.stack([a[y], asym_ab[y], b[y], c[y], asym_cd[y], d[y]], axis=0)
-        elif seq_choice == 3:
-            # Stack 5 components
-            stacked = np.stack([a[y], b[y], asym_bc[y], c[y], d[y]], axis=0)
-            
-        num_components = stacked.shape[0] # either 7, 6, or 5
-        
-        # Create an array of random indices to mix the pixels horizontally
-        # Instead of block 1 then block 2, it picks the pixel column elements randomly
-        shuffled_row = np.zeros((w * num_components, ch), dtype=np.float32)
-        
-        # Interleave the columns randomly
-        for x in range(w):
-            pixel_pool = stacked[:, x, :] # Pool of 5-7 pixels for this position
-            
-            # Shuffle the order of pixels inside this localized column pool
-            indices = list(range(num_components))
-            random.shuffle(indices)
-            shuffled_pool = pixel_pool[indices]
-            
-            # Place them back into the expanded row layout
-            start_idx = x * num_components
-            end_idx = start_idx + num_components
-            shuffled_row[start_idx:end_idx] = shuffled_pool
-            
-        canvas[y, :shuffled_row.shape[0]] = shuffled_row
+    # Interlace the matrix structures evenly across 2D block space
+    canvas[0::2, 0::2] = a
+    canvas[0::2, 1::2] = asym_ab
+    canvas[1::2, 0::2] = c
+    canvas[1::2, 1::2] = asym_cd
 
-    # Restore native spatial dimensions (Width, Height format for cv2.resize)
-    final_resized = cv2.resize(canvas, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_LANCZOS4)
+    # Stage 4: High-Frequency Component Masking (Micro-Noise Inversion)
+    # This blurs the transition boundaries between our custom matrix grids 
+    # so modern AI scanners see natural lens transitions rather than code artifacts
+    noise_mask = np.random.normal(0, 0.4, canvas.shape).astype(np.float32)
+    canvas = cv2.add(canvas, noise_mask)
+
+    # Restore native spatial dimensions smoothly using Area interpolation to prevent ghosting
+    final_resized = cv2.resize(canvas, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_AREA)
     final_output = np.clip(final_resized, 0, 255).astype(np.uint8)
     
     # Save sterile WebP container
@@ -139,4 +116,3 @@ if __name__ == "__main__":
         out_path = os.path.join(output_folder, f"{base_name}_humanized.webp")
         
         deep_strip_scramble_and_fake(in_path, out_path, COMPRESSION_QUALITY, inject_fake_meta=True)
-    
