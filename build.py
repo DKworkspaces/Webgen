@@ -58,9 +58,7 @@ def generate_page(op_loc,op_file,content):
     generate(template,op_file)
     
 def gen_headfoot():
-    # Step 1: Load all data profiles
-    hd = load_data_profiles()
-    # Step 2: Build the raw snippet dependencies first
+    # Step 1: Build the raw snippet dependencies first
     generate_layout_snippets()
 
 def set_global():
@@ -104,6 +102,7 @@ def gen_404():
 
 def main():
     """Main orchestrator running the operations in order."""
+    gen_headfoot()
     set_global()
     gen_home()
    
