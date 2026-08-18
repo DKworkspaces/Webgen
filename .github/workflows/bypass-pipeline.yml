@@ -3,7 +3,10 @@ name: Anti-Forensic Image Pipeline
 on:
   push:
     paths:
-      - 'ipimages/**' # Triggers only when you upload files to this folder
+      # Trigger the pipeline ONLY when standard images are added to input_images
+      - 'ipimages/**/*.jpg'
+      - 'ipimages/**/*.jpeg'
+      - 'ipimages/**/*.png'
   workflow_dispatch: # Allows you to run it manually via GitHub UI
 
 jobs:
