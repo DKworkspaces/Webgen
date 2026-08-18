@@ -77,7 +77,7 @@
 
 
 {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) %}
-{% set root_url = request.url_root.rstrip('/') %}
+{% set root_url = site_config.home_Url %}
 
 <script type="application/ld+json">
 {"@context": "https://schema.org",
