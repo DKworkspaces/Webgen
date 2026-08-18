@@ -65,23 +65,23 @@ def gen_headfoot():
     generate_layout_snippets(hd, fd)
     
 def gen_home():
-    hm= load_json ('data/home.json')
+    hm= load_json ('data/page/home.json')
     gb= load_json ('data/global.json')
-    generate_page('home.html','dist','index.html',{**hm,**gb})
+    generate_page('home.html','dist','index.html',{"page_data":hm,**gb})
 def gen_about():
-    hm= load_json ('data/about.json')
+    hm= load_json ('data/page/about.json')
     generate_page('about.html','dist','about_us.html',hm)
 def gen_contact():
-    hm= load_json ('data/contact.json')
+    hm= load_json ('data/page/contact.json')
     generate_page('contact.html','dist','contact_us.html',hm)
 def gen_privacy():
-    hm= load_json ('data/privacy.json')
+    hm= load_json ('data/page/privacy.json')
     generate_page('privacy.html','dist','privacy_policy.html',hm)
 def gen_editorial():
-    hm= load_json ('data/edit.json')
+    hm= load_json ('data/page/edit.json')
     generate_page('edit.html','dist','editorial_policy.html',hm)
 def gen_terms():
-    hm= load_json ('data/terms.json')
+    hm= load_json ('data/page/terms.json')
     generate_page('terms.html','dist','terms_conditions.html',hm)
 
 def gen_404():
