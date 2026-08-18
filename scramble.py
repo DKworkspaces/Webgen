@@ -90,7 +90,7 @@ def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, injec
     
     # --- ISOLATED CALL TO NEW BLENDING FUNCTION ---
     # The matrix array is passed to the new dedicated function, keeping logic separate.
-    post_processed_matrix = apply_image_blending_hack(final_resized, opacity=0.045)
+    post_processed_matrix = apply_image_blending_hack(final_resized, opacity=0.09)
     
     # Clip numerical ranges back to valid integer dimensions
     final_output = np.clip(post_processed_matrix, 0, 255).astype(np.uint8)
