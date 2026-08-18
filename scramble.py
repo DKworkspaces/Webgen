@@ -5,6 +5,7 @@ import os
 import sys
 import piexif
 
+# Target WebP Quality (85-90 triggers optimal structural compression)
 COMPRESSION_QUALITY = 79
 
 def generate_fake_iphone_exif():
@@ -36,9 +37,9 @@ def generate_fake_iphone_exif():
     return exif_bytes
 
 def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, inject_fake_meta=True):
-    """Reads raw pixels to completely drop original AI markers, shuffles the lattice,
-
-    saves the final file, and appends organic smartphone camera profiles.
+    """
+    Reads raw pixels to drop original AI markers, shuffles the grid lattice,
+    saves a fresh WebP container, and appends organic camera headers.
     """
     # 1. Read ONLY raw pixels (instantly dropping original C2PA/EXIF wrappers)
     img = cv2.imread(image_path)
@@ -60,31 +61,37 @@ def deep_strip_scramble_and_fake(image_path, output_path, quality_setting, injec
     asym_cd = c + (d * 0.5)
     asym_da = d + (a * 0.5)
 
-    canvas = np.zeros((h, w * 7, ch), dtype=np.float32)
+    max_slots = 7
+    # Allocate canvas memory: Height x (Width * 7) x Channels
+    canvas = np.zeros((h, w * max_slots, ch), dtype=np.float32)
 
-    # 4. Row-by-row lattice scrambling sequence
+    # 4. Apply randomized matrix sequence selection per row block
+    # axis=0 is used because indexing a single row a[y] leaves a 2D array of (Width, Channels)
     for y in range(h):
         seq_choice = random.choice([1, 2, 3])
+        
         if seq_choice == 1:
-            row_data = np.concatenate([a[y], asym_ab[y], b[y], asym_bc[y], c[y], asym_cd[y], d[y]], axis=1)
-            canvas[y, :row_data.shape[1]] = row_data
+            # Seq 1: 7 sub-images long
+            row_data = np.concatenate([a[y], asym_ab[y], b[y], asym_bc[y], c[y], asym_cd[y], d[y]], axis=0)
+            canvas[y, :row_data.shape[0]] = row_data
         elif seq_choice == 2:
-            row_data = np.concatenate([a[y], asym_ab[y], b[y], c[y], asym_cd[y], d[y]], axis=1)
-            canvas[y, :row_data.shape[1]] = row_data
+            # Seq 2: 6 sub-images long
+            row_data = np.concatenate([a[y], asym_ab[y], b[y], c[y], asym_cd[y], d[y]], axis=0)
+            canvas[y, :row_data.shape[0]] = row_data
         elif seq_choice == 3:
-            row_data = np.concatenate([a[y], b[y], asym_bc[y], c[y], d[y]], axis=1)
-            canvas[y, :row_data.shape[1]] = row_data
+            # Seq 3: 5 sub-images long
+            row_data = np.concatenate([a[y], b[y], asym_bc[y], c[y], d[y]], axis=0)
+            canvas[y, :row_data.shape[0]] = row_data
 
-    # 5. Restore original dimensions 
+    # 5. Restore original spatial dimensions and aspect ratio
     final_resized = cv2.resize(canvas, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_LANCZOS4)
     final_output = np.clip(final_resized, 0, 255).astype(np.uint8)
     
-    # 6. Save fresh file container
-    # NOTE: If platforms strictly require EXIF insertion, JPEG offers the highest system compatibility
+    # 6. Save fresh file container with zero original headers
     success = cv2.imwrite(output_path, final_output, [int(cv2.IMWRITE_WEBP_QUALITY), quality_setting])
     
     if success:
-        # 7. Inject the fake iPhone EXIF Profile into the freshly written sterile file wrapper
+        # 7. Inject the fake iPhone EXIF Profile into the freshly written file wrapper
         if inject_fake_meta:
             try:
                 fake_exif_data = generate_fake_iphone_exif()
@@ -104,18 +111,22 @@ if __name__ == "__main__":
     os.makedirs(input_folder, exist_ok=True)
     os.makedirs(output_folder, exist_ok=True)
     
-    valid_exts = ('.png', '.jpg', '.jpeg', '.webp')
-    images = [f for f in os.listdir(input_folder) if f.lower().endswith(valid_exts)]
+    # Strictly allow ONLY standard root image files (.jpg, .jpeg, .png)
+    valid_exts = ('.jpg', '.jpeg', '.png')
+    images = [
+        f for f in os.listdir(input_folder) 
+        if f.lower().endswith(valid_exts) and os.path.isfile(os.path.join(input_folder, f))
+    ]
     
     if not images:
-        print("ℹ️ No images found in 'input_images' folder.")
+        print("ℹ️ No matching files found directly in 'input_images' root folder.")
         sys.exit(0)
         
     for img_name in images:
         in_path = os.path.join(input_folder, img_name)
-        base_name = os.path.splitext(img_name)[0]
+        base_name, _ = os.path.splitext(img_name)
         out_path = os.path.join(output_folder, f"{base_name}_humanized.webp")
         
-        # Toggle True/False here to turn fake camera injection ON/OFF dynamically
+        # Execute the full automated pipeline
         deep_strip_scramble_and_fake(in_path, out_path, COMPRESSION_QUALITY, inject_fake_meta=True)
     
