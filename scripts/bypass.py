@@ -19,7 +19,16 @@ def bypass_detection_6x(image_path):
         # Pass 1-2: Subtle variance (-2 to 2)
         # Pass 3-4: Micro variance (-1 to 1)
         # Pass 5-6: Binary variance (0 or 1) to break color consistency
-        noise_ranges = [(-2, 3), (-2, 3), (-1, 2), (-1, 2), (0, 2), (0, 2)]
+        noise_ranges = [
+            (-2, 3), (-2, 3),                  # Steps 1-2: Core variance
+            (-1, 2), (-1, 2), (-1, 2), (-1, 2), # Steps 3-6: Micro variance
+            (0, 2),  (0, 2),  (0, 2),  (0, 2),  # Steps 7-10: Binary variance
+            (-1, 1), (-1, 1), (-1, 1), (-1, 1), # Steps 11-14: Boundary jitter
+            (0, 1),  (0, 1),  (0, 1),  (0, 1),  # Steps 15-18: Sub-pixel flicker
+            (-1, 1), (0, 1)                     # Steps 19-20: Final byte scrambling
+        ]
+        
+        
         
         for low, high in noise_ranges:
             noise = np.random.randint(low, high, data.shape, dtype='int16')
