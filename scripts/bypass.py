@@ -32,19 +32,4 @@ def bypass_detection_6x(image_path):
         img.save(image_path, "JPEG", quality=95, optimize=True)
 
 if __name__ == "__main__":
-    folder = "input"
-    if os.path.exists(folder):
-        for file in os.listdir(folder):
-            if file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                bypass_detection_6x(os.path.join(folder, file))
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    os.makedirs('output', exist_ok=True)
-    replace_metadata('input/ai_image.jpg', 'reference/real_camera.jpg', 'output/step1_meta.jpg'
+    bypass_detection_6x('output/final_bypass_image.jpg')
