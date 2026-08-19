@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'output/**'
+    workflow_call: # 👈 This allows other workflows to call this one directly
+      
 
 jobs:
   sanitize:
