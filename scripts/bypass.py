@@ -42,9 +42,5 @@ def bypass_detection_6x(image_path):
 
 if __name__ == "__main__":
     target_file = 'final_distribution/final_bypass_image.jpg'
-    
-    # Run the function 20 times sequentially
-    for i in range(20):
-        print(f"Applying bypass loop {i+1}/20...")
-        bypass_detection_6x(target_file)
-    print("Done! Applied 20 cycles of noise and modifications.")
+    bypass_detection_6x(target_file)
+    print("Done! Applied 1 cycle of noise and modifications.")
