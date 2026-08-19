@@ -35,22 +35,34 @@ jobs:
     - name: Install Dependencies
       run: pip install Pillow numpy
 
-    - name: Run Anti-Detection Script
-      run: python scripts/bypass.py
-
-    - name: Commit and Push Cleaned Images
-      run: |
+    - name: Configure Git Credentials
+      run:  |
         git config --local user.email "lazy-specialist@github.com"
         git config --local user.name "Lazy Anti-AI Bot"
-        git add .
-        # Check if there are actually any changes to commit
-        if ! git diff --quiet --staged; then
-          git commit -m "Cleaned AI signatures via chain trigger"
+
+    - name: Run Sequential Loop (5 Times)
+      run: |
+        for i in {1..5}
+        do
+          echo "=== Starting Iteration $i ==="
           
-          # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
-          git pull --rebase origin ${GITHUB_REF_NAME}
+          # 1. Run your script to read, modify, and overwrite the image
+          python scripts/bypass.py
           
-          git push origin HEAD:${GITHUB_REF_NAME}
-        else
-          echo "No image changes detected. Skipping push."
-        fi
+          # 2. Stage the modified file
+          git add .
+          
+          # 3. Commit and push only if changes happened
+          if ! git diff --cached --quiet; then
+            git commit -m "Automated update: Iteration $i"
+            
+            # Pull with rebase to avoid conflicts if remote changes happen
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes detected in iteration $i."
+          fi
+          
+          echo "=== Completed Iteration $i ==="
+          echo "-----------------------------------"
+        done
