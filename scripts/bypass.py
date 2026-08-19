@@ -32,4 +32,10 @@ def bypass_detection_6x(image_path):
         img.save(image_path, "JPEG", quality=95, optimize=True)
 
 if __name__ == "__main__":
-    bypass_detection_6x('final_distribution/final_bypass_image.jpg')
+    target_file = 'final_distribution/final_bypass_image.jpg'
+    
+    # Run the function 20 times sequentially
+    for i in range(20):
+        print(f"Applying bypass loop {i+1}/20...")
+        bypass_detection_6x(target_file)
+    print("Done! Applied 20 cycles of noise and modifications.")
