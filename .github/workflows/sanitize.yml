@@ -42,24 +42,15 @@ jobs:
 
     - name: Run Sequential Loop (5 Times)
       run: |
-        for i in {1..5}
-        do
-          echo "=== Starting Iteration $i ==="
+        git add .
+        # Check if there are actually any changes to commit
+        if ! git diff --quiet --staged; then
+          git commit -m "Cleaned AI signatures via chain trigger"
           
-          # 1. Run your script to read, modify, and overwrite the image
-          python scripts/bypass.py
+          # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
+          git pull --rebase origin ${GITHUB_REF_NAME}
           
-          git add .
-          # Check if there are actually any changes to commit
-          if ! git diff --quiet --staged; then
-            git commit -m "Cleaned AI signatures via chain trigger"
-            # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
-            git pull --rebase origin ${GITHUB_REF_NAME}
-            git push origin HEAD:${GITHUB_REF_NAME}
-          else
-            echo "No image changes detected. Skipping push."
-          fi
-          
-          echo "=== Completed Iteration $i ==="
-          echo "-----------------------------------"
-        done
+          git push origin HEAD:${GITHUB_REF_NAME}
+        else
+          echo "No image changes detected. Skipping push."
+        fi
