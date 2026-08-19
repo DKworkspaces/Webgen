@@ -35,13 +35,13 @@ jobs:
     - name: Install Dependencies
       run: pip install Pillow numpy
 
-    - name: Configure Git Credentials
-      run:  |
+    - name: Run Anti-Detection Script
+      run: python scripts/bypass.py
+
+    - name: Commit and Push Cleaned Images
+      run: |
         git config --local user.email "lazy-specialist@github.com"
         git config --local user.name "Lazy Anti-AI Bot"
-
-    - name: Run Sequential Loop (5 Times)
-      run: |
         git add .
         # Check if there are actually any changes to commit
         if ! git diff --quiet --staged; then
