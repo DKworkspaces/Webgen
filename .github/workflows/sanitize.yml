@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'final_distribution/**'
-    workflow_call: # 👈 This allows other workflows to call this one directly
+    workflow_call: {} # 👈 This allows other workflows to call this one directly
       
 
 jobs:
