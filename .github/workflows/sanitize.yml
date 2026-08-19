@@ -33,4 +33,14 @@ jobs:
         git config --local user.email "lazy-specialist@github.com"
         git config --local user.name "Lazy Anti-AI Bot"
         git add .
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Cleaned AI signatures" && git push)
+        # Check if there are actually any changes to commit
+        if ! git diff --quiet --staged; then
+          git commit -m "Cleaned AI signatures via chain trigger"
+          
+          # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
+          git pull --rebase origin ${GITHUB_REF_NAME}
+          
+          git push origin HEAD:${GITHUB_REF_NAME}
+        else
+          echo "No image changes detected. Skipping push."
+        fi
