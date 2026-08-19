@@ -43,10 +43,10 @@ jobs:
           # 1. Stage your changes
           git add .
           
-          mkdir -p final_distribution/
-          cp output/final_bypass_image.jpg final_distribution/
+          mkdir -p final_distribution/1/
+          cp output/final_bypass_image.jpg final_distribution/1/
           
-          git add final_distribution/
+          git add final_distribution/1/
           
            # 2. Check if changes exist, then commit
           if ! git diff --quiet --staged; then
