@@ -49,18 +49,15 @@ jobs:
           # 1. Run your script to read, modify, and overwrite the image
           python scripts/bypass.py
           
-          # 2. Stage the modified file
           git add .
-          
-          # 3. Commit and push only if changes happened
-          if ! git diff --cached --quiet; then
-            git commit -m "Automated update: Iteration $i"
-            
-            # Pull with rebase to avoid conflicts if remote changes happen
-            git pull --rebase origin main
-            git push origin main
+          # Check if there are actually any changes to commit
+          if ! git diff --quiet --staged; then
+            git commit -m "Cleaned AI signatures via chain trigger"
+            # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
+            git pull --rebase origin ${GITHUB_REF_NAME}
+            git push origin HEAD:${GITHUB_REF_NAME}
           else
-            echo "No changes detected in iteration $i."
+            echo "No image changes detected. Skipping push."
           fi
           
           echo "=== Completed Iteration $i ==="
