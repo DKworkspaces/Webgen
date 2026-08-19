@@ -14,8 +14,18 @@ jobs:
       contents: write
 
     steps:
+    steps:
+    # 👇 STEP 1: Add this delay step at the very top of your steps
+    - name: Cooldown Delay to Prevent Race Conditions
+      run: |
+        echo "Waiting 15 seconds for previous git operations to clear..."
+        sleep 15
+        
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        # Fetch all history to ensure rebase merges correctly
+        fetch-depth: 0 
 
     - name: Set up Python
       uses: actions/setup-python@v5
