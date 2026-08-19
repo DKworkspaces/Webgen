@@ -3,7 +3,7 @@ import random
 import numpy as np
 from PIL import Image
 
-def bypass_detection_6x(image_path):
+def bypass_detection_6x(image_path,output_path):
     with Image.open(image_path) as img:
         # 1. Convert to RGB to strip hidden alpha channel profiles
         img = img.convert("RGB")
@@ -27,9 +27,6 @@ def bypass_detection_6x(image_path):
             (0, 1),  (0, 1),  (0, 1),  (0, 1),  # Steps 15-18: Sub-pixel flicker
             (-1, 1), (0, 1)                     # Steps 19-20: Final byte scrambling
         ]
-        
-        
-        
         for low, high in noise_ranges:
             noise = np.random.randint(low, high, data.shape, dtype='int16')
             data = np.clip(data + noise, 0, 255)
@@ -38,9 +35,23 @@ def bypass_detection_6x(image_path):
         img = Image.fromarray(data.astype('uint8'))
         
         # 4. Save clean (Strips EXIF data completely)
-        img.save(image_path, "JPEG", quality=95, optimize=True)
-
+        img.save(output_path, "JPEG", quality=95, optimize=True)
+        print(f"Success! Processed image saved to: {output_path}")
+def check_list(input_file,output_file):
+        # Ensure the source file actually exists
+    if not os.path.exists(input_path):
+        print(f"Error: Input file '{input_path}' not found.")
+        return
+    # Automatically create the output directory if it is missing
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    bypass_detection_6x(input_file, output_file)
+    
 if __name__ == "__main__":
-    target_file = 'final_distribution/final_bypass_image.jpg'
-    bypass_detection_6x(target_file)
-    print("Done! Applied 1 cycle of noise and modifications.")
+    # Define your separate input and output file paths here
+    input_file = 'final_distribution/final_bypass_image.jpg'
+    output_file = 'final_distribution/1/final_bypass_image.jpg'
+    check_list(input_file,output_file)
+    
+    
