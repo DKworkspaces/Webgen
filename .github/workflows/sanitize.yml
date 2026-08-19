@@ -3,7 +3,7 @@ name: Anti-AI Image Sanitizer
 on:
   push:
     paths:
-      - 'output/**'
+      - 'final_distribution/**'
     workflow_call: # 👈 This allows other workflows to call this one directly
       
 
