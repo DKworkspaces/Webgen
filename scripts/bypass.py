@@ -37,3 +37,14 @@ if __name__ == "__main__":
         for file in os.listdir(folder):
             if file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 bypass_detection_6x(os.path.join(folder, file))
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    os.makedirs('output', exist_ok=True)
+    replace_metadata('input/ai_image.jpg', 'reference/real_camera.jpg', 'output/step1_meta.jpg'
