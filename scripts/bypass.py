@@ -32,4 +32,4 @@ def bypass_detection_6x(image_path):
         img.save(image_path, "JPEG", quality=95, optimize=True)
 
 if __name__ == "__main__":
-    bypass_detection_6x('output/final_bypass_image.jpg')
+    bypass_detection_6x('final_distribution/final_bypass_image.jpg')
