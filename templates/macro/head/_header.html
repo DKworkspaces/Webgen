@@ -31,7 +31,7 @@
     <meta name="twitter:player" content="https://www.youtube-nocookie.com/embed/{{ data.video.id }}"/>
     <meta property="og:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg"/>
     <meta name="twitter:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg"/>
-  {% elif platform == 'dailymotion' %}
+  {% elif data.video.type == 'dailymotion' %}
     <meta property="og:video" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}"/>
     <meta name="twitter:player" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}"/>
     <meta property="og:image" content="https://www.dailymotion.com/thumbnail/video/{{ data.video.id }}"/>
