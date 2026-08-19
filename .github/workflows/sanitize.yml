@@ -11,22 +11,17 @@ on:
         description: 'Path where the processed output should be saved'
         required: true
         default: 'final_distribution/1/final_bypass_image.jpg'
-  workflow_run:
-    workflows: ["Production AI Signature Stripper Pipeline"] # 👈 Must match the name from Step 1 exactly
-    types:
-      - completed # 👈 Triggers immediately when the first file finishes executing
-
 jobs:
   sanitize:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     permissions:
       contents: write
 
     steps:
     # 👇 STEP 1: Add this delay step at the very top of your steps
     - name: Cooldown Delay to Prevent Race Conditions
-      if: ${{ github.event_name == 'workflow_run' }}
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       run: |
         echo "Waiting 15 seconds for previous git operations to clear..."
         sleep 15
@@ -35,7 +30,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         # Crucial: Checkout the exact branch/commit reference that triggered the original run
-        ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+        ref: ${{ github.ref_name }}
         fetch-depth: 0
 
     - name: Set up Python
