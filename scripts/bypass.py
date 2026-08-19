@@ -50,8 +50,10 @@ def check_list(input_file,output_file):
     
 if __name__ == "__main__":
     # Define your separate input and output file paths here
+    
+
     input_file = 'final_distribution/final_bypass_image.jpg'
-    output_file = 'final_distribution/1/final_bypass_image.jpg'
+    output_file = 'output/final_bypass_image.jpg'
     check_list(input_file,output_file)
     
     
