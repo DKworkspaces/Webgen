@@ -53,10 +53,9 @@ jobs:
         if ! git diff --quiet --staged; then
           git commit -m "Cleaned AI signatures via chain trigger"
           
-          # 👇 THE LAZY MAGIC: Fetch latest remote changes and replay our commit on top
-          git pull --rebase origin ${GITHUB_REF_NAME}
+          mkdir -p final_distribution/1/
+          cp output/final_bypass_image.jpg final_distribution/1/
           
-          git push origin HEAD:${GITHUB_REF_NAME}
-        else
-          echo "No image changes detected. Skipping push."
-        fi
+          git add final_distribution/1/
+          git commit -m "Pipeline deployment complete. Production file added to final_distribution/1/" || exit 0
+          git push
