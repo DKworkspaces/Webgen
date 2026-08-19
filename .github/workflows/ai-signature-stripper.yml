@@ -1,0 +1,49 @@
+name: "Production AI Signature Stripper Pipeline"
+on:
+  push:
+    paths:
+      - 'input/**'
+  workflow_dispatch:
+
+# Grant write permissions so the final output can be saved to the repository
+permissions:
+  contents: write
+
+jobs:
+  strip-ai-signatures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install pillow piexif opencv-python-headless numpy
+
+      - name: Run 01 Script
+        run: python scripts/01_replace_metadata.py
+
+      - name: Run 02 Script
+        run: python scripts/02_pixel_disruption.py
+
+      - name: Run 03 Script
+        run: python scripts/03_wipe_logos.py
+
+      - name: Run 04 Script
+        run: python scripts/04_noise_masking.py
+
+      - name: Commit Final Production Output
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          mkdir -p final_distribution/
+          cp output/final_bypass_image.jpg final_distribution/
+          
+          git add final_distribution/
+          git commit -m "Pipeline deployment complete. Production file added to final_distribution/" || exit 0
+          git push
