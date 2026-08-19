@@ -52,4 +52,4 @@ jobs:
   # 👇 ADD THIS JOB TO THE BOTTOM OF YOUR PREVIOUS FILE
   trigger_anti_ai:
     needs: strip-ai-signatures # 👈 Ensures it runs AFTER your previous job finishes
-    uses: ./.github/workflows/sanitize.yml@production # 👈 Calls your sanitizer file
+    uses: ./.github/workflows/sanitize.yml # 👈 Calls your sanitizer file
