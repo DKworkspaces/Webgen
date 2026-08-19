@@ -47,3 +47,9 @@ jobs:
           git add final_distribution/
           git commit -m "Pipeline deployment complete. Production file added to final_distribution/" || exit 0
           git push
+
+
+  # 👇 ADD THIS JOB TO THE BOTTOM OF YOUR PREVIOUS FILE
+  trigger_anti_ai:
+    needs: strip-ai-signatures # 👈 Ensures it runs AFTER your previous job finishes
+    uses: ./.github/workflows/sanitize.yml@production # 👈 Calls your sanitizer file
