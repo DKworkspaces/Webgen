@@ -1,79 +1,33 @@
+
+
+
 {
-  "logo": "Xocumentary",
-  "menus": [
-    {
-      "type": "search"
-    },
-    {
-      "title":"Categories",
-      "type":"megamenu",
-      "categories":[
-        {
-          "cat_title": "By Region",
-          "links": [
-            {
-              "title": "Indo-Pacific",
-              "url": "#"
-            },
-            {
-              "title": "Eruope & Eurasia",
-              "url": "#"
-            },
-            {
-              "title": "MiddleEast & Africa",
-              "url": "#"
-            },
-            {
-              "title": "The Americas",
-              "url": "#"
-            }
-          ]
-        },
-        {
-          "cat_title": "By Subject",
-          "links": [
-            {
-              "title": "Geopolitics",
-              "url": "#"
-            },
-            {
-              "title": "History",
-              "url": "#"
-            },
-            {
-              "title": "Science",
-              "url": "#"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "select",
-      "children": [
-        {
-          "title": "System Mode",
-          "val": "system"
-        },
-        {
-          "title": "Light Mode",
-          "val": "light"
-        },
-        {
-          "title": "Dark Mode",
-          "val": "dark"
-        }
-      ]
-    },
-    {
-      "title":"About Us",
-      "url":"#",
-      "type":"standard"
-    },
-    {
-      "title":"Contact Us",
-      "url":"#",
-      "type":"standard"
-    }
-  ]
+"name": "Global Tech Insights",
+"org_name": "Tech Insights Media Group LLC",
+"desc": "Leading platform providing verified, cutting-edge software architecture analyses and framework documentation.",
+"per_page": 10,
+"image_base_url": "https://example.com",
+"img": {
+  "url": "https://example.com",
+  "width": 512,
+  "height": 512
+},
+"social_links": [
+  "https://linkedin.com",
+  "https://x.com",
+  "https://github.com"
+],
+"contact": {
+  "availableLanguage": "English",
+  "areaServed": "US, CA, GB",
+  "support_email": "support@example.com",
+  "phone": "+1-800-555-0199"
+},
+"address": {
+  "street": "100 Innovation Way, Suite 400",
+  "city": "Austin",
+  "region": "Texas",
+  "zip": "78701",
+  "country": "US"
+}
 }
