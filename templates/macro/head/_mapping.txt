@@ -111,3 +111,322 @@
   }
 }
 #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{# Global Schema #}
+
+{# 14. Master Schema Graph #}
+{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
+
+{% macro PageSchema(root_url, page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}{%- endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+{#
+
+
+Test files
+
+
+org n website  schema
+
+{
+  "root_url": "https://example.com",
+  "page_type": "Homepage", 
+  "site_config": {
+    "name": "Global Tech Insights",
+    "org_name": "Tech Insights Media Group LLC",
+    "desc": "Leading platform providing verified, cutting-edge software architecture analyses and framework documentation.",
+    "img": {
+      "url": "https://example.com",
+      "width": 512,
+      "height": 512
+    },
+    "social_links": [
+      "https://linkedin.com",
+      "https://x.com",
+      "https://github.com"
+    ],
+    "contact": {
+      "availableLanguage": "English",
+      "areaServed": "US, CA, GB",
+      "support_email": "support@example.com",
+      "phone": "+1-800-555-0199"
+    },
+    "address": {
+      "street": "100 Innovation Way, Suite 400",
+      "city": "Austin",
+      "region": "Texas",
+      "zip": "78701",
+      "country": "US"
+    }
+  },
+  "page_data": {
+    "ishome": true,
+    "canonical_url": "https://example.com",
+    "title": "Global Tech Insights | Home",
+    "desc": "Access high-utility software engineering papers, tutorials, and ecosystem graphs."
+  }
+}
+
+
+
+breadcrumb and person schema 
+
+
+{
+  "root_url": "https://example.com",
+  "site_config": {
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
+    "author_list": [
+      {
+        "id": "jane-doe",
+        "name": "Jane Doe",
+        "url": "https://example.com/authors/jane-doe",
+        "job_title": "Principal SEO Architect",
+        "image": "/profiles/jane-doe.jpg",
+        "knowsAbout": [
+          "Structured Data",
+          "Information Retrieval",
+          "Jinja Engines"
+        ],
+        "social_links": [
+          "https://linkedin.com",
+          "https://github.com"
+        ]
+      },
+      {
+        "id": "john-smith",
+        "name": "John Smith",
+        "url": "https://example.com/authors/john-smith",
+        "job_title": "Senior Content Lead",
+        "image": "/profiles/john-smith.jpg",
+        "knowsAbout": [
+          "Technical Documentation",
+          "Content Architecture"
+        ],
+        "social_links": [
+          "https://x.com"
+        ]
+      }
+    ]
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "https://example.com"
+    },
+    {
+      "name": "Blog",
+      "url": "https://example.com/blog"
+    },
+    {
+      "name": "Advanced Jinja2 Layout Strategies",
+      "url": "https://example.com/blog/advanced-jinja-schemas"
+    }
+  ]
+}
+
+webpage
+blogpost schea
+
+
+{
+  "root_url": "https://example.com",
+  "page_type": "BlogPosting",
+  "site_config": {
+    "per_page": 10
+  },
+  "page_data": {
+    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
+    "title": "Advanced Jinja2 Layout Strategies for JSON-LD Graphs",
+    "desc": "An in-depth architectural look at rendering decoupled schema structures utilizing optimized Jinja compilation pipelines.",
+    "about": true,
+    "main_entity": false,
+    "datePublished": "2026-03-15T08:00:00+00:00",
+    "dateModified": "2026-03-19T14:30:00+00:00",
+    "image": {
+      "url": "https://example.com",
+      "width": 1200,
+      "height": 630
+    },
+    "author": {
+      "id": "jane-doe",
+      "name": "Jane Doe"
+    },
+    "page": 2,
+    "items": [
+      {
+        "url": "https://example.com/blog/item-1",
+        "title": "Understanding JSON-LD Microstructures"
+      },
+      {
+        "url": "https://example.com/blog/item-2",
+        "title": "Optimizing Semantic Graph Connections"
+      }
+    ]
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "https://example.com"
+    },
+    {
+      "name": "Blog",
+      "url": "https://example.com/blog"
+    }
+  ]
+}
+
+
+
+
+webpage Schema collection page
+
+
+{
+  "root_url": "https://example.com",
+  "page_type": "CollectionPage",
+  "site_config": {
+    "per_page": 10
+  },
+  "page_data": {
+    "canonical_url": "https://example.com/blog/category/tutorials",
+    "title": "Developer Tutorials Index | Page 2",
+    "desc": "Browse our complete library of technical step-by-step guides, covering system design, automation tools, and deployment pipelines.",
+    "about": false,
+    "main_entity": false,
+    "datePublished": "2026-01-10T00:00:00+00:00",
+    "dateModified": "2026-08-20T10:15:00+00:00",
+    "image": {
+      "url": "https://example.com",
+      "width": 1200,
+      "height": 630
+    },
+    "page": 2,
+    "items": [
+      {
+        "url": "https://example.com/blog/understanding-json-ld",
+        "title": "Understanding JSON-LD Microstructures"
+      },
+      {
+        "url": "https://example.com/blog/optimizing-semantic-graphs",
+        "title": "Optimizing Semantic Graph Connections"
+      },
+      {
+        "url": "https://example.com/blog/designing-safe-contexts",
+        "title": "Designing Safe Execution Contexts"
+      }
+    ]
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "https://example.com"
+    },
+    {
+      "name": "Blog",
+      "url": "https://example.com/blog"
+    },
+    {
+      "name": "Tutorials",
+      "url": "https://example.com/blog/category/tutorials"
+    }
+  ]
+}
+
+
+
+
+blog post woth video
+
+
+
+{
+  "root_url": "https://example.com",
+  "page_type": "BlogPosting",
+  "site_config": {
+    "name": "Global Tech Insights",
+    "org_name": "Tech Insights Media Group LLC",
+    "desc": "Leading platform providing verified, cutting-edge software architecture analyses.",
+    "image_base_url": "https://example.com",
+    "img": {
+      "url": "https://example.com/brand-logo.png",
+      "width": 512,
+      "height": 512
+    }
+  },
+  "page_data": {
+    "ishome": false,
+    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
+    "title": "Advanced Jinja2 Layout Strategies for JSON-LD Graphs",
+    "desc": "An in-depth architectural look at rendering decoupled schema structures utilizing optimized Jinja compilation pipelines.",
+    "about": true,
+    "main_entity": false,
+    "datePublished": "2026-03-15T08:00:00+00:00",
+    "dateModified": "2026-08-20T10:15:00+00:00",
+    "image": {
+      "url": "https://example.com/posts/jinja-tutorial.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "author": {
+      "id": "jane-doe",
+      "name": "Jane Doe"
+    },
+    "author_list": [
+      {
+        "id": "jane-doe",
+        "name": "Jane Doe",
+        "url": "https://example.com/authors/jane-doe",
+        "job_title": "Principal SEO Architect",
+        "image": "/profiles/jane-doe.jpg",
+        "knowsAbout": ["Structured Data", "Information Retrieval", "Jinja Engines"],
+        "social_links": ["https://linkedin.com"]
+      }
+    ],
+    "video": {
+      "provider": "youtube",
+      "title": "Configuring High-Performance Jinja2 Schemas",
+      "description": "A programmatic walkthrough demonstrating zero-allocation streaming variables.",
+      "thumbnail_url": "https://youtube.com",
+      "uploadDate": "2026-03-15T08:00:00+00:00",
+      "duration": "PT4M32S",
+      "embedUrl": "https://youtube.com",
+      "clips": [
+        { "name": "Introduction", "start": 0, "end": 45 },
+        { "name": "Deep Dive", "start": 46, "end": 160 }
+      ]
+    }
+  },
+  "breadcrumb": [
+    { "name": "Home", "url": "https://example.com" },
+    { "name": "Blog", "url": "https://example.com/blog" },
+    { "name": "Advanced Jinja2 Layout Strategies", "url": "https://example.com/blog/advanced-jinja-schemas" }
+  ]
+}
+
+#}
