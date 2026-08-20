@@ -1,0 +1,113 @@
+{# 1. Page Identity Metadata #}
+{% macro r_page_id(data) -%}{%- endmacro %}
+{# 2. Robots & Canonical #}
+{% macro r_can(data) -%}{%- endmacro %}
+{# 3. Resource Hints #}
+{% macro r_page_res_hints(type=None) -%}{%- endmacro %}
+
+
+
+
+{#
+"data": {
+  "title": "Low-Latency Thread Optimization Protocols",
+  "desc": "An advanced operational manual for tuning sub-millisecond execution loops within distributed systems.",
+  "robots": "index, follow",
+  "canonical_url": "https://devportal.io",
+  "type": "yt"
+  }
+#}
+
+
+
+
+{# 4. OG & Twitter Player Component #}
+
+{% macro r_page_s_meta(data, type='website', card='summary_large_image') -%}{%- endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+{#
+
+{
+  "video_variant_youtube": {
+    "title": "High-Throughput Streaming Engine Diagnostics",
+    "desc": "Live monitoring of execution times across high-traffic node clusters.",
+    "twitter_site_Handler": "@DevPortalLabs",
+    "media": "video",
+    "video": {
+      "type": "youtube",
+      "id": "dQw4w9WgXcQ"
+    },
+    "pin": {
+      "img": "https://devportal.io",
+      "alt": "Infographic displaying streaming engine telemetry data"
+    }
+  },
+
+
+  "image_variant_standard": {
+    "title": "Architectural Blueprint for Zero-Allocation Templates",
+    "desc": "A definitive guide to structuring memory boundaries for high-performance Python engines.",
+    "twitter_site_Handler": "@DevPortalLabs",
+    "media": "image",
+    "og": {
+      "img": "https://devportal.io",
+      "alt": "Schematic diagrams detailing internal memory allocation pathways"
+    },
+    "pin": {
+      "img": "https://devportal.io",
+      "alt": "Flowchart describing template optimization steps"
+    }
+  }
+}
+
+#}
+
+
+{# 5. OG Article Publisher Metadata Engine #}
+{% macro r_page_s_article(data, type=None) -%}{%- endmacro %}
+
+
+{#
+
+  "page_data": {
+    "type": "article",
+    "data": {
+      "published_time": "2026-03-19T08:00:00Z",
+      "modified_time": "2026-08-19T14:30:00Z",
+      "author_url": "https://devportal.io",
+      "publisher": "https://facebook.com",
+      "section": "System Architecture",
+      "twitter_creator_Handler": "@lazymiller",
+      "tags": [
+        "Python",
+        "Jinja2",
+        "Memory Tuning",
+        "Optimization"
+      ]
+    }
+  }
+
+#}
+
+{# 6. Global Asset Icon Component #}
+{% macro r_g_icons(url) -%}{%- endmacro %}
+
+{#
+{
+  "url": {
+    "favicon_svg": "/static/favicon.svg",
+    "favicon_ico": "/static/favicon.ico",
+    "apple_touch": "/static/apple-touch-icon.png"
+  }
+}
+#}
