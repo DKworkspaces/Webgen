@@ -1,3 +1,39 @@
+{# Global Schema #}
+
+{# 14. Master Schema Graph #}
+{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
+
+{% macro PageSchema(root_url, page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+  {# 1. Organization #}
+  {{ Org_Schema(root_url, page_type, site_config) | trim }}
+  
+  {# 2. WebSite #}
+  ,{{ Website_Schema(root_url, page_data, site_config) | trim }}
+  
+  {# 3. Breadcrumb #}
+  {%- if breadcrumb -%}
+  ,{{ Breadcrumb_Schema(page_data, breadcrumb) | trim }}
+  {%- endif -%}
+  
+  {# 4. WebPage #}
+  ,{{ Webpage_Schema(root_url, page_type, page_data, site_config, breadcrumb) | trim }}
+  
+  {# 5. Person List #}
+  {%- if page_data.author_list -%}
+  ,{{ Person_Schema(root_url, page_data, site_config) | trim }}
+  {%- endif -%}
+  
+  {# 6. Injected Extra Entities #}
+  {%- for entity in extra_entities -%}
+    {%- if entity -%},{{ entity | tojson }}{%- endif -%}
+  {%- endfor -%}
+]}</script>
+{%- endmacro %}
+
+
+
+
 {# 1. Organization Schema #}
 
 {% macro idOrg_microschema(root_url) -%}
@@ -197,52 +233,10 @@
 
 
 
-{# Global Schema #}
-
-
-{# 14. Master Schema Graph #}
-
-{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
-
-{% macro PageSchema(root_url, page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
-  {# 1. Organization #}
-  {{ Org_Schema(root_url, page_type, site_config) | trim }}
-  
-  {# 2. WebSite #}
-  ,{{ Website_Schema(root_url, page_data, site_config) | trim }}
-  
-  {# 3. Breadcrumb #}
-  {%- if breadcrumb -%}
-  ,{{ Breadcrumb_Schema(page_data, breadcrumb) | trim }}
-  {%- endif -%}
-  
-  {# 4. WebPage #}
-  ,{{ Webpage_Schema(root_url, page_type, page_data, site_config, breadcrumb) | trim }}
-  
-  {# 5. Person List #}
-  {%- if page_data.author_list -%}
-  ,{{ Person_Schema(root_url, page_data, site_config) | trim }}
-  {%- endif -%}
-  
-  {# 6. Injected Extra Entities #}
-  {%- for entity in extra_entities -%}
-    {%- if entity -%}
-      ,{{ entity | tojson }}
-    {%- endif -%}
-  {%- endfor -%}
-]}</script>
-{%- endmacro %}
 
 
 
-{# Build the missing video_MicroSchema layout so the WebPage video injection functions cleanly. #}
-
-
-
-
-
-
+{#
 
 
 Test files
@@ -575,3 +569,4 @@ blog post woth video
   ]
 }
 
+#}
