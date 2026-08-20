@@ -157,7 +157,7 @@ or type =None
 {%- if data.section -%}
 <meta property="article:section" content="{{ data.section | e }}">{%- endif -%}
 {%- for tag in data.tags | default([]) -%}
-    {%- if tag -% bridge -%}<meta property="article:tag" content="{{ tag | e }}">{%- endif -%}
+    {%- if tag -%}<meta property="article:tag" content="{{ tag | e }}">{%- endif -%}
 {%- endfor -%}
 {%- if data.twitter_creator_Handler -%}
 <meta name="twitter:creator" content="{{ data.twitter_creator_Handler | e }}">{%- endif -%}
