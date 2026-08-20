@@ -5,6 +5,13 @@
 <meta name="description" content="{{ data.desc | e }}">
 {%- endmacro %}
 
+
+{#
+"data": {"title": "Low-Latency Thread Optimization Protocols",
+"desc": "An advanced operational manual for tuning sub-millisecond execution loops within distributed systems."}
+#}
+  
+
 {# 2. Robots & Canonical #}
 
 {% macro r_can(data) -%}
@@ -15,22 +22,37 @@
 <meta property="og:url" content="{{ data.canonical_url | e }}">
 {%- endmacro %}
 
+
+{# 
+"data": "robots": "index, follow",
+"canonical_url": "https://devportal.io"}
+#}
+
+
+
 {# 3. Resource Hints #}
 
 {% macro r_page_res_hints(type=None) -%}
-{%- if type == 'youtube' -%}
+{%- if type == 'yt' -%}
 <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
 <link rel="preconnect" href="https://www.youtube.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.youtube.com">
 <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <link rel="dns-prefetch" href="https://img.youtube.com">
-{%- elif type == 'dailymotion' -%}
+{%- elif type == 'dm' -%}
 <link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.dailymotion.com">
 {%- endif -%}
 {%- endmacro %}
 
 
+
+{#
+"data": {"type": "yt"}
+or
+"data": {"type": "dm"}
+or type =None
+#}
 
 
 
@@ -73,6 +95,53 @@
 {%- endmacro %}
 
 
+
+
+
+
+
+
+
+
+
+{#
+
+{
+  "video_variant_youtube": {
+    "title": "High-Throughput Streaming Engine Diagnostics",
+    "desc": "Live monitoring of execution times across high-traffic node clusters.",
+    "twitter_site_Handler": "@DevPortalLabs",
+    "media": "video",
+    "video": {
+      "type": "youtube",
+      "id": "dQw4w9WgXcQ"
+    },
+    "pin": {
+      "img": "https://devportal.io",
+      "alt": "Infographic displaying streaming engine telemetry data"
+    }
+  },
+
+
+  "image_variant_standard": {
+    "title": "Architectural Blueprint for Zero-Allocation Templates",
+    "desc": "A definitive guide to structuring memory boundaries for high-performance Python engines.",
+    "twitter_site_Handler": "@DevPortalLabs",
+    "media": "image",
+    "og": {
+      "img": "https://devportal.io",
+      "alt": "Schematic diagrams detailing internal memory allocation pathways"
+    },
+    "pin": {
+      "img": "https://devportal.io",
+      "alt": "Flowchart describing template optimization steps"
+    }
+  }
+}
+
+#}
+
+
 {# 5. OG Article Publisher Metadata Engine #}
 
 {% macro render_page_social_article(data, type=None) -%}
@@ -95,13 +164,98 @@
 {%- endif -%}
 {%- endmacro %}
 
+
+{#
+
+  "page_data": {
+    "type": "article",
+    "data": {
+      "published_time": "2026-03-19T08:00:00Z",
+      "modified_time": "2026-08-19T14:30:00Z",
+      "author_url": "https://devportal.io",
+      "publisher": "https://facebook.com",
+      "section": "System Architecture",
+      "twitter_creator_Handler": "@lazymiller",
+      "tags": [
+        "Python",
+        "Jinja2",
+        "Memory Tuning",
+        "Optimization"
+      ]
+    }
+  }
+
+#}
+
+
+
+
 {# 6. Global Asset Icon Component #}
 
-{% macro render_global_icons() -%}
-<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-<link rel="alternate icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+{% macro render_global_icons(url) -%}
+<link rel="icon" type="image/svg+xml" href="{{ url.favicon_svg }}">
+<link rel="alternate icon" type="image/x-icon" href="{{ url.favicon_ico }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ url.apple_touch }}">
 {%- endmacro %}
+
+{#
+{
+  "url": {
+    "favicon_svg": "/static/favicon.svg",
+    "favicon_ico": "/static/favicon.ico",
+    "apple_touch": "/static/apple-touch-icon.png"
+  }
+}
+#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
