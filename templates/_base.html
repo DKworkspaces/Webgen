@@ -18,52 +18,59 @@
 {% set js_base = "{{ site_config.base_url }}js/mgr/0.1/" %}
 
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge">
-<!-- 2. Security (Place HERE for max performance) -->
-{%- block page_security %}<meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">{%- endblock %}
-<!-- 3. Page Identity & SEO -->
-{%- block page_identity %}{{ r_page_id(page_data) }}{%- endblock %}
-<!-- 4. Canonical & Robots (SEO Protection) -->
-{%- block canonical %}{{ r_can(page_data) }}{%- endblock %}
-<!-- 5. Social & Other Meta -->
-{%- block page_social_meta %}{{ r_page_s_meta(page_data.social) }}{%- endblock %}
-<!-- 6. Resource Hints (Place HERE for max performance) -->
-{%- block page_resource_hints %}{%- endblock %}
-<!-- 7. Critical CSS (Inline for LCP - Largest Contentful Paint) -->
-{%- block critical_css %}{%- endblock %}
-<!-- 8. Core CSS (Always Loaded) -->
-{%- block global_css %}
-<link rel="stylesheet" href="{{ css_base }}base.css">
-<link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
-<script src="{{ js_base }}common.js" defer></script>
-{%- endblock %}
-<!-- 9. Page-Specific CSS Block -->
-{%- block page_css %}{%- endblock %}
-<!-- 10. Favicon & Icons (Always Loaded) -->
-{%- block global_icons %}{%- endblock %}
-<!-- 11. Verification Tokens (Always Loaded) -->
-  {%- block global_verification %}{%- endblock %}
-<!-- 12. RSS & Sitemap (Always Loaded) -->
-{%- block global_rss %}
-  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ home_url }}/feed.xml">
-  <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ home_url }}/atom.xml">
-  <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ home_url }}/sitemap.xml">
-  {%- endblock %}
-<!-- 13. JSON-LD Schema -->
-{%- block page_schema %}{%- endblock %}
-<!-- 14. Head Close Hook (For any final cleanup) -->
+{%- block head_metadata %}
+{# 1. Security Framework #}
+    {%- block page_security %}
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
+    {%- endblock page_security %}
+{# 2. Title, Description, Canonical & Robots (SEO Protection) #}
+    {%- block page_identity %}{{ r_page_id(page_data) }}{%- endblock page_identity %}
+    {%- block canonical %}{{ r_can(page_data) }}{%- endblock canonical %}
+{# 3. Social media Meta Tags #}
+    {%- block page_social_meta %}{{ r_page_s_meta(page_data.social) }}{%- endblock page_social_meta %}
+{# 4. Resource Hints #}
+    {%- block page_resource_hints %}
+    {%- endblock page_resource_hints %}
+{%- endblock head_metadata %}
+{%- block page_styles %}
+{# 5. Critical CSS #}
+    {%- block critical_css %}{%- endblock critical_css %}
+{# 6. Core CSS #}
+    <link rel="stylesheet" href="{{ css_base }}base.css">
+    <link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
+    <script src="{{ js_base }}common.js" defer></script>
+{# 7. Page Specific CSS #}
+    {%- block page_css %}{%- endblock page_css %}
+{%- endblock page_styles %}
+{%- block page_syndication %}
+    {# 9. Icons #}
+    {%- block global_icons %}{%- endblock global_icons %}
+{# 10 . Verification tokens #}
+    {%- block global_verification %}{%- endblock global_verification %}
+{# 11. RSS n Sitemap #}
+    {%- block global_rss %}
+    <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ home_url }}/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ home_url }}/atom.xml">
+    <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ home_url }}/sitemap.xml">
+    {%- endblock global_rss %}
+{# 12. JSON-LD Schema #}
+    {%- block page_schema %}{%- endblock %}
+{%- endblock page_syndication %}
+<!-- 13. Head Close Hook (For any final cleanup) -->
 {%- block head_close %}{%- endblock %}
 </head><body>
 {% include 'temp/header.html' %}
 {%- block layout_container %}
 {%- endblock %}
 {% include 'temp/footer.html' %}
-    
-
-<!-- 15. Core JS (Always Loaded) -->
-{%- block global_js %}{%- endblock %}
-<!-- 16. Page-Specific JS Block -->
-{%- block page_js %}{%- endblock %}
-<!-- 17. Analytics (Async)(Always Loaded) -->
-{%- block global_analytics %}{%- endblock %}
+{%- block page_scripts %}
+{# 14. Core JS #}
+    {%- block global_js %}{%- endblock global_js %}
+{# 15. Page Specific JS #}
+    {%- block page_js %}{%- endblock page_js %}
+{# 15. Global Analytics #}
+    {%- block global_analytics %}{%- endblock global_analytics %}
+{%- endblock page_scripts %}
 </body></html>
