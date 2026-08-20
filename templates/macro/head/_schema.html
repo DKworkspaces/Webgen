@@ -1,0 +1,457 @@
+{# 1. Organization Schema #}
+
+{% macro idOrg_microschema(root_url) -%}
+{"@id":"{{ root_url }}/#organization","@type":"Organization"}
+{%- endmacro %}
+
+{# 2. List Items Fragment #}
+
+{% macro listItem_microschema(page_data, site_config) -%}
+{% set offset = (page_data.page - 1) * site_config.per_page -%}
+"itemListElement":[
+{%- for item in page_data.items -%}
+{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ item.url }}","name":{{ item.title | tojson }}}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]
+{%- endmacro %}
+
+{# 3. Image Schema #}
+
+{% macro image_microschema(img) -%}
+{"@type":"ImageObject","url":"{{ img.url }}","width":{{ img.width }},"height":{{ img.height }}}
+{%- endmacro %}
+
+{# 4. Contact Point Schema #}
+
+{% macro contact_point_microschema(contact) -%}
+{"@type":"ContactPoint","contactType":"customer service"
+{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage }}"{% endif -%}
+{%- if contact.areaServed %},"areaServed":"{{ contact.areaServed }}"{% endif -%}
+{%- if contact.support_email %},"email":"{{ contact.support_email }}"{% endif -%}
+{%- if contact.phone %},"telephone":"{{ contact.phone }}"{% endif -%}
+}
+{%- endmacro %}
+
+{# 5. Postal Address #}
+
+{% macro postal_address_microschema(address) -%}
+{"@type":"PostalAddress"
+{%- if address.street %},"streetAddress":{{ address.street | tojson }}{% endif -%}
+{%- if address.city %},"addressLocality":{{ address.city | tojson }}{% endif -%}
+{%- if address.region %},"addressRegion":{{ address.region | tojson }}{% endif -%}
+{%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
+{%- if address.country %},"addressCountry":"{{ address.country }}"{% endif -%}
+}
+{%- endmacro %}
+
+{# 6. Search Action Schema #}
+
+{% macro search_action_microschema(root_url) -%}
+{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ root_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}
+{%- endmacro %}
+
+{# 7. List Breadcrumbs #}
+
+{% macro listBreadcrumbItem_microschema(breadcrumb) -%}
+"itemListElement":[
+{%- for item in breadcrumb -%}
+{"@type":"ListItem","position":{{ loop.index }},"name":{{ item.name | tojson }},"item":"{{ item.url }}"}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]
+{%- endmacro %}
+
+{# 8. ItemList #}
+
+{% macro itemList_MicroSchema(page_data, site_config) -%}
+{% set offset = (page_data.page - 1) * site_config.per_page -%}
+{"@type":"ItemList","numberOfItems":{{ page_data.items | length }},"itemListOrder":"ItemListOrderUnordered","itemListElement":[
+{%- for item in page_data.items -%}
+{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ item.url }}","name":{{ item.title | tojson }}}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]}
+{%- endmacro %}
+
+
+{# Marco Templates #}
+
+{# 9. Organization Master Schema #}
+
+{% macro Org_Schema(root_url,page_type, site_config) -%}
+{"@type":"Organization",
+"@id":"{{ root_url }}/#organization",
+"name":{{ site_config.org_name | tojson }},
+"url":"{{ root_url }}",
+"description":{{ site_config.desc | tojson }},
+"logo":{{ image_microschema(site_config.img) }},
+"sameAs":{{ site_config.social_links | tojson }}
+{%- if page_type == 'ContactPage' -%}
+,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
+"address":{{ postal_address_microschema(site_config.address) }}
+{%- endif -%}
+}
+{%- endmacro %}
+
+{# 10. WebSite Master Schema #}
+
+{% macro Website_Schema(root_url,page_data, site_config) -%}
+{"@type":"WebSite",
+"@id":"{{ root_url }}/#website",
+"url":"{{ root_url }}",
+"name":{{ site_config.name | tojson }},
+"publisher":{"@id":"{{ root_url }}/#organization"}
+{%- if page_data.ishome -%}
+,"potentialAction":{{ search_action_microschema(root_url) }}
+{%- endif -%}
+}
+{%- endmacro %}
+
+{# 11. Breadcrumb Master Schema #}
+
+{% macro Breadcrumb_Schema(page_data, breadcrumb=None) -%}
+{% if breadcrumb -%}
+{"@type":"BreadcrumbList","@id":"{{ page_data.canonical_url }}/#breadcrumb",{{ listBreadcrumbItem_microschema(breadcrumb) }}}
+{%- endif %}
+{%- endmacro %}
+
+
+{# 12. Person Master Schema #}
+
+{% macro Person_Schema(root_url,page_data, site_config) -%}
+{%- for person in page_data.author_list | default([]) -%}
+{"@type":"Person",
+"@id":"{{ root_url }}/#person/{{ person.id }}",
+"name":{{ person.name | tojson }}
+{%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
+{%- if person.job_title -% bridge -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
+{%- if person.image -% bridge -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
+,"worksFor":{"@id":"{{ root_url }}/#organization"}
+{%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
+{%- if person.social_links -%},"sameAs":{{ person.social_links | tojson }}{%- endif -%}
+}
+{%- if not loop.last %},{% endif %}
+{%- endfor -%}
+{%- endmacro %}
+
+{# 13. WebPage Master Schema #}
+
+{% macro Webpage_Schema(root_url,page_type, page_data, site_config, breadcrumb=None) -%}
+{"@type":"{{ page_type }}",
+"@id":"{{ page_data.canonical_url }}/#webpage",
+"url":"{{ page_data.canonical_url }}",
+"name":{{ page_data.title | tojson }},
+"isPartOf":{"@id":"{{ root_url }}/#website"}
+{%- if breadcrumb -%},"breadcrumb":{"@id":"{{ page_data.canonical_url }}/#breadcrumb"}{%- endif -%}
+{%- if page_data.about -%},"about":{{ idOrg_microschema(root_url) }}{%- endif -%}
+{%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
+{%- if page_data.image -%},"primaryImageOfPage":{{ image_microschema(page_data.image) }}{%- endif -%}
+{%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
+{%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
+{%- if page_type == 'CollectionPage' and page_data.items -%}
+,"mainEntity":{{ itemList_MicroSchema(page_data, site_config) }}
+{%- elif page_data.main_entity -%}
+,"mainEntity":{{ idOrg_microschema(root_url) }}
+{%- endif -%}
+,"inLanguage":"en-US"
+{%- if page_type == 'BlogPosting' and page_data.author -%}
+,"author":{"@type":"Person","@id":"{{ root_url }}/#person/{{ page_data.author.id }}","name":{{ page_data.author.name | tojson }}}
+,"publisher":{"@id":"{{ root_url }}/#organization"}
+,"mainEntityOfPage":{"@type":"WebPage","@id":"{{ page_data.canonical_url }}/#webpage"}
+{%- endif -%}
+{%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
+}
+{%- endmacro %}
+
+
+
+
+{# Global Schema #}
+
+
+{# 14. Master Schema Graph #}
+
+{% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+  {%- set render_state = namespace(has_elements=false) -%}
+  
+  {# 1. Organization #}
+  {%- set org_out = Org_Schema(page_type, site_config) | trim -%}
+  {%- if org_out -%}
+    {{ org_out }}{% set render_state.has_elements = true %}
+  {%- endif -%}
+  
+  {# 2. WebSite #}
+  {%- set ws_out = Website_Schema(page_data, site_config) | trim -%}
+  {%- if ws_out -%}
+    {{ ',' if render_state.has_elements else '' }}{{ ws_out }}{% set render_state.has_elements = true %}
+  {%- endif -%}
+  
+  {# 3. Breadcrumb #}
+  {%- set bc_out = Breadcrumb_Schema(page_data, breadcrumb) | trim -%}
+  {%- if bc_out -%}
+    {{ ',' if render_state.has_elements else '' }}{{ bc_out }}{% set render_state.has_elements = true %}
+  {%- endif -%}
+  
+  {# 4. WebPage #}
+  {%- set wp_out = Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim -%}
+  {%- if wp_out -%}
+    {{ ',' if render_state.has_elements else '' }}{{ wp_out }}{% set render_state.has_elements = true %}
+  {%- endif -%}
+  
+  {# 5. Person List #}
+  {%- set ps_out = Person_Schema(page_data, site_config) | trim -%}
+  {%- if ps_out -%}
+    {{ ',' if render_state.has_elements else '' }}{{ ps_out }}{% set render_state.has_elements = true %}
+  {%- endif -%}
+  
+  {# 6. Injected Extra Entities #}
+  {%- for entity in extra_entities -%}
+    {%- if entity -%}
+      {{ ',' if render_state.has_elements else '' }}{{ entity | tojson }}{% set render_state.has_elements = true %}
+    {%- endif -%}
+  {%- endfor -%}
+]}</script>
+{%- endmacro %}
+
+
+{# Build the missing video_MicroSchema layout so the WebPage video injection functions cleanly. #}
+
+
+
+
+
+
+
+
+Test files
+
+
+
+
+1 & 2. Organization (idOrg_microschema) & Search Action (search_action_microschema)
+
+{
+  "root_url": "https://devportal.io"
+}
+
+
+3. List Items Fragment (listItem_microschema)
+
+{
+  "site_config": {
+    "per_page": 10
+  },
+  "page_data": {
+    "page": 3,
+    "items": [
+      {
+        "title": "Asynchronous Event Multiplexing",
+        "url": "https://devportal.io"
+      },
+      {
+        "title": "Low-Latency Socket Buffers",
+        "url": "https://devportal.io"
+      }
+    ]
+  }
+}
+
+4. Image Object Schema (image_microschema)
+
+{
+  "img_url": "https://devportal.io",
+  "width": 1200,
+  "height": 630
+}
+
+
+5. Contact Point Schema (contact_point_microschema)
+
+{
+  "site_config": {
+    "support_email": "ops@devportal.io",
+    "phone": "+1-555-019-2831",
+    "availableLanguage": "en-US",
+    "areaServed": "US"
+  }
+}
+
+
+6. Postal Address Schema (postal_address_microschema)
+
+{
+  "address": {
+    "street": "100 Matrix Way, Suite 404",
+    "city": "Austin",
+    "region": "TX",
+    "zip": "78701",
+    "country": "US"
+  }
+}
+
+
+7. Breadcrumbs List Fragment (listBreadcrumbItem_microschema)
+
+
+{
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "https://devportal.io"
+    },
+    {
+      "name": "Architecture Profiles",
+      "url": "https://devportal.io"
+    }
+  ]
+}
+
+
+8. ItemList Wrapper Schema (itemList_MicroSchema)
+
+{
+  "site_config": {
+    "per_page": 25
+  },
+  "page_data": {
+    "page": 1,
+    "items": [
+      {
+        "title": "Query Optimizer Compilation",
+        "url": "https://devportal.io"
+      }
+    ]
+  }
+}
+
+9. Master Organization Schema (Org_Schema)
+
+{
+  "page_type": "ContactPage",
+  "request": {
+    "url_root": "https://devportal.io"
+  },
+  "site_config": {
+    "org_name": "DevPortal Industries Ltd",
+    "desc": "High-efficiency engineering pipelines.",
+    "logo_url": "https://devportal.io",
+    "social_links": ["https://github.com"],
+    "address": {
+      "street": "100 Matrix Way",
+      "city": "Austin",
+      "region": "TX",
+      "zip": "78701",
+      "country": "US"
+    }
+  }
+}
+
+site_config = {
+    "org_name": "SoloDev Media",
+    "desc": "Independent tutorials on Python development frameworks.",
+    "logo_url": "https://yourdomain.com",
+    "org_social_links": ["https://linkedin.com"],
+    
+    # New Solo Person fields inside Organization
+    "founder_name": "Jane Doe",
+    "founder_title": "Lead Software Architect & Content Creator",
+    "founder_social_links": [
+        "https://github.com",
+        "https://x.com"
+    ],
+    "expertise": ["Python Programming", "Jinja2 Templates", "Search Engine Optimization"],
+    
+    # Kept for your contact page microschemas
+    "address": { ... } 
+}
+
+
+
+
+10. Master WebSite Schema (Website_Schema)
+
+{
+  "request": {
+    "url_root": "https://devportal.io"
+  },
+  "site_config": {
+    "name": "DevPortal Labs"
+  },
+  "page_data": {
+    "ishome": true
+  }
+}
+
+11. Master BreadcrumbList Schema (Breadcrumb_Schema)
+
+{
+  "page_data": {
+    "canonical_url": "https://devportal.io"
+  },
+  "breadcrumb": [
+    {"name": "Home", "url": "https://devportal.io"},
+    {"name": "Blog", "url": "https://devportal.io"}
+  ]
+}
+
+
+12. Multi-Author Person Array Schema (Person_Schema)
+
+{
+  "request": {
+    "url_root": "https://devportal.io"
+  },
+  "site_config": {
+    "image_base_url": "https://devportal.io"
+  },
+  "page_data": {
+    "author_list": [
+      {
+        "id": "dev-01",
+        "name": "Alex Miller",
+        "job_title": "Principal Architect",
+        "image": "staff/alex.jpg",
+        "knowsAbout": ["Python Runtime Internals"],
+        "social_links": ["https://github.com"]
+      },
+      {
+        "slug": "jane-doe",
+        "name": "Jane Doe"
+      }
+    ]
+  }
+}
+
+
+
+13. Master WebPage Type Schema (Webpage_Schema)
+
+{
+  "page_type": "BlogPosting",
+  "request": {
+    "url_root": "https://devportal.io"
+  },
+  "site_config": {
+    "image_base_url": "https://devportal.io",
+    "org_name": "DevPortal Industries Ltd",
+    "per_page": 10
+  },
+  "breadcrumb": {},
+  "page_data": {
+    "canonical_url": "https://devportal.io",
+    "title": "Tuning Execution Pipelines",
+    "about": true,
+    "desc": "Deep-dive performance metrics manual.",
+    "image": "covers/tuning.jpg",
+    "datePublished": "2026-03-19T08:00:00Z",
+    "dateModified": "2026-08-19T14:30:00Z",
+    "main_entity": false,
+    "items": [],
+    "author": {
+      "slug": "alex-miller",
+      "name": "Alex Miller"
+    },
+    "video": {
+      "name": "Pipeline Run Metrics Breakdown"
+    }
+  }
+}
