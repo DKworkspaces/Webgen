@@ -1,27 +1,26 @@
 {# Global Schema #}
 
-{# 14. Master Schema Graph #}
 {# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
 
-{% macro PageSchema(root_url, page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
+{% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
   {# 1. Organization #}
-  {{ Org_Schema(root_url, page_type, site_config) | trim }}
+  {{ Org_Schema(page_type, site_config) | trim }}
   
   {# 2. WebSite #}
-  ,{{ Website_Schema(root_url, page_data, site_config) | trim }}
+  ,{{ Website_Schema(page_data, site_config) | trim }}
   
   {# 3. Breadcrumb #}
   {%- if breadcrumb -%}
-  ,{{ Breadcrumb_Schema(page_data, breadcrumb) | trim }}
+  ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
   {%- endif -%}
   
   {# 4. WebPage #}
-  ,{{ Webpage_Schema(root_url, page_type, page_data, site_config, breadcrumb) | trim }}
+  ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
   
   {# 5. Person List #}
   {%- if page_data.author_list -%}
-  ,{{ Person_Schema(root_url, page_data, site_config) | trim }}
+  ,{{ Person_Schema(page_data, site_config) | trim }}
   {%- endif -%}
   
   {# 6. Injected Extra Entities #}
@@ -33,32 +32,27 @@
 
 
 
-
 {# 1. Organization Schema #}
-
-{% macro idOrg_microschema(root_url) -%}
-{"@id":"{{ root_url }}/#organization","@type":"Organization"}
+{% macro idOrg_microschema(site_config) -%}
+{"@id":"{{ site_config.home_url }}/#organization","@type":"Organization"}
 {%- endmacro %}
 
 {# 2. List Items Fragment #}
-
 {% macro listItem_microschema(page_data, site_config) -%}
 {% set offset = (page_data.page - 1) * site_config.per_page -%}
 "itemListElement":[
 {%- for item in page_data.items -%}
-{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ item.url }}","name":{{ item.title | tojson }}}
+{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ site_config.home_url }}{{ item.path }}","name":{{ item.title | tojson }}}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]
 {%- endmacro %}
 
 {# 3. Image Schema #}
-
-{% macro image_microschema(img) -%}
-{"@type":"ImageObject","url":"{{ img.url }}","width":{{ img.width }},"height":{{ img.height }}}
+{% macro image_microschema(img, site_config) -%}
+{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.path }}","width":{{ img.width }},"height":{{ img.height }}}
 {%- endmacro %}
 
 {# 4. Contact Point Schema #}
-
 {% macro contact_point_microschema(contact) -%}
 {"@type":"ContactPoint","contactType":"customer service"
 {%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage }}"{% endif -%}
@@ -69,7 +63,6 @@
 {%- endmacro %}
 
 {# 5. Postal Address #}
-
 {% macro postal_address_microschema(address) -%}
 {"@type":"PostalAddress"
 {%- if address.street %},"streetAddress":{{ address.street | tojson }}{% endif -%}
@@ -81,35 +74,32 @@
 {%- endmacro %}
 
 {# 6. Search Action Schema #}
-
-{% macro search_action_microschema(root_url) -%}
-{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ root_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}
+{% macro search_action_microschema(site_config) -%}
+{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}
 {%- endmacro %}
 
 {# 7. List Breadcrumbs #}
-
-{% macro listBreadcrumbItem_microschema(breadcrumb) -%}
+{% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
 "itemListElement":[
 {%- for item in breadcrumb -%}
-{"@type":"ListItem","position":{{ loop.index }},"name":{{ item.name | tojson }},"item":"{{ item.url }}"}
+{"@type":"ListItem","position":{{ loop.index }},"name":{{ item.name | tojson }},"item":"{{ site_config.home_url }}{{ item.path }}"}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]
 {%- endmacro %}
 
-{# 8. ItemList #}
 
+{# 8. ItemList #}
 {% macro itemList_MicroSchema(page_data, site_config) -%}
 {% set offset = (page_data.page - 1) * site_config.per_page -%}
 {"@type":"ItemList","numberOfItems":{{ page_data.items | length }},"itemListOrder":"ItemListOrderUnordered","itemListElement":[
 {%- for item in page_data.items -%}
-{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ item.url }}","name":{{ item.title | tojson }}}
+{"@type":"ListItem","position":{{ loop.index + offset }},"url":"{{ site_config.home_url }}{{ item.path }}","name":{{ item.title | tojson }}}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]}
 {%- endmacro %}
 
 
 {# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
-
 {% macro video_MicroSchema(video, site_config) -%}
 {"@type":"VideoObject",
 "name":{{ video.title | tojson }},
@@ -135,17 +125,17 @@
 
 
 
-{# Marco Templates #}
+
+{# Macro Templates #}
 
 {# 11. Organization Master Schema #}
-
-{% macro Org_Schema(root_url,page_type, site_config) -%}
+{% macro Org_Schema(page_type, site_config) -%}
 {"@type":"Organization",
-"@id":"{{ root_url }}/#organization",
+"@id":"{{ site_config.home_url }}/#organization",
 "name":{{ site_config.org_name | tojson }},
-"url":"{{ root_url }}",
+"url":"{{ site_config.home_url }}",
 "description":{{ site_config.desc | tojson }},
-"logo":{{ image_microschema(site_config.img) }},
+"logo":{{ image_microschema(site_config.logo, site_config) }},
 "sameAs":{{ site_config.social_links | tojson }}
 {%- if page_type == 'ContactPage' -%}
 ,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
@@ -155,41 +145,37 @@
 {%- endmacro %}
 
 {# 12. WebSite Master Schema #}
-
-{% macro Website_Schema(root_url,page_data, site_config) -%}
+{% macro Website_Schema(page_data, site_config) -%}
 {"@type":"WebSite",
-"@id":"{{ root_url }}/#website",
-"url":"{{ root_url }}",
+"@id":"{{ site_config.home_url }}/#website",
+"url":"{{ site_config.home_url }}",
 "name":{{ site_config.name | tojson }},
-"publisher":{"@id":"{{ root_url }}/#organization"}
+"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
 {%- if page_data.ishome -%}
-,"potentialAction":{{ search_action_microschema(root_url) }}
+,"potentialAction":{{ search_action_microschema(site_config) }}
 {%- endif -%}
 }
 {%- endmacro %}
 
 {# 13. Breadcrumb Master Schema #}
-
-{% macro Breadcrumb_Schema(page_data, breadcrumb=None) -%}
+{% macro Breadcrumb_Schema(page_data, site_config, breadcrumb=None) -%}
 {% if breadcrumb -%}
-{"@type":"BreadcrumbList","@id":"{{ page_data.canonical_url }}/#breadcrumb",{{ listBreadcrumbItem_microschema(breadcrumb) }}}
+{"@type":"BreadcrumbList","@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb",{{ listBreadcrumbItem_microschema(breadcrumb, site_config) }}}
 {%- endif %}
 {%- endmacro %}
 
 
-
 {# 14. Person Master Schema (High Performance / Stream Edition) #}
-
-{% macro Person_Schema(root_url, page_data, site_config) -%}
+{% macro Person_Schema(page_data, site_config) -%}
 {%- for person in page_data.author_list -%}
 {%- if person.id -%}
 {"@type":"Person",
-"@id":"{{ root_url }}/#person/{{ person.id }}",
+"@id":"{{ site_config.home_url }}/#person/{{ person.id }}",
 "name":{{ person.name | tojson }}
 {%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
 {%- if person.job_title -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
 {%- if person.image -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
-,"worksFor":{"@id":"{{ root_url }}/#organization"}
+,"worksFor":{"@id":"{{ site_config.home_url }}/#organization"}
 {%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
 {%- if person.social_links -%},"sameAs":{{ person.social_links | tojson }}{%- endif -%}
 }{%- if not loop.last %},{% endif -%}
@@ -199,37 +185,33 @@
 
 
 
-
-
 {# 15. WebPage Master Schema #}
-
-{% macro Webpage_Schema(root_url,page_type, page_data, site_config, breadcrumb=None) -%}
+{% macro Webpage_Schema(page_type, page_data, site_config, breadcrumb=None) -%}
 {"@type":"{{ page_type }}",
-"@id":"{{ page_data.canonical_url }}/#webpage",
-"url":"{{ page_data.canonical_url }}",
+"@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage",
+"url":"{{ site_config.home_url }}{{ page_data.path }}",
 "name":{{ page_data.title | tojson }},
-"isPartOf":{"@id":"{{ root_url }}/#website"}
-{%- if breadcrumb -%},"breadcrumb":{"@id":"{{ page_data.canonical_url }}/#breadcrumb"}{%- endif -%}
-{%- if page_data.about -%},"about":{{ idOrg_microschema(root_url) }}{%- endif -%}
+"isPartOf":{"@id":"{{ site_config.home_url }}/#website"}
+{%- if breadcrumb -%},"breadcrumb":{"@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb"}{%- endif -%}
+{%- if page_data.about -%},"about":{{ idOrg_microschema(site_config) }}{%- endif -%}
 {%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
-{%- if page_data.image -%},"primaryImageOfPage":{{ image_microschema(page_data.image) }}{%- endif -%}
+{%- if page_data.image -%},"primaryImageOfPage":{{ image_microschema(page_data.image, site_config) }}{%- endif -%}
 {%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
 {%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
 {%- if page_type == 'CollectionPage' and page_data.items -%}
 ,"mainEntity":{{ itemList_MicroSchema(page_data, site_config) }}
 {%- elif page_data.main_entity -%}
-,"mainEntity":{{ idOrg_microschema(root_url) }}
+,"mainEntity":{{ idOrg_microschema(site_config) }}
 {%- endif -%}
 ,"inLanguage":"en-US"
 {%- if page_type == 'BlogPosting' and page_data.author -%}
-,"author":{"@type":"Person","@id":"{{ root_url }}/#person/{{ page_data.author.id }}","name":{{ page_data.author.name | tojson }}}
-,"publisher":{"@id":"{{ root_url }}/#organization"}
-,"mainEntityOfPage":{"@type":"WebPage","@id":"{{ page_data.canonical_url }}/#webpage"}
+,"author":{"@type":"Person","@id":"{{ site_config.home_url }}/#person/{{ page_data.author.id }}","name":{{ page_data.author.name | tojson }}}
+,"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
+,"mainEntityOfPage":{"@type":"WebPage","@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage"}
 {%- endif -%}
 {%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
 }
 {%- endmacro %}
-
 
 
 
@@ -246,43 +228,40 @@ Test files
 org n website  schema
 
 {
-  "root_url": "https://example.com",
-  "page_type": "Homepage", 
   "site_config": {
-    "name": "Global Tech Insights",
-    "org_name": "Tech Insights Media Group LLC",
-    "desc": "Leading platform providing verified, cutting-edge software architecture analyses and framework documentation.",
-    "img": {
-      "url": "https://example.com",
-      "width": 512,
-      "height": 512
-    },
+    "home_url": "https://example.com",
+    "name": "My Premium Web Directory",
+    "org_name": "Global Media Enterprises LLC",
+    "desc": "The leading resource for technology tutorials, curation lists, and video insights.",
     "social_links": [
-      "https://linkedin.com",
-      "https://x.com",
-      "https://github.com"
+      "https://facebook.com",
+      "https://twitter.com",
+      "https://linkedin.com"
     ],
+    "logo": {
+      "path": "/assets/brand-logo.png",
+      "width": 600,
+      "height": 60
+    },
     "contact": {
       "availableLanguage": "English",
-      "areaServed": "US, CA, GB",
-      "support_email": "support@example.com",
+      "areaServed": "US",
+      "support_email": "help@example.com",
       "phone": "+1-800-555-0199"
     },
     "address": {
-      "street": "100 Innovation Way, Suite 400",
-      "city": "Austin",
-      "region": "Texas",
-      "zip": "78701",
+      "street": "123 Tech Boulevard, Suite 400",
+      "city": "San Francisco",
+      "region": "CA",
+      "zip": "94107",
       "country": "US"
     }
   },
   "page_data": {
-    "ishome": true,
-    "canonical_url": "https://example.com",
-    "title": "Global Tech Insights | Home",
-    "desc": "Access high-utility software engineering papers, tutorials, and ecosystem graphs."
+    "ishome": true
   }
 }
+
 
 
 
@@ -291,46 +270,24 @@ org n website  schema
 breadcrumb and person schema 
 
 
-
-
-
-
 {
-  "root_url": "https://example.com",
   "site_config": {
+    "home_url": "https://example.com",
     "image_base_url": "https://example.com"
   },
   "page_data": {
-    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
+    "path": "/tutorials/advanced-jinja",
     "author_list": [
       {
-        "id": "jane-doe",
-        "name": "Jane Doe",
-        "url": "https://example.com/authors/jane-doe",
-        "job_title": "Principal SEO Architect",
-        "image": "/profiles/jane-doe.jpg",
-        "knowsAbout": [
-          "Structured Data",
-          "Information Retrieval",
-          "Jinja Engines"
-        ],
+        "id": "alex-coder",
+        "name": "Alex Rivera",
+        "url": "https://alexrivera.dev",
+        "job_title": "Lead Solutions Architect",
+        "image": "alex-rivera.jpg",
+        "knowsAbout": ["Structured Data", "Jinja2 Templates", "SEO Architecture"],
         "social_links": [
-          "https://linkedin.com",
-          "https://github.com"
-        ]
-      },
-      {
-        "id": "john-smith",
-        "name": "John Smith",
-        "url": "https://example.com/authors/john-smith",
-        "job_title": "Senior Content Lead",
-        "image": "/profiles/john-smith.jpg",
-        "knowsAbout": [
-          "Technical Documentation",
-          "Content Architecture"
-        ],
-        "social_links": [
-          "https://x.com"
+          "https://github.com",
+          "https://linkedin.com"
         ]
       }
     ]
@@ -338,69 +295,86 @@ breadcrumb and person schema
   "breadcrumb": [
     {
       "name": "Home",
-      "url": "https://example.com"
+      "path": "/"
     },
     {
-      "name": "Blog",
-      "url": "https://example.com/blog"
+      "name": "Tutorials",
+      "path": "/tutorials"
     },
     {
-      "name": "Advanced Jinja2 Layout Strategies",
-      "url": "https://example.com/blog/advanced-jinja-schemas"
+      "name": "Advanced Jinja",
+      "path": "/tutorials/advanced-jinja"
     }
   ]
-}
+]
+
+
+
 
 webpage
 blogpost schea
 
 
+
 {
-  "root_url": "https://example.com",
-  "page_type": "BlogPosting",
-  "site_config": {
-    "per_page": 10
-  },
   "page_data": {
-    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
-    "title": "Advanced Jinja2 Layout Strategies for JSON-LD Graphs",
-    "desc": "An in-depth architectural look at rendering decoupled schema structures utilizing optimized Jinja compilation pipelines.",
+    "path": "/blog/advanced-seo-strategies",
+    "title": "Advanced SEO Strategies for Modern Web Architectures",
+    "desc": "An in-depth breakdown of schema construction, data tree splitting, and rendering optimization.",
+    "ishome": false,
     "about": true,
     "main_entity": false,
-    "datePublished": "2026-03-15T08:00:00+00:00",
-    "dateModified": "2026-03-19T14:30:00+00:00",
+    "datePublished": "2026-03-24T09:00:00Z",
+    "dateModified": "2026-08-20T16:45:00Z",
     "image": {
-      "url": "https://example.com",
+      "path": "/images/seo-architecture-banner.jpg",
       "width": 1200,
       "height": 630
     },
     "author": {
-      "id": "jane-doe",
-      "name": "Jane Doe"
+      "id": "alex-coder",
+      "name": "Alex Rivera"
     },
-    "page": 2,
-    "items": [
+    "author_list": [
       {
-        "url": "https://example.com/blog/item-1",
-        "title": "Understanding JSON-LD Microstructures"
-      },
-      {
-        "url": "https://example.com/blog/item-2",
-        "title": "Optimizing Semantic Graph Connections"
+        "id": "alex-coder",
+        "name": "Alex Rivera",
+        "url": "https://alexrivera.dev",
+        "job_title": "Lead Solutions Architect",
+        "image": "profiles/alex.jpg",
+        "knowsAbout": ["Structured Data", "SEO Architecture"],
+        "social_links": ["https://github.com"]
       }
-    ]
-  },
-  "breadcrumb": [
-    {
-      "name": "Home",
-      "url": "https://example.com"
-    },
-    {
-      "name": "Blog",
-      "url": "https://example.com/blog"
+    ],
+    "video": {
+      "title": "Parsing Schema in High Performance Environments",
+      "description": "A video walk-through demonstrating rapid template generation techniques.",
+      "thumbnail_url": "https://example.com",
+      "uploadDate": "2026-04-12",
+      "duration": "PT8M15S",
+      "embedUrl": "https://youtube.com",
+      "provider": "youtube",
+      "clips": [
+        {
+          "name": "Setting Path Variables",
+          "start": 0,
+          "end": 120
+        },
+        {
+          "name": "Combining Site Config Keys",
+          "start": 121,
+          "end": 350
+        },
+        {
+          "name": "Validating the JSON Graph Output",
+          "start": 351,
+          "end": 495
+        }
+      ]
     }
-  ]
+  }
 }
+
 
 
 
@@ -412,54 +386,36 @@ webpage Schema collection page
 
 
 {
-  "root_url": "https://example.com",
-  "page_type": "CollectionPage",
-  "site_config": {
-    "per_page": 10
-  },
   "page_data": {
-    "canonical_url": "https://example.com/blog/category/tutorials",
-    "title": "Developer Tutorials Index | Page 2",
-    "desc": "Browse our complete library of technical step-by-step guides, covering system design, automation tools, and deployment pipelines.",
+    "page": 2,
+    "path": "/categories/tutorials",
+    "title": "Advanced Web Development Tutorials",
+    "desc": "Browse our curated collection of backend engineering guides and template optimization frameworks.",
+    "ishome": false,
     "about": false,
     "main_entity": false,
-    "datePublished": "2026-01-10T00:00:00+00:00",
-    "dateModified": "2026-08-20T10:15:00+00:00",
+    "datePublished": "2026-01-10T08:00:00Z",
+    "dateModified": "2026-08-20T22:00:00Z",
     "image": {
-      "url": "https://example.com",
+      "path": "/images/category-tutorials-cover.jpg",
       "width": 1200,
       "height": 630
     },
-    "page": 2,
     "items": [
       {
-        "url": "https://example.com/blog/understanding-json-ld",
-        "title": "Understanding JSON-LD Microstructures"
+        "path": "/tutorials/jinja-variable-mapping",
+        "title": "Mastering Jinja Variable Replacements"
       },
       {
-        "url": "https://example.com/blog/optimizing-semantic-graphs",
-        "title": "Optimizing Semantic Graph Connections"
+        "path": "/tutorials/jsonld-graph-stitching",
+        "title": "Advanced Micro Schema Nesting Methods"
       },
       {
-        "url": "https://example.com/blog/designing-safe-contexts",
-        "title": "Designing Safe Execution Contexts"
+        "path": "/tutorials/high-performance-seo",
+        "title": "Optimizing Schema Graphs for Low Memory Performance"
       }
     ]
-  },
-  "breadcrumb": [
-    {
-      "name": "Home",
-      "url": "https://example.com"
-    },
-    {
-      "name": "Blog",
-      "url": "https://example.com/blog"
-    },
-    {
-      "name": "Tutorials",
-      "url": "https://example.com/blog/category/tutorials"
-    }
-  ]
+  }
 }
 
 
@@ -467,24 +423,11 @@ webpage Schema collection page
 
 
 
-
- video schema
-
+ 
 
 
-{
-  "provider": "youtube",
-  "title": "Configuring High-Performance Jinja2 Schemas",
-  "description": "A programmatic walkthrough demonstrating zero-allocation streaming variables.",
-  "thumbnail_url": "https://youtube.com",
-  "uploadDate": "2026-03-15T08:00:00+00:00",
-  "duration": "PT4M32S",
-  "embedUrl": "https://youtube.com",
-  "clips": [
-    { "name": "Introduction", "start": 0, "end": 45 },
-    { "name": "Deep Dive", "start": 46, "end": 160 }
-  ]
-}
+
+
 
 
 
@@ -505,68 +448,148 @@ blog post woth video
 
 
 
-{
-  "root_url": "https://example.com",
-  "page_type": "BlogPosting",
+
+#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{#
+
+
   "site_config": {
-    "name": "Global Tech Insights",
-    "org_name": "Tech Insights Media Group LLC",
-    "desc": "Leading platform providing verified, cutting-edge software architecture analyses.",
+    "home_url": "https://example.com",
+    "name": "My Premium Web Directory",
+    "org_name": "Global Media Enterprises LLC",
+    "desc": "The leading resource for technology tutorials, curation lists, and video insights.",
+    "per_page": 10,
     "image_base_url": "https://example.com",
-    "img": {
-      "url": "https://example.com/brand-logo.png",
-      "width": 512,
-      "height": 512
+    "social_links": [
+      "https://facebook.com",
+      "https://twitter.com",
+      "https://linkedin.com"
+    ],
+    "logo": {
+      "path": "/assets/brand-logo.png",
+      "width": 600,
+      "height": 60
+    },
+    "contact": {
+      "availableLanguage": "English",
+      "areaServed": "US",
+      "support_email": "help@example.com",
+      "phone": "+1-800-555-0199"
+    },
+    "address": {
+      "street": "123 Tech Boulevard, Suite 400",
+      "city": "San Francisco",
+      "region": "CA",
+      "zip": "94107",
+      "country": "US"
     }
-  },
+  }
+
+
+
+#}
+
+
+
+{#
+
   "page_data": {
+    "page": 1,
+    "path": "/blog/top-development-trends",
+    "title": "Top Development Trends to Watch this Year",
+    "desc": "An in-depth collection tracking the shift towards schema-driven dynamic layout systems.",
     "ishome": false,
-    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
-    "title": "Advanced Jinja2 Layout Strategies for JSON-LD Graphs",
-    "desc": "An in-depth architectural look at rendering decoupled schema structures utilizing optimized Jinja compilation pipelines.",
     "about": true,
     "main_entity": false,
-    "datePublished": "2026-03-15T08:00:00+00:00",
-    "dateModified": "2026-08-20T10:15:00+00:00",
+    "datePublished": "2026-03-15T08:00:00Z",
+    "dateModified": "2026-08-20T14:30:00Z",
     "image": {
-      "url": "https://example.com/posts/jinja-tutorial.jpg",
+      "path": "/images/featured-trend-banner.jpg",
       "width": 1200,
       "height": 630
     },
     "author": {
-      "id": "jane-doe",
-      "name": "Jane Doe"
+      "id": "alex-coder",
+      "name": "Alex Rivera"
     },
     "author_list": [
       {
-        "id": "jane-doe",
-        "name": "Jane Doe",
-        "url": "https://example.com/authors/jane-doe",
-        "job_title": "Principal SEO Architect",
-        "image": "/profiles/jane-doe.jpg",
-        "knowsAbout": ["Structured Data", "Information Retrieval", "Jinja Engines"],
-        "social_links": ["https://linkedin.com"]
+        "id": "alex-coder",
+        "name": "Alex Rivera",
+        "url": "https://alexrivera.dev",
+        "job_title": "Lead Solutions Architect",
+        "image": "profiles/alex.jpg",
+        "knowsAbout": ["Structured Data", "Jinja2 Templates", "SEO Architecture"],
+        "social_links": ["https://github.com"]
+      }
+    ],
+    "items": [
+      {
+        "path": "/tools/jinja-formatter",
+        "title": "The Ultimate Jinja String Tree Formatter"
+      },
+      {
+        "path": "/tutorials/jsonld-nesting",
+        "title": "Advanced Micro Schema Nesting Methods"
       }
     ],
     "video": {
-      "provider": "youtube",
-      "title": "Configuring High-Performance Jinja2 Schemas",
-      "description": "A programmatic walkthrough demonstrating zero-allocation streaming variables.",
-      "thumbnail_url": "https://youtube.com",
-      "uploadDate": "2026-03-15T08:00:00+00:00",
-      "duration": "PT4M32S",
+      "title": "Setting up Structured Data with Macros",
+      "description": "Learn how to convert flat URL records into site-config components.",
+      "thumbnail_url": "https://example.com",
+      "uploadDate": "2026-05-10",
+      "duration": "PT5M30S",
       "embedUrl": "https://youtube.com",
+      "provider": "youtube",
       "clips": [
-        { "name": "Introduction", "start": 0, "end": 45 },
-        { "name": "Deep Dive", "start": 46, "end": 160 }
+        {
+          "name": "Introduction to Path Merging",
+          "start": 0,
+          "end": 90
+        },
+        {
+          "name": "Debugging Macro Targets",
+          "start": 91,
+          "end": 330
+        }
       ]
     }
+  }
+
+#}
+
+
+
+{#
+
+
+"breadcrumbs": [
+  {
+    "name": "Home",
+    "path": "/"
   },
-  "breadcrumb": [
-    { "name": "Home", "url": "https://example.com" },
-    { "name": "Blog", "url": "https://example.com/blog" },
-    { "name": "Advanced Jinja2 Layout Strategies", "url": "https://example.com/blog/advanced-jinja-schemas" }
-  ]
-}
+  {
+    "name": "Blog",
+    "path": "/blog"
+  },
+  {
+    "name": "Top Trends",
+    "path": "/blog/top-development-trends"
+  }
+]
+
 
 #}
