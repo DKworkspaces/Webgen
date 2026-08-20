@@ -72,9 +72,36 @@
 {%- endmacro %}
 
 
+{# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
+
+{% macro video_MicroSchema(video, site_config) -%}
+{"@type":"VideoObject",
+"name":{{ video.title | tojson }},
+"description":{{ video.description | tojson }},
+"thumbnailUrl":{{ video.thumbnail_url | tojson }},
+"uploadDate":"{{ video.uploadDate }}"
+{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}
+{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}
+{%- if video.clips -%}
+,"hasPart":[
+  {%- for clip in video.clips -%}
+  {"@type":"Clip",
+  "name":{{ clip.name | tojson }},
+  "startOffset":{{ clip.start }},
+  "endOffset":{{ clip.end }},
+  "url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}
+  {%- if not loop.last %},{% endif -%}
+  {%- endfor -%}
+]
+{%- endif -%}
+}
+{%- endmacro %}
+
+
+
 {# Marco Templates #}
 
-{# 9. Organization Master Schema #}
+{# 11. Organization Master Schema #}
 
 {% macro Org_Schema(root_url,page_type, site_config) -%}
 {"@type":"Organization",
@@ -91,7 +118,7 @@
 }
 {%- endmacro %}
 
-{# 10. WebSite Master Schema #}
+{# 12. WebSite Master Schema #}
 
 {% macro Website_Schema(root_url,page_data, site_config) -%}
 {"@type":"WebSite",
@@ -105,7 +132,7 @@
 }
 {%- endmacro %}
 
-{# 11. Breadcrumb Master Schema #}
+{# 13. Breadcrumb Master Schema #}
 
 {% macro Breadcrumb_Schema(page_data, breadcrumb=None) -%}
 {% if breadcrumb -%}
@@ -115,7 +142,7 @@
 
 
 
-{# 12. Person Master Schema (High Performance / Stream Edition) #}
+{# 14. Person Master Schema (High Performance / Stream Edition) #}
 
 {% macro Person_Schema(root_url, page_data, site_config) -%}
 {%- for person in page_data.author_list -%}
@@ -138,7 +165,7 @@
 
 
 
-{# 13. WebPage Master Schema #}
+{# 15. WebPage Master Schema #}
 
 {% macro Webpage_Schema(root_url,page_type, page_data, site_config, breadcrumb=None) -%}
 {"@type":"{{ page_type }}",
@@ -175,7 +202,7 @@
 
 {# 14. Master Schema Graph #}
 
-{# 14. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
+{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
 
 {% macro PageSchema(root_url, page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
@@ -444,4 +471,107 @@ webpage Schema collection page
 
 
 
+
+
+
+ video schema
+
+
+
+{
+  "provider": "youtube",
+  "title": "Configuring High-Performance Jinja2 Schemas",
+  "description": "A programmatic walkthrough demonstrating zero-allocation streaming variables.",
+  "thumbnail_url": "https://youtube.com",
+  "uploadDate": "2026-03-15T08:00:00+00:00",
+  "duration": "PT4M32S",
+  "embedUrl": "https://youtube.com",
+  "clips": [
+    { "name": "Introduction", "start": 0, "end": 45 },
+    { "name": "Deep Dive", "start": 46, "end": 160 }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+blog post woth video
+
+
+
+{
+  "root_url": "https://example.com",
+  "page_type": "BlogPosting",
+  "site_config": {
+    "name": "Global Tech Insights",
+    "org_name": "Tech Insights Media Group LLC",
+    "desc": "Leading platform providing verified, cutting-edge software architecture analyses.",
+    "image_base_url": "https://example.com",
+    "img": {
+      "url": "https://example.com/brand-logo.png",
+      "width": 512,
+      "height": 512
+    }
+  },
+  "page_data": {
+    "ishome": false,
+    "canonical_url": "https://example.com/blog/advanced-jinja-schemas",
+    "title": "Advanced Jinja2 Layout Strategies for JSON-LD Graphs",
+    "desc": "An in-depth architectural look at rendering decoupled schema structures utilizing optimized Jinja compilation pipelines.",
+    "about": true,
+    "main_entity": false,
+    "datePublished": "2026-03-15T08:00:00+00:00",
+    "dateModified": "2026-08-20T10:15:00+00:00",
+    "image": {
+      "url": "https://example.com/posts/jinja-tutorial.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "author": {
+      "id": "jane-doe",
+      "name": "Jane Doe"
+    },
+    "author_list": [
+      {
+        "id": "jane-doe",
+        "name": "Jane Doe",
+        "url": "https://example.com/authors/jane-doe",
+        "job_title": "Principal SEO Architect",
+        "image": "/profiles/jane-doe.jpg",
+        "knowsAbout": ["Structured Data", "Information Retrieval", "Jinja Engines"],
+        "social_links": ["https://linkedin.com"]
+      }
+    ],
+    "video": {
+      "provider": "youtube",
+      "title": "Configuring High-Performance Jinja2 Schemas",
+      "description": "A programmatic walkthrough demonstrating zero-allocation streaming variables.",
+      "thumbnail_url": "https://youtube.com",
+      "uploadDate": "2026-03-15T08:00:00+00:00",
+      "duration": "PT4M32S",
+      "embedUrl": "https://youtube.com",
+      "clips": [
+        { "name": "Introduction", "start": 0, "end": 45 },
+        { "name": "Deep Dive", "start": 46, "end": 160 }
+      ]
+    }
+  },
+  "breadcrumb": [
+    { "name": "Home", "url": "https://example.com" },
+    { "name": "Blog", "url": "https://example.com/blog" },
+    { "name": "Advanced Jinja2 Layout Strategies", "url": "https://example.com/blog/advanced-jinja-schemas" }
+  ]
+}
 
