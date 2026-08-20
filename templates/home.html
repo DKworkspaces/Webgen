@@ -13,6 +13,6 @@
 } %}
 {% extends "_base.html" %}
 {% block page_schema %}
-{{ PageSchema('WebPage', page_data, site_config) }}
+{{ PageSchema(site_config.home_Url,'WebPage', page_data, site_config) }}
 {% endblock %}
 {% block content %} Welcome Home{% endblock %}
