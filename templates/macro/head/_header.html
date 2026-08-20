@@ -59,7 +59,7 @@ or type =None
 
 {# 4. OG & Twitter Player Component #}
 
-{% macro render_page_social_meta(data, type='website', card='summary_large_image') -%}
+{% macro r_page_s_meta(data, type='website', card='summary_large_image') -%}
 <meta property="og:title" content="{{ data.title | e }}">
 <meta property="og:description" content="{{ data.desc | e }}">
 <meta property="og:type" content="{{ type | e }}">
@@ -144,7 +144,7 @@ or type =None
 
 {# 5. OG Article Publisher Metadata Engine #}
 
-{% macro render_page_social_article(data, type=None) -%}
+{% macro r_page_s_article(data, type=None) -%}
 {%- if type == 'article' and data -%}
 {%- if data.published_time -%}
 <meta property="article:published_time" content="{{ data.published_time }}">{%- endif -%}
@@ -189,7 +189,7 @@ or type =None
 
 {# 6. Global Asset Icon Component #}
 
-{% macro render_global_icons(url) -%}
+{% macro r_g_icons(url) -%}
 <link rel="icon" type="image/svg+xml" href="{{ url.favicon_svg }}">
 <link rel="alternate icon" type="image/x-icon" href="{{ url.favicon_ico }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ url.apple_touch }}">
