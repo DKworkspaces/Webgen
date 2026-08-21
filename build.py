@@ -42,10 +42,10 @@ def generate_layout_snippets():
     hd= load_data_profiles()
     # 1. Compile and save plain header snippet
     h_t=base_f('_header.html')
-    generate(h_t,'templates/temp/header.html',a=hd)
+    generate(h_t,'templates/temp/header.html',site_config=hd)
     # 2. Compile and save plain footer snippet
     f_t=base_f('_footer.html')
-    generate(f_t,'templates/temp/footer.html',a=hd)
+    generate(f_t,'templates/temp/footer.html',site_config=hd)
     print("Success: Standalone layout modules compiled into templates/temp/")
         
 def generate_page(base_file,op_loc,op_file,**kwargs):
@@ -66,15 +66,9 @@ def set_global():
     gb= load_json ('data/global.json')
     env.globals.update(site_config=gb)
 def gen_home():
-
-    
     # Read the global cache directly from Jinja2's global dictionary
-    gb = env.globals.get('site_config') 
-
-
-    
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','web','index.html', page_data=hm,site_config=gb)
+    generate_page('home.html','web','index.html', page_data=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','web','about_us.html',hm)
