@@ -65,9 +65,9 @@
 {# 5. Postal Address #}
 {% macro postal_address_microschema(address) -%}
 {"@type":"PostalAddress"
-{%- if address.street %},"streetAddress":{{ address.street | tojson }}{% endif -%}
-{%- if address.city %},"addressLocality":{{ address.city | tojson }}{% endif -%}
-{%- if address.region %},"addressRegion":{{ address.region | tojson }}{% endif -%}
+{%- if address.street %},"streetAddress":{{ address.street }}{% endif -%}
+{%- if address.city %},"addressLocality":{{ address.city }}{% endif -%}
+{%- if address.region %},"addressRegion":{{ address.region }}{% endif -%}
 {%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
 {%- if address.country %},"addressCountry":"{{ address.country }}"{% endif -%}
 }
