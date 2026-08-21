@@ -31,10 +31,61 @@
 {%- endmacro %}
 
 
-{# 
-{{ site_config.home_url | trim | rstrip('/') }}/{{ item.path | lstrip('/') }}
- #}
+{#
+ 1. url Schema 
+{% macro uurl(link) -%}
+{{ link | trim | rstrip('/') }}
+{%- endmacro %}
+ 1. url2  Schema 
+{% macro uurl(linka,linkb) -%}
+{{ linka | trim | rstrip('/') }}/{{ linkb | lstrip('/') }}
+{%- endmacro %}
 
+ 2. List Items Fragment 
+{% macro listItem_microschema(page_data, site_config) -%}
+{% set offset = (page_data.page - 1) * site_config.per_page -%}
+"itemListElement":[
+{%- for item in page_data.items -%}
+{"@type":"ListItem",
+"position":{{ loop.index + offset }},
+"url":"{{ site_config.home_url }}{{ item.path }}",
+"name":{{ item.title | tojson }}}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]
+{%- endmacro %}
+
+
+
+ 7. List Breadcrumbs 
+{% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
+"itemListElement":[
+{%- for item in breadcrumb -%}
+{"@type":"ListItem",
+"position":{{ loop.index }},
+"name":{{ item.name | tojson }},
+"item":"{{ site_config.home_url }}{{ item.path }}"}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]
+{%- endmacro %}
+
+ 8. ItemList 
+{% macro itemList_MicroSchema(page_data, site_config) -%}
+{% set offset = (page_data.page - 1) * site_config.per_page -%}
+{"@type":"ItemList",
+"numberOfItems":{{ page_data.items | length }},
+"itemListOrder":"ItemListOrderUnordered",
+"itemListElement":[
+{%- for item in page_data.items -%}
+{"@type":"ListItem",
+"position":{{ loop.index + offset }},
+"url":"{{ site_config.home_url }}{{ item.path }}",
+"name":{{ item.title | tojson }}}
+{%- if not loop.last %},{% endif %}
+{%- endfor %}]}
+{%- endmacro %}
+
+
+#}
 
 
 {# 1. Organization Schema #}
@@ -57,11 +108,11 @@
 {%- endmacro %}
 
 {# 3. Image Schema #}
-{% macro image_microschema(site_config) -%}
+{% macro image_microschema(img) -%}
 {"@type":"ImageObject",
-"url":"{{ site_config.home_url }}{{ site_config.img.url }}",
-"width":{{ site_config.img.width }},
-"height":{{ site_config.img.height }} }
+"url":"{{ site_config.home_url }}{{ img.url }}",
+"width":{{ img.width }},
+"height":{{ img.height }} }
 {%- endmacro %}
 
 {# 4. Contact Point Schema #}
@@ -156,7 +207,7 @@
 "name":"{{ site_config.org_name | e }}",
 "url":"{{ site_config.home_url }}",
 "description":{{ site_config.desc | tojson }},
-"logo":{{ image_microschema(site_config) }},
+"logo":{{ image_microschema(site_config.img) }},
 "sameAs":{{ site_config.social_links | tojson }}
 {%- if page_type == 'ContactPage' -%}
 ,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
