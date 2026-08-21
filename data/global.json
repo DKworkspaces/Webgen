@@ -8,6 +8,7 @@
 "twitter_site": "@ChannelTwitter",
     "robots": "index, follow",
   "per_page": 10,
+      "base_url":"https:dkworkspaces.github.io",
 "image_base_url": "https://example.com",
       "icon": {
       "favicon_svg": "favicon.svg",
