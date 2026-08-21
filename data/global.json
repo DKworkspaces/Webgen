@@ -1,82 +1,14 @@
-
-
-
 {
-  "site_name": "Xocumentary",
-  "name":"Xocumentary",
-  "desc":"leading documentary n explorer of science history and geopolitics.",
-  "expertise_topics":["history","science","geopolitics"],
-  "social_links":["https://www.instagram.com/company","https://www.twitter.com/company","https://www.linkedin.com/company","https://www.facebook.com/company"],
-
-"org_name": "Xocu Entertainment LLC",
-"per_page": 10,
-"image_base_url": "https://example.com",
-
-
-
-
-  "seperator": "-",
-  "launch_date":"2026-01-15",
-  "twitter_site":"@Xocumantary",
-  "logo_url":"",
-  "image_base_url":"",
-  "base_url":"https://cdn.jsdelivr.net/gh/DKworkspaces/Xocu@main/",
-  "home_url": "https://dkworkspaces.github.io/Webgen/",
-
-
-  
-"img": {
-  "url": "https://example.com",
-  "width": 512,
-  "height": 512
-},
-"social_links": [
-  "https://linkedin.com",
-  "https://x.com",
-  "https://github.com"
-],
-"contact": {
-  "availableLanguage": "English",
-  "areaServed": "US, CA, GB",
-  "support_email": "support@example.com",
-  "phone": "+1-800-555-0199"
-},
-"address": {
-  "street": "100 Innovation Way, Suite 400",
-  "city": "Austin",
-  "region": "Texas",
-  "zip": "78701",
-  "country": "US"
-},
-  "founder":{
-    "id":"founder",
-    "name":"John Ferry",
-    "job_title":"Founder & CEO",
-    "url":"/about",
-    "knowsAbout":["history","science","geopolitics"],
-    "social_links":["https://www.instagram.com/john","https://www.twitter.com/john","https://www.linkedin.com/john"]
+  "site_config": {
+    "title": "My Default Website Title",
+    "desc": "This is the default global site description used when pages do not specify one.",
+    "home_url": "https://example.com",
+"twitter_site": "@ChannelTwitter",
+    "image_base_url": "https://example.com",
+    "robots": "index, follow",
+    "icon": {
+      "favicon_svg": "favicon.svg",
+      "favicon_ico": "favicon.ico",
+      "apple_touch": "apple-touch-icon.png"
+    }
   },
-"authers":[
-    {
-      "slug":"jane",
-      "name":"jane doe",
-      "title":"cofounder",
-      "bio":"10 years experience in geopolitical analysis",
-      "knowsAbout":["High end AI","Automation"],
-      "social_links":["https://www.instagram.com/jane","https://www.twitter.com/jane","https://www.linkedin.com/jane"]},
-    {
-      "slug":"john",
-      "name":"john smith",
-      "title":"senior editor",
-      "bio":"management in fast pase editorial working",
-      "knowsAbout":["workflow system","Technical Editorial","Management"],
-      "social_links":["https://www.instagram.com/johns","https://www.twitter.com/johns","https://www.linkedin.com/sjohn"]},
-    {
-      "slug":"lee",
-      "name":"alice lee",
-      "title":"junior editor",
-      "bio":"experience in using high end ai technology for editing",
-      "knowsAbout":["Psychology","Management","Editorial","AI"],
-      "social_links":["https://www.instagram.com/lee","https://www.twitter.com/lee","https://www.linkedin.com/lee"]}
-  ]
-}
