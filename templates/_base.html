@@ -51,9 +51,9 @@
     {%- block global_verification %}{%- endblock global_verification %}
 {# 11. RSS n Sitemap #}
     {%- block global_rss %}
-    <link rel="alternate" type="application/rss+xml" title="{{ site_data.name }} {{ site_data.separator }} RSS 2.0" href="{{ home_url }}/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site_data.name }} {{ site_data.separator }} Atom" href="{{ home_url }}/atom.xml">
-    <link rel="sitemap" type="application/xml" title="{{ site_data.name }} {{ site_data.separator }} Sitemap" href="{{ home_url }}/sitemap.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site_data.name }} {{ site_data.separator }} RSS 2.0" href="{{ site_config.home_url }}/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site_data.name }} {{ site_data.separator }} Atom" href="{{ site_config.home_url }}/atom.xml">
+    <link rel="sitemap" type="application/xml" title="{{ site_data.name }} {{ site_data.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
     {%- endblock global_rss %}
 {# 12. JSON-LD Schema #}
     {%- block page_schema %}{%- endblock %}
