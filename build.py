@@ -66,8 +66,15 @@ def set_global():
     gb= load_json ('data/global.json')
     env.globals.update(site_config=gb)
 def gen_home():
+
+    
+    # Read the global cache directly from Jinja2's global dictionary
+    gb = env.globals.get('site_config') 
+
+
+    
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','web','index.html', page_data=hm)
+    generate_page('home.html','web','index.html', page_data=hm,site_config=gb)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','web','about_us.html',hm)
