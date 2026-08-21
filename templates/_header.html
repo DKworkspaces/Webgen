@@ -6,8 +6,8 @@
 <div class="nw" id="h-nd">
 <ul class="lk">
 {% for item in site_config.menus %}
-{% if item.type == "megamenu" %}{{ comp.r_mega(item) }}
-{% elif item.type == "dropdown" %}{{ comp.r_dropdown(item) }}
+{% if item.type == "megamenu" %}{{ comp.r_mega(site_config,item) }}
+{% elif item.type == "dropdown" %}{{ comp.r_dropdown(site_config,item) }}
 {% elif item.type == "select" %}{{ comp.r_mode(item) }}
 {% elif item.type == "search" %}{{ comp.r_search() }}
 {% else %}<li><a class="li" href="{{ site_config.home_url }}{{ item.url }}">{{ item.title }}</a></li>
