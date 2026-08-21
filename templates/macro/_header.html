@@ -24,7 +24,7 @@
 {% endmacro %}
 
 {# Component: Standard Dropdown Menu #}
-{% macro r_dropdown(item) %}
+{% macro r_dropdown(site_config,item) %}
 <!-- Standard Dropdown Wrapper -->
 <li class="hp">
 <input type="checkbox" id="h-dss" class="v-h h-md" aria-hidden="true">
@@ -35,14 +35,14 @@
 <ul class="dm" id="sm">
 {% for child in item.children %}
 <li>
-<a href="{{ child.url }}">{{ child.title }}</a>
+<a href="{{ site_config.home_url }}{{ child.url }}">{{ child.title }}</a>
 </li>{% endfor %}
 </ul>
 </li>
 {% endmacro %}
 
 {# Component: Mega Menu #}
-{% macro r_mega(item) %}
+{% macro r_mega(site_config,item) %}
 <!-- Mega Menu Wrapper -->
 <li class="hp">
 <input type="checkbox" id="h-dlx" class="v-h h-md" aria-hidden="true">
@@ -57,7 +57,7 @@
 <h3>{{ cat.cat_title }}</h3>
 <ul>{% for link in cat.links %}
 <li>
-<a href="{{ link.url }}">{{ link.title }}</a>
+<a href="{{ site_config.home_url }}{{ link.url }}">{{ link.title }}</a>
 </li>
 {% endfor %}
 </ul>
