@@ -132,7 +132,7 @@
 {% macro Org_Schema(page_type, site_config) -%}
 {"@type":"Organization",
 "@id":"{{ site_config.home_url }}/#organization",
-"name":{{ site_config.org_name | tojson }},
+"name":"{{ site_config.org_name }}",
 "url":"{{ site_config.home_url }}",
 "description":{{ site_config.desc | tojson }},
 "logo":{{ image_microschema(site_config.logo, site_config) }},
