@@ -67,7 +67,7 @@ def set_global():
     env.globals.update(site_config=gb)
 def gen_home():
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','web','index.html', page_diiata=hm)
+    generate_page('home.html','web','index.html', page_data=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','web','about_us.html',hm)
@@ -102,8 +102,8 @@ def gen_404():
 
 def main():
     """Main orchestrator running the operations in order."""
-    set_global()
     gen_headfoot()
+    set_global()
     gen_home()
     gen_404()
 if __name__ == '__main__':
