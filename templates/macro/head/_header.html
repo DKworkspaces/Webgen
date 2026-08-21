@@ -5,55 +5,30 @@ macro r_page_res_hints(type=None)
 macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image')
 macro r_g_icons(site_config)
 
-1. 2. 4. 5.
+
+
 {
   "site_config": {
-    "title": "Default Website Title",
-    "desc": "This is the default website meta description.",
+    "title": "My Default Website Title",
+    "desc": "This is the default global site description used when pages do not specify one.",
     "home_url": "https://example.com",
+"twitter_site": "@ChannelTwitter",
+    "image_base_url": "https://example.com",
     "robots": "index, follow",
-    "twitter_Handler": "@MySiteTwitter",
-"base_image_url": "https://example.com",
     "icon": {
-      "favicon_svg": "/icons/favicon.svg",
-      "favicon_ico": "/icons/favicon.ico",
-      "apple_touch": "/icons/apple-touch-icon.png"
+      "favicon_svg": "favicon.svg",
+      "favicon_ico": "favicon.ico",
+      "apple_touch": "apple-touch-icon.png"
     }
   },
   "page_data": {
-    "title": "Deep Dive into Macro Architecture",
-    "desc": "An in-depth article explaining macro data structures.",
-    "path": "/blog/macro-architecture",
-    "robots": "index, follow",
-    "media": "video",
-    "type": "article",
-    "pin": {
-      "img": "https://example.com/assets/pin-1000x1500.jpg",
-      "alt": "Infographic showing template engine architecture"
-    },
-    "video": {
-      "type": "youtube",
-      "id": "dQw4w9WgXcQ"
-    },
-    "og": {
-      "img": "https://example.com/assets/og-1200x630.jpg",
-      "alt": "Cover art of template engine architecture"
-    },
-    "post": {
-      "published_time": "2026-08-21T12:00:00Z",
-      "modified_time": "2026-08-21T12:59:00Z",
-      "author_url": "https://facebook.com",
-      "publisher": "https://facebook.com",
-      "section": "Web Development",
-      "tags": ["Jinja2", "SEO", "JSON", "Automation"],
-      "twitter_creator_Handler": "@AuthorTwitter"
-    }
+    "title": "About Our Team",
+    "desc": "Meet the developers and designers behind our core platform.",
+    "path": "/about-us/",
+    "robots": "noindex, follow"
   }
 }
 
-
-
-3.
 
 
 #}
@@ -95,9 +70,9 @@ macro r_g_icons(site_config)
 <meta property="og:title" content="{{ page_data.title | default(site_config.title) | e }}">
 <meta property="og:description" content="{{ page_data.desc | default(site_config.desc) | e }}">
 <meta property="og:type" content="{{ type | e }}">
-<meta name="twitter:site" content="{{ site_config.twitter_Handler | e }}">
+<meta name="twitter:site" content="{{ site_config.twitter_site | e }}">
 <meta name="twitter:card" content="{{ 'player' if page_data.media == 'video' else card | e }}">
-{%- if page_data.media == 'video' and data.video -%}
+{%- if page_data.media == 'video' and page_data.video -%}
 {%- if page_data.video.type == 'youtube' -%}
 <meta property="og:video" content="https://www.youtube-nocookie.com/embed/{{ page_data.video.id }}">
 <meta name="twitter:player" content="https://www.youtube-nocookie.com/embed/{{ page_data.video.id }}">
@@ -110,16 +85,16 @@ macro r_g_icons(site_config)
 <meta name="twitter:image" content="https://www.dailymotion.com/thumbnail/video/{{ page_data.video.id }}">
 {%- endif -%}
 {%- elif page_data.media == 'image' and page_data.og -%}
-<meta property="og:image" content="{{ page_data.og.img | e }}">
+<meta property="og:image" content="{{ site_config.image_base_url }}{{ page_data.og.img }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="{{ page_data.og.img | e }}">
+<meta name="twitter:image" content="{{ site_config.image_base_url }}{{ page_data.og.img }}">
 <meta property="og:image:alt" content="{{ page_data.og.alt | e }}">
 <meta name="twitter:image:alt" content="{{ page_data.og.alt | e }}">
 {%- endif -%}
 {%- if page_data.pin -%}
 <meta name="pinterest:rich_pins" content="true">
-<meta property="og:image" content="{{ page_data.pin.img | e }}">
+<meta property="og:image" content="{{ site_config.image_base_url }}{{ page_data.pin.img }}">
 <meta property="og:image:width" content="1000">
 <meta property="og:image:height" content="1500">
 <meta property="og:image:alt" content="{{ page_data.pin.alt | e }}">
@@ -138,14 +113,155 @@ macro r_g_icons(site_config)
 {# 5. Global Asset Icon Component #}
 
 {% macro r_g_icons(site_config) -%}
-<link rel="icon" type="image/svg+xml" href="{{ site_config.base_image_url }}{{ site_config.icon.favicon_svg }}">
-<link rel="alternate icon" type="image/x-icon" href="{{ site_config.base_image_url }}{{ site_config.icon.favicon_ico }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ site_config.base_image_url }}{{ site_config.icon.apple_touch }}">
+<link rel="icon" type="image/svg+xml" href="{{ site_config.image_base_url }}{{ site_config.icon.favicon_svg }}">
+<link rel="alternate icon" type="image/x-icon" href="{{ site_config.image_base_url }}{{ site_config.icon.favicon_ico }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ site_config.image_base_url }}{{ site_config.icon.apple_touch }}">
 {%- endmacro %}
 
 
 {#
 code json data 
+
+
+video + pin
+
+
+{
+  "site_config": {
+    "title": "Default Video Channel",
+    "desc": "Your go-to portal for curated video presentations.",
+    "twitter_site": "@ChannelTwitter",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "title": "Innovative Coding Paradigms Explained",
+    "desc": "Watch this comprehensive walkthrough tracking next-generation development tips.",
+    "media": "video",
+    "video": {
+      "type": "youtube",
+      "id": "dQw4w9WgXcQ"
+    },
+    "pin": {
+      "img": "pinterest-infographic.jpg",
+      "alt": "Step by step visualization of coding paradigms"
+    }
+  }
+}
+
+
+
+
+
+only video
+
+
+{
+  "site_config": {
+    "title": "Default Video Channel",
+    "desc": "Your go-to portal for curated video presentations.",
+    "twitter_site": "@ChannelTwitter",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "title": "Innovative Coding Paradigms Explained",
+    "desc": "Watch this comprehensive walkthrough tracking next-generation development tips.",
+    "media": "video",
+    "video": {
+      "type": "youtube",
+      "id": "dQw4w9WgXcQ"
+    }
+  }
+}
+
+
+
+
+image
+
+{
+  "site_config": {
+    "title": "Default Image Gallery",
+    "desc": "A showcase of high-quality digital artwork and photography.",
+    "twitter_site": "@GalleryTwitter",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "title": "Abstract Digital Masterpieces",
+    "desc": "Browse through our curated collection of modern vector illustrations.",
+    "media": "image",
+    "og": {
+      "img": "hero-illustration.jpg",
+      "alt": "A vibrant collage of geometric shapes and neon color gradients"
+    }
+  }
+}
+
+
+image +pin
+
+
+{
+  "site_config": {
+    "title": "Default Image Gallery",
+    "desc": "A showcase of high-quality digital artwork and photography.",
+    "twitter_site": "@GalleryTwitter",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "title": "Abstract Digital Masterpieces",
+    "desc": "Browse through our curated collection of modern vector illustrations.",
+    "media": "image",
+    "og": {
+      "img": "hero-illustration.jpg",
+      "alt": "A vibrant collage of geometric shapes and neon color gradients"
+    },
+    "pin": {
+      "img": "pinterest-infographic.jpg",
+      "alt": "Step by step visualization of coding paradigms"
+    }
+  }
+}
+
+
+
+
+
+image + pin + article
+
+
+{
+  "site_config": {
+    "title": "Default Image Gallery",
+    "desc": "A showcase of high-quality digital artwork and photography.",
+    "twitter_site": "@GalleryTwitter",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "title": "Abstract Digital Masterpieces",
+    "desc": "Browse through our curated collection of modern vector illustrations.",
+    "media": "image",
+    "type": "article",
+    "og": {
+      "img": "hero-illustration.jpg",
+      "alt": "A vibrant collage of geometric shapes and neon color gradients"
+    },
+    "pin": {
+      "img": "pinterest-infographic.jpg",
+      "alt": "Step by step visualization of coding paradigms"
+    },
+    "post": {
+      "published_time": "2026-08-21T10:00:00Z",
+      "modified_time": "2026-08-21T13:30:00Z",
+      "author_url": "https://example.com",
+      "publisher": "https://facebook.com",
+      "section": "Technology",
+      "tags": ["Design", "VectorArt", "Coding"],
+      "twitter_creator_Handler": "@JohnDoeWrites"
+    }
+  }
+}
+
+
 
 
 #}
