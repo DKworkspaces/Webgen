@@ -1,4 +1,4 @@
-{% import 'macro/_footer.html' as comp %}
+{% import 'macro/_footer.html' as comp with context %}
 <footer id="sf-i" class="f-sf"<div class="fc"><div class="fb"><div class="f-brand-card"><h3 class="ft">{{ site_config.name }}</h3><p class="fd">{{ site_config.desc }}</p><address class="fr">{{ site_config.address.street }}<br>{{ site_config.address.city }}{{ site_config.address.region }}{{ site_config.address.zip }}</address><div class="f-ct"><a href="tel:{{ site_config.contact.phone }}" class="fl-a">{{ site_config.contact.phone }}</a><a href="mailto:{{ site_config.contact.support_email }}" class="fl-a">{{ site_config.contact.support_email }}</a></div>
 <div class="fs">{% for li in site_config.social %}<a href="{{ site_config.home_url }}{{ li.url }}" aria-label="{{ li.type}}" class="si">{{ li.sym}}</a>{% endfor %}</div>
 </div><div class="f-sub"><h4 class="f-st">Stay Updated</h4><form class="sf-f" onsubmit="event.preventDefault();"><input type="email" placeholder="Enter your email" aria-label="Email address" required class="sf-in"><button type="submit" class="sf-btn">Subscribe</button></form></div></div>
