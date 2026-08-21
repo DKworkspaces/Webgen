@@ -1,4 +1,4 @@
-{% from 'macro/head/_header.html' import r_page_id,r_can,r_page_s_meta %}
+{% from 'macro/head/_header.html' import r_page_id,r_can,r_page_s_meta,r_page_res_hints,r_g_icons %}
 {% if page_type != 'CollectionPage' %}
 {% set _ = page_data.social.update({
     'desc': "Expert guides on web development, AI, and enterprise Flask architectures.",
@@ -7,6 +7,7 @@
     'pin': {'img': site_config.image_base_url ~ 'main_pin.jpg','alt': 'Img Description.'}
 }) %}
 {% endif %}
+
 
 
 
@@ -25,13 +26,12 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
     {%- endblock page_security %}
 {# 2. Title, Description, Canonical & Robots (SEO Protection) #}
-    {%- block page_identity %}{{ r_page_id(page_data) }}{%- endblock page_identity %}
-    {%- block canonical %}{{ r_can(page_data) }}{%- endblock canonical %}
+    {%- block page_identity %}{{ r_page_id(page_data,site_config) }}{%- endblock page_identity %}
+    {%- block canonical %}{{ r_can(page_data,site_config) }}{%- endblock canonical %}
 {# 3. Social media Meta Tags #}
-    {%- block page_social_meta %}{{ r_page_s_meta(page_data.social) }}{%- endblock page_social_meta %}
+    {%- block page_social_meta %}{{ r_page_s_meta(page_data.social,site_config) }}{%- endblock page_social_meta %}
 {# 4. Resource Hints #}
-    {%- block page_resource_hints %}
-    {%- endblock page_resource_hints %}
+    {%- block page_resource_hints %}{{ r_page_res_hints(type=None) }}{%- endblock page_resource_hints %}
 {%- endblock head_metadata %}
 {%- block page_styles %}
 {# 5. Critical CSS #}
@@ -45,15 +45,15 @@
     {%- block page_css %}{%- endblock page_css %}
 {%- endblock page_styles %}
 {%- block page_syndication %}
-    {# 9. Icons #}
-    {%- block global_icons %}{%- endblock global_icons %}
+{# 9. Icons #}
+    {%- block global_icons %}{{ r_g_icons(site_config) }}{%- endblock global_icons %}
 {# 10 . Verification tokens #}
     {%- block global_verification %}{%- endblock global_verification %}
 {# 11. RSS n Sitemap #}
     {%- block global_rss %}
-    <link rel="alternate" type="application/rss+xml" title="{{ site_name }} {{ separator }} RSS 2.0" href="{{ home_url }}/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site_name }} {{ separator }} Atom" href="{{ home_url }}/atom.xml">
-    <link rel="sitemap" type="application/xml" title="{{ site_name }} {{ separator }} Sitemap" href="{{ home_url }}/sitemap.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site_data.name }} {{ site_data.separator }} RSS 2.0" href="{{ home_url }}/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site_data.name }} {{ site_data.separator }} Atom" href="{{ home_url }}/atom.xml">
+    <link rel="sitemap" type="application/xml" title="{{ site_data.name }} {{ site_data.separator }} Sitemap" href="{{ home_url }}/sitemap.xml">
     {%- endblock global_rss %}
 {# 12. JSON-LD Schema #}
     {%- block page_schema %}{%- endblock %}
