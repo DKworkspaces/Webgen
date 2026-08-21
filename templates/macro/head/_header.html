@@ -1,3 +1,38 @@
+{#
+
+{% macro r_page_id(page_data,site_config,type=None) -%}
+<title>{{ page_data.title | default(site_config.title) | e }}</title>
+<meta name="description" content="{{ page_data.title | default(site_config.title) | e }}">
+
+
+
+<meta name="robots" content="{{ page_data.robots | default(site_config.robots) | e }}, noai, noimageai">
+<meta name="google-extended" content="noindex">
+<meta name="gptbot" content="noindex">
+<link rel="canonical" href="{{ site_config.home_url }}{{ page_data.path }}">
+<meta property="og:url" content="{{ site_config.home_url }}{{ page_data.path }}">
+
+
+{%- if type == 'yt' -%}
+<link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
+<link rel="preconnect" href="https://www.youtube.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.youtube.com">
+<link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
+<link rel="dns-prefetch" href="https://img.youtube.com">
+{%- elif type == 'dm' -%}
+<link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.dailymotion.com">
+{%- endif -%}
+
+
+{%- endmacro %}
+
+#}
+
+
+
+
+
 {# 1. Page Identity Metadata #}
 
 {% macro r_page_id(data) -%}
