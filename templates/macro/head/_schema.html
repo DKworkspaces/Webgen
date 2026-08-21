@@ -31,6 +31,11 @@
 {%- endmacro %}
 
 
+{# 
+{{ site_config.home_url | trim | rstrip('/') }}/{{ item.path | lstrip('/') }}
+ #}
+
+
 
 {# 1. Organization Schema #}
 {% macro idOrg_microschema(site_config) -%}
@@ -46,7 +51,7 @@
 {"@type":"ListItem",
 "position":{{ loop.index + offset }},
 "url":"{{ site_config.home_url }}{{ item.path }}",
-"name":"{{ item.title }}"}
+"name":{{ item.title | tojson }}}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]
 {%- endmacro %}
@@ -72,9 +77,9 @@
 {# 5. Postal Address #}
 {% macro postal_address_microschema(address) -%}
 {"@type":"PostalAddress"
-{%- if address.street %},"streetAddress":{{ address.street }}{% endif -%}
-{%- if address.city %},"addressLocality":{{ address.city }}{% endif -%}
-{%- if address.region %},"addressRegion":{{ address.region }}{% endif -%}
+{%- if address.street %},"streetAddress":"{{ address.street }}"{% endif -%}
+{%- if address.city %},"addressLocality":"{{ address.city }}"{% endif -%}
+{%- if address.region %},"addressRegion":"{{ address.region }}"{% endif -%}
 {%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
 {%- if address.country %},"addressCountry":"{{ address.country }}"{% endif -%}
 }
@@ -91,7 +96,7 @@
 {%- for item in breadcrumb -%}
 {"@type":"ListItem",
 "position":{{ loop.index }},
-"name":"{{ item.name }}",
+"name":{{ item.name | tojson }},
 "item":"{{ site_config.home_url }}{{ item.path }}"}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]
@@ -109,7 +114,7 @@
 {"@type":"ListItem",
 "position":{{ loop.index + offset }},
 "url":"{{ site_config.home_url }}{{ item.path }}",
-"name":"{{ item.title | tojson }}"}
+"name":{{ item.title | tojson }}}
 {%- if not loop.last %},{% endif %}
 {%- endfor %}]}
 {%- endmacro %}
@@ -118,8 +123,8 @@
 {# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
 {% macro video_MicroSchema(video, site_config) -%}
 {"@type":"VideoObject",
-"name":"{{ video.title }}",
-"description":"{{ video.description }}",
+"name":{{ video.title | tojson }},
+"description":{{ video.description | tojson }},
 "thumbnailUrl":"{{ video.thumbnail_url }}",
 "uploadDate":"{{ video.uploadDate }}"
 {%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}
@@ -148,9 +153,9 @@
 {% macro Org_Schema(page_type, site_config) -%}
 {"@type":"Organization",
 "@id":"{{ site_config.home_url }}/#organization",
-"name":"{{ site_config.org_name }}",
+"name":"{{ site_config.org_name | e }}",
 "url":"{{ site_config.home_url }}",
-"description":"{{ site_config.desc }}",
+"description":{{ site_config.desc | tojson }},
 "logo":{{ image_microschema(site_config) }},
 "sameAs":{{ site_config.social_links | tojson }}
 {%- if page_type == 'ContactPage' -%}
@@ -211,7 +216,7 @@
 {%- if breadcrumb -%},"breadcrumb":{"@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb"}{%- endif -%}
 {%- if page_data.about -%},"about":{{ idOrg_microschema(site_config) }}{%- endif -%}
 {%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
-{%- if page_data.image -%},"primaryImageOfPage":{{ image_microschema(page_data.image, site_config) }}{%- endif -%}
+{%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img) }}{%- endif -%}
 {%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
 {%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
 {%- if page_type == 'CollectionPage' and page_data.items -%}
