@@ -48,8 +48,8 @@
 {%- endmacro %}
 
 {# 3. Image Schema #}
-{% macro image_microschema(img, site_config) -%}
-{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.url }}","width":{{ img.width }},"height":{{ img.height }}}
+{% macro image_microschema(site_config) -%}
+{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ site_config.img.url }}","width":{{ site_config.img.width }},"height":{{ site_config.img.height }}}
 {%- endmacro %}
 
 {# 4. Contact Point Schema #}
@@ -135,7 +135,7 @@
 "name":"{{ site_config.org_name }}",
 "url":"{{ site_config.home_url }}",
 "description":{{ site_config.desc | tojson }},
-"logo":{{ image_microschema(site_config.img, site_config) }},
+"logo":{{ image_microschema(site_config) }},
 "sameAs":{{ site_config.social_links | tojson }}
 {%- if page_type == 'ContactPage' -%}
 ,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
