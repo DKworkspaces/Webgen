@@ -64,7 +64,8 @@
 {% include 'temp/header.html' %}
 {%- block layout_container %}
 {%- endblock layout_container %}
-{% include 'temp/footer.html' %site_configge_scripts %}
+{% include 'temp/footer.html' %}
+{%- block page_scripts %}
 {# 14. Core JS #}
     {%- block global_js %}{%- endblock global_js %}
 {# 15. Page Specific JS #}
