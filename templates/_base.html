@@ -51,9 +51,9 @@
     {%- block global_verification %}{%- endblock global_verification %}
 {# 11. RSS n Sitemap #}
     {%- block global_rss %}
-    <link rel="alternate" type="application/rss+xml" title="{{ site_data.name }} {{ site_data.separator }} RSS 2.0" href="{{ site_config.home_url }}/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site_data.name }} {{ site_data.separator }} Atom" href="{{ site_config.home_url }}/atom.xml">
-    <link rel="sitemap" type="application/xml" title="{{ site_data.name }} {{ site_data.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
+    <link rel="alternate" type="application/rss+xml" title="{{ site_config.name }} {{ site_config.separator }} RSS 2.0" href="{{ site_config.home_url }}/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="{{ site_config.name }} {{ site_config.separator }} Atom" href="{{ site_config.home_url }}/atom.xml">
+    <link rel="sitemap" type="application/xml" title="{{ site_config.name }} {{ site_config.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
     {%- endblock global_rss %}
 {# 12. JSON-LD Schema #}
     {%- block page_schema %}{%- endblock %}
@@ -64,8 +64,7 @@
 {% include 'temp/header.html' %}
 {%- block layout_container %}
 {%- endblock %}
-{% include 'temp/footer.html' %}
-{%- block page_scripts %}
+{% include 'temp/footer.html' %site_configge_scripts %}
 {# 14. Core JS #}
     {%- block global_js %}{%- endblock global_js %}
 {# 15. Page Specific JS #}
