@@ -1,69 +1,20 @@
-{#
 
-{% macro r_page_id(page_data,site_config,type=None) -%}
+{# 1. Page Identity Metadata #}
+
+{% macro r_page_id(page_data,site_config) -%}
 <title>{{ page_data.title | default(site_config.title) | e }}</title>
-<meta name="description" content="{{ page_data.title | default(site_config.title) | e }}">
+<meta name="description" content="{{ page_data.desc | default(site_config.desc) | e }}">
+{%- endmacro %}
 
+{# 2. Robots & Canonical #}
 
-
+{% macro r_can(data) -%}
 <meta name="robots" content="{{ page_data.robots | default(site_config.robots) | e }}, noai, noimageai">
 <meta name="google-extended" content="noindex">
 <meta name="gptbot" content="noindex">
 <link rel="canonical" href="{{ site_config.home_url }}{{ page_data.path }}">
 <meta property="og:url" content="{{ site_config.home_url }}{{ page_data.path }}">
-
-
-{%- if type == 'yt' -%}
-<link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
-<link rel="preconnect" href="https://www.youtube.com" crossorigin>
-<link rel="dns-prefetch" href="https://www.youtube.com">
-<link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
-<link rel="dns-prefetch" href="https://img.youtube.com">
-{%- elif type == 'dm' -%}
-<link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
-<link rel="dns-prefetch" href="https://www.dailymotion.com">
-{%- endif -%}
-
-
 {%- endmacro %}
-
-#}
-
-
-
-
-
-{# 1. Page Identity Metadata #}
-
-{% macro r_page_id(data) -%}
-<title>{{ data.title | e }}</title>
-<meta name="description" content="{{ data.desc | e }}">
-{%- endmacro %}
-
-
-{#
-"data": {"title": "Low-Latency Thread Optimization Protocols",
-"desc": "An advanced operational manual for tuning sub-millisecond execution loops within distributed systems."}
-#}
-  
-
-{# 2. Robots & Canonical #}
-
-{% macro r_can(data) -%}
-<meta name="robots" content="{{ data.robots | e }}, noai, noimageai">
-<meta name="google-extended" content="noindex">
-<meta name="gptbot" content="noindex">
-<link rel="canonical" href="{{ data.canonical_url | e }}">
-<meta property="og:url" content="{{ data.canonical_url | e }}">
-{%- endmacro %}
-
-
-{# 
-"data": "robots": "index, follow",
-"canonical_url": "https://devportal.io"}
-#}
-
-
 
 {# 3. Resource Hints #}
 
@@ -80,162 +31,63 @@
 {%- endif -%}
 {%- endmacro %}
 
+{# 4. OG & Twitter Player Component, OG Article Publisher Metadata Engine #}
 
-
-{#
-"data": {"type": "yt"}
-or
-"data": {"type": "dm"}
-or type =None
-#}
-
-
-
-
-{# 4. OG & Twitter Player Component #}
-
-{% macro r_page_s_meta(data, type='website', card='summary_large_image') -%}
-<meta property="og:title" content="{{ data.title | e }}">
-<meta property="og:description" content="{{ data.desc | e }}">
+{% macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image') -%}
+<meta property="og:title" content="{{ page_data.title | default(site_config.title) | e }}">
+<meta property="og:description" content="{{ page_data.desc | default(site_config.desc) | e }}">
 <meta property="og:type" content="{{ type | e }}">
-<meta name="twitter:site" content="{{ data.twitter_site_Handler | e }}">
-<meta name="twitter:card" content="{{ 'player' if data.media == 'video' else card | e }}">
-{%- if data.media == 'video' and data.video -%}
-{%- if data.video.type == 'youtube' -%}
-<meta property="og:video" content="https://www.youtube-nocookie.com/embed/{{ data.video.id }}">
-<meta name="twitter:player" content="https://www.youtube-nocookie.com/embed/{{ data.video.id }}">
-<meta property="og:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg">
-<meta name="twitter:image" content="https://img.youtube.com/vi/{{ data.video.id }}/maxresdefault.jpg">
-{%- elif data.video.type == 'dailymotion' -%}
-<meta property="og:video" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}">
-<meta name="twitter:player" content="https://www.dailymotion.com/embed/video/{{ data.video.id }}">
-<meta property="og:image" content="https://www.dailymotion.com/thumbnail/video/{{ data.video.id }}">
-<meta name="twitter:image" content="https://www.dailymotion.com/thumbnail/video/{{ data.video.id }}">
+<meta name="twitter:site" content="{{ site_congif.twitter_Handler | e }}">
+<meta name="twitter:card" content="{{ 'player' if page_data.media == 'video' else card | e }}">
+{%- if page_data.media == 'video' and data.video -%}
+{%- if page_data.video.type == 'youtube' -%}
+<meta property="og:video" content="https://www.youtube-nocookie.com/embed/{{ page_data.video.id }}">
+<meta name="twitter:player" content="https://www.youtube-nocookie.com/embed/{{ page_data.video.id }}">
+<meta property="og:image" content="https://img.youtube.com/vi/{{ page_data.video.id }}/maxresdefault.jpg">
+<meta name="twitter:image" content="https://img.youtube.com/vi/{{ page_data.video.id }}/maxresdefault.jpg">
+{%- elif page_data.video.type == 'dailymotion' -%}
+<meta property="og:video" content="https://www.dailymotion.com/embed/video/{{ page_data.video.id }}">
+<meta name="twitter:player" content="https://www.dailymotion.com/embed/video/{{ page_data.video.id }}">
+<meta property="og:image" content="https://www.dailymotion.com/thumbnail/video/{{ page_data.video.id }}">
+<meta name="twitter:image" content="https://www.dailymotion.com/thumbnail/video/{{ page_data.video.id }}">
 {%- endif -%}
-{%- elif data.media == 'image' and data.og -%}
-<meta property="og:image" content="{{ data.og.img | e }}">
+{%- elif page_data.media == 'image' and page_data.og -%}
+<meta property="og:image" content="{{ page_data.og.img | e }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="{{ data.og.img | e }}">
-<meta property="og:image:alt" content="{{ data.og.alt | e }}">
-<meta name="twitter:image:alt" content="{{ data.og.alt | e }}">
+<meta name="twitter:image" content="{{ page_data.og.img | e }}">
+<meta property="og:image:alt" content="{{ page_data.og.alt | e }}">
+<meta name="twitter:image:alt" content="{{ page_data.og.alt | e }}">
 {%- endif -%}
-{%- if data.pin -%}
+{%- if page_data.pin -%}
 <meta name="pinterest:rich_pins" content="true">
-<meta property="og:image" content="{{ data.pin.img | e }}">
+<meta property="og:image" content="{{ page_data.pin.img | e }}">
 <meta property="og:image:width" content="1000">
 <meta property="og:image:height" content="1500">
-<meta property="og:image:alt" content="{{ data.pin.alt | e }}">
+<meta property="og:image:alt" content="{{ page_data.pin.alt | e }}">
+{%- endif -%}
+{%- if page_data.type == 'article' and page_data.post -%}
+{%- if page_data.post.published_time -%}<meta property="article:published_time" content="{{ page_data.post.published_time }}">{%- endif -%}
+{%- if page_data.post.modified_time -%}<meta property="article:modified_time" content="{{ page_data.post.modified_time }}">{%- endif -%}
+{%- if page_data.post.author_url -%}<meta property="article:author" content="{{ page_data.post.author_url | e }}">{%- endif -%}
+{%- if page_data.post.publisher -%}<meta property="article:publisher" content="{{ page_data.post.publisher | e }}">{%- endif -%}
+{%- if page_data.post.section -%}<meta property="article:section" content="{{ page_data.post.section | e }}">{%- endif -%}
+{%- for tag in page_data.post.tags | default([]) -%}{%- if tag -%}<meta property="article:tag" content="{{ tag | e }}">{%- endif -%}{%- endfor -%}
+{%- if page_data.post.twitter_creator_Handler -%}<meta name="twitter:creator" content="{{ page_data.post.twitter_creator_Handler | e }}">{%- endif -%}
 {%- endif -%}
 {%- endmacro %}
 
+{# 5. Global Asset Icon Component #}
 
-
-
-
-
-
-
-
-
-
-{#
-
-{
-  "video_variant_youtube": {
-    "title": "High-Throughput Streaming Engine Diagnostics",
-    "desc": "Live monitoring of execution times across high-traffic node clusters.",
-    "twitter_site_Handler": "@DevPortalLabs",
-    "media": "video",
-    "video": {
-      "type": "youtube",
-      "id": "dQw4w9WgXcQ"
-    },
-    "pin": {
-      "img": "https://devportal.io",
-      "alt": "Infographic displaying streaming engine telemetry data"
-    }
-  },
-
-
-  "image_variant_standard": {
-    "title": "Architectural Blueprint for Zero-Allocation Templates",
-    "desc": "A definitive guide to structuring memory boundaries for high-performance Python engines.",
-    "twitter_site_Handler": "@DevPortalLabs",
-    "media": "image",
-    "og": {
-      "img": "https://devportal.io",
-      "alt": "Schematic diagrams detailing internal memory allocation pathways"
-    },
-    "pin": {
-      "img": "https://devportal.io",
-      "alt": "Flowchart describing template optimization steps"
-    }
-  }
-}
-
-#}
-
-
-{# 5. OG Article Publisher Metadata Engine #}
-
-{% macro r_page_s_article(data, type=None) -%}
-{%- if type == 'article' and data -%}
-{%- if data.published_time -%}
-<meta property="article:published_time" content="{{ data.published_time }}">{%- endif -%}
-{%- if data.modified_time -%}
-<meta property="article:modified_time" content="{{ data.modified_time }}">{%- endif -%}
-{%- if data.author_url -%}
-<meta property="article:author" content="{{ data.author_url | e }}">{%- endif -%}
-{%- if data.publisher -%}
-<meta property="article:publisher" content="{{ data.publisher | e }}">{%- endif -%}
-{%- if data.section -%}
-<meta property="article:section" content="{{ data.section | e }}">{%- endif -%}
-{%- for tag in data.tags | default([]) -%}
-    {%- if tag -%}<meta property="article:tag" content="{{ tag | e }}">{%- endif -%}
-{%- endfor -%}
-{%- if data.twitter_creator_Handler -%}
-<meta name="twitter:creator" content="{{ data.twitter_creator_Handler | e }}">{%- endif -%}
-{%- endif -%}
+{% macro r_g_icons(site_config) -%}
+<link rel="icon" type="image/svg+xml" href="{{ site_config.base_image_url }}{{ site_config.icon.favicon_svg }}">
+<link rel="alternate icon" type="image/x-icon" href="{{ site_config.base_image_url }}{{ site_config.icon.favicon_ico }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ site_config.base_image_url }}{{ site_config.icon.apple_touch }}">
 {%- endmacro %}
 
 
 {#
+code json data 
 
-  "page_data": {
-    "type": "article",
-    "data": {
-      "published_time": "2026-03-19T08:00:00Z",
-      "modified_time": "2026-08-19T14:30:00Z",
-      "author_url": "https://devportal.io",
-      "publisher": "https://facebook.com",
-      "section": "System Architecture",
-      "twitter_creator_Handler": "@lazymiller",
-      "tags": [
-        "Python",
-        "Jinja2",
-        "Memory Tuning",
-        "Optimization"
-      ]
-    }
-  }
 
-#}
-
-{# 6. Global Asset Icon Component #}
-
-{% macro r_g_icons(url) -%}
-<link rel="icon" type="image/svg+xml" href="{{ url.favicon_svg }}">
-<link rel="alternate icon" type="image/x-icon" href="{{ url.favicon_ico }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ url.apple_touch }}">
-{%- endmacro %}
-
-{#
-{
-  "url": {
-    "favicon_svg": "/static/favicon.svg",
-    "favicon_ico": "/static/favicon.ico",
-    "apple_touch": "/static/apple-touch-icon.png"
-  }
-}
 #}
