@@ -38,7 +38,7 @@ def load_data_profiles():
 def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
     md('templates/temp')
-    hd= load_data_profiles()
+    #hd= load_data_profiles()
     # 1. Compile and save plain header snippet
     h_t=base_f('_header.html')
     generate(h_t,'templates/temp/header.html',a=hd)
