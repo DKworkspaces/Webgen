@@ -1,4 +1,62 @@
+{#
+macro r_page_id(page_data,site_config)
+macro r_can(page_data,site_config)
+macro r_page_res_hints(type=None)
+macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image')
+macro r_g_icons(site_config)
 
+1. 2. 4. 5.
+{
+  "site_config": {
+    "title": "Default Website Title",
+    "desc": "This is the default website meta description.",
+    "home_url": "https://example.com",
+    "robots": "index, follow",
+    "twitter_Handler": "@MySiteTwitter",
+"base_image_url": "https://example.com",
+    "icon": {
+      "favicon_svg": "/icons/favicon.svg",
+      "favicon_ico": "/icons/favicon.ico",
+      "apple_touch": "/icons/apple-touch-icon.png"
+    }
+  },
+  "page_data": {
+    "title": "Deep Dive into Macro Architecture",
+    "desc": "An in-depth article explaining macro data structures.",
+    "path": "/blog/macro-architecture",
+    "robots": "index, follow",
+    "media": "video",
+    "type": "article",
+    "pin": {
+      "img": "https://example.com/assets/pin-1000x1500.jpg",
+      "alt": "Infographic showing template engine architecture"
+    },
+    "video": {
+      "type": "youtube",
+      "id": "dQw4w9WgXcQ"
+    },
+    "og": {
+      "img": "https://example.com/assets/og-1200x630.jpg",
+      "alt": "Cover art of template engine architecture"
+    },
+    "post": {
+      "published_time": "2026-08-21T12:00:00Z",
+      "modified_time": "2026-08-21T12:59:00Z",
+      "author_url": "https://facebook.com",
+      "publisher": "https://facebook.com",
+      "section": "Web Development",
+      "tags": ["Jinja2", "SEO", "JSON", "Automation"],
+      "twitter_creator_Handler": "@AuthorTwitter"
+    }
+  }
+}
+
+
+
+3.
+
+
+#}
 {# 1. Page Identity Metadata #}
 
 {% macro r_page_id(page_data,site_config) -%}
@@ -8,7 +66,7 @@
 
 {# 2. Robots & Canonical #}
 
-{% macro r_can(data) -%}
+{% macro r_can(page_data,site_config) -%}
 <meta name="robots" content="{{ page_data.robots | default(site_config.robots) | e }}, noai, noimageai">
 <meta name="google-extended" content="noindex">
 <meta name="gptbot" content="noindex">
@@ -37,7 +95,7 @@
 <meta property="og:title" content="{{ page_data.title | default(site_config.title) | e }}">
 <meta property="og:description" content="{{ page_data.desc | default(site_config.desc) | e }}">
 <meta property="og:type" content="{{ type | e }}">
-<meta name="twitter:site" content="{{ site_congif.twitter_Handler | e }}">
+<meta name="twitter:site" content="{{ site_config.twitter_Handler | e }}">
 <meta name="twitter:card" content="{{ 'player' if page_data.media == 'video' else card | e }}">
 {%- if page_data.media == 'video' and data.video -%}
 {%- if page_data.video.type == 'youtube' -%}
