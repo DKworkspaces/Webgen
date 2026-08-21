@@ -1,6 +1,6 @@
 {# Component: Footer Mega Menu #}
-{% macro r_fmega(site_config,columns) %}
-{% for col in columns %}
+{% macro r_fmega(site_config) %}
+{% for col in site_config.columns %}
 <!-- Column -->
 <div class="f-mc"><input type="checkbox" id="{{ col.id }}" class="f-st" aria-hidden="true"><label for="{{ col.id }}" class="f-pt">{{ col.title }}
 <!-- Pulling the master Chevron asset initialized inside the header frame -->
