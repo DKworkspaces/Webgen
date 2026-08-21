@@ -35,14 +35,14 @@
 {%- endblock head_metadata %}
 {%- block page_styles %}
 {# 5. Critical CSS #}
-    {%- block critical_css %}{%- endblock critical_css %}
+    {%- block critical_css %}{# cricitical css #}{%- endblock critical_css %}
 {# 6. Core CSS #}
     <link rel="stylesheet" href="{{ css_base }}base.css">
     <link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
     <script src="{{ js_base }}common.js" defer></script>
 {# 7. Page Specific CSS #}
-    {%- block page_css %}{%- endblock page_css %}
+    {%- block page_css %} {# page sepecific css #} {%- endblock page_css %}
 {%- endblock page_styles %}
 {%- block page_syndication %}
 {# 9. Icons #}
@@ -56,14 +56,14 @@
     <link rel="sitemap" type="application/xml" title="{{ site_config.name }} {{ site_config.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
     {%- endblock global_rss %}
 {# 12. JSON-LD Schema #}
-    {%- block page_schema %}{%- endblock %}
+    {%- block page_schema %}{%- endblock page_schema %}
 {%- endblock page_syndication %}
 <!-- 13. Head Close Hook (For any final cleanup) -->
-{%- block head_close %}{%- endblock %}
+{%- block head_close %}{%- endblock head_close %}
 </head><body>
 {% include 'temp/header.html' %}
 {%- block layout_container %}
-{%- endblock %}
+{%- endblock layout_container %}
 {% include 'temp/footer.html' %site_configge_scripts %}
 {# 14. Core JS #}
     {%- block global_js %}{%- endblock global_js %}
