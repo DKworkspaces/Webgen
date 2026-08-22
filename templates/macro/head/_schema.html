@@ -252,7 +252,7 @@
     {% endif %}
   {% endif %}
 
-  {{- payload | tojson -}}
+  {{- payload | tojson | default({}) -}}
 {%- endmacro %}
 
 {# 12. WebSite Master Schema #}
@@ -380,5 +380,5 @@
     }) %}
   {% endif %}
 
-  {{- payload | tojson -}}
+  {{- payload | tojson | default({}) -}}
 {%- endmacro %}
