@@ -227,33 +227,46 @@
 
 {# 11. Organization Master Schema #}
 {% macro Org_Schema(page_type, site_config) -%}
+  {# 1. Create a safe baseline payload using fallback defaults #}
   {% set payload = {
     "@type": "Organization",
-    "@id": site_config.home_url ~ "/#organization",
-    "name": site_config.org_name,
-    "url": site_config.home_url,
-    "description": site_config.desc,
-    "sameAs": site_config.social_links | default([])
+    "@id": (site_config.home_url if site_config.home_url is defined else "") ~ "/#organization",
+    "name": site_config.org_name if site_config.org_name is defined else "",
+    "url": site_config.home_url if site_config.home_url is defined else "",
+    "description": site_config.desc if site_config.desc is defined else "",
+    "sameAs": site_config.social_links if site_config.social_links is defined else []
   } %}
-  
-  {# Convert sub-macro string back to object for safe nesting #}
-  {% set img_str = image_microschema(site_config.img | default(none), site_config) | trim %}
-  {% if img_str %}
-    {% set void =payload.update({"logo": img_str | fromjson} | default(none)) %}
-  {% endif %}
-  
-  {# Unpack contact and physical data profiles for contact views #}
-  {% if page_type == 'ContactPage' %}
-    {% if site_config.contact %}
-      {% set void =payload.update({"contactPoint": contact_point_microschema(site_config.contact) | fromjson}) %}
-    {% endif %}
-    {% if site_config.address %}
-      {% set void =payload.update({"address": postal_address_microschema(site_config.address) | fromjson}) %}
+
+  {# 2. Safely parse and inject the logo if it exists #}
+  {% if site_config.img is defined and site_config.img %}
+    {% set img_str = image_microschema(site_config.img, site_config) | trim %}
+    {% if img_str and img_str != "" %}
+      {% set _ = payload.update({"logo": img_str | fromjson}) %}
     {% endif %}
   {% endif %}
 
+  {# 3. Safely parse and inject contact/address data for ContactPage #}
+  {% if page_type == 'ContactPage' %}
+    {% if site_config.contact is defined and site_config.contact %}
+      {% set contact_str = contact_point_microschema(site_config.contact) | trim %}
+      {% if contact_str and contact_str != "" %}
+        {% set _ = payload.update({"contactPoint": contact_str | fromjson}) %}
+      {% endif %}
+    {% endif %}
+    
+    {% if site_config.address is defined and site_config.address %}
+      {% set address_str = postal_address_microschema(site_config.address) | trim %}
+      {% if address_str and address_str != "" %}
+        {% set _ = payload.update({"address": address_str | fromjson}) %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+  {# 4. Output safe, clean JSON #}
   {{- payload | tojson -}}
 {%- endmacro %}
+
+
 
 {# 12. WebSite Master Schema #}
 {% macro Website_Schema(page_data, site_config) -%}
