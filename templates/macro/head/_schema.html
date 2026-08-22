@@ -41,48 +41,51 @@
 {{ linka | trim | rstrip('/') }}/{{ linkb | lstrip('/') }}
 {%- endmacro %}
 
- 2. List Items Fragment 
+
+
+{# --- 1. The Ultimate Workhorse Iterator --- #}
+
+{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
+{%- for item in items -%}
+{"@type": "ListItem","position": {{ loop.index + offset }},
+"name": {{ (item.title or item.name) | tojson }}
+  {%- if type == 'breadcrumb' -%}
+  ,"item": "{{ site_config.home_url }}{{ item.path }}"
+  {%- else -%}
+  ,"url": "{{ site_config.home_url }}{{ item.path }}"
+  {%- endif -%}
+}{% if not loop.last %},{% endif %}
+{%- endfor %}
+{%- endmacro %}
+
+
+{# --- 2. List Items Fragment --- #}
 {% macro listItem_microschema(page_data, site_config) -%}
-{% set offset = (page_data.page - 1) * site_config.per_page -%}
-"itemListElement":[
-{%- for item in page_data.items -%}
-{"@type":"ListItem",
-"position":{{ loop.index + offset }},
-"url":"{{ site_config.home_url }}{{ item.path }}",
-"name":{{ item.title | tojson }}}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]
+{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
+"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]
 {%- endmacro %}
 
 
-
- 7. List Breadcrumbs 
+{# --- 7. List Breadcrumbs Fragment --- #}
 {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-"itemListElement":[
-{%- for item in breadcrumb -%}
-{"@type":"ListItem",
-"position":{{ loop.index }},
-"name":{{ item.name | tojson }},
-"item":"{{ site_config.home_url }}{{ item.path }}"}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]
+"itemListElement": [{{ _render_list_elements(breadcrumb, site_config, type='breadcrumb') }}]
 {%- endmacro %}
 
- 8. ItemList 
+
+{# --- 8. Complete ItemList Object --- #}
 {% macro itemList_MicroSchema(page_data, site_config) -%}
-{% set offset = (page_data.page - 1) * site_config.per_page -%}
-{"@type":"ItemList",
-"numberOfItems":{{ page_data.items | length }},
-"itemListOrder":"ItemListOrderUnordered",
-"itemListElement":[
-{%- for item in page_data.items -%}
-{"@type":"ListItem",
-"position":{{ loop.index + offset }},
-"url":"{{ site_config.home_url }}{{ item.path }}",
-"name":{{ item.title | tojson }}}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]}
+{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
+{
+  "@type": "ItemList",
+  "numberOfItems": {{ page_data.items | length }},
+  "itemListOrder": "ItemListOrderUnordered",
+  "itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]
+}
 {%- endmacro %}
+
+
+
+
 
 
 #}
@@ -289,7 +292,18 @@
 
 
 
+{#
+helper functios for 15
 
+{% macro absolute_url(path, site_config) -%}
+  {% set raw_url = site_config.home_url ~ (path | default('')) %}
+  {{ raw_url | replace('://', 'PROTOCOL_HOLD') | replace('//', '/') | replace('PROTOCOL_HOLD', '://') }}
+{%- endmacro %}
+
+{% macro schema_id(path, fragment, site_config) -%}"{{ absolute_url(path, site_config) }}{{ fragment }}"{%- endmacro %}
+
+
+#}
 
 
 {#
