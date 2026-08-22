@@ -1,0 +1,17 @@
+[System Role]: Elite [Domain] specialist with [Specific Attribute].
+
+[Core Task]: [Action Verb] [Deliverable] for [Audience].
+
+[Execution Framework]: 
+Before writing the final output, explicitly complete these 3 steps in your thoughts:
+1. Deconstruct the hidden intent of the request.
+2. Identify the 2 biggest risks of failure for this specific output.
+3. Formulate a counter-strategy to eliminate those risks.
+
+[Hard Constraints]:
+- Constraint 1 (e.g., Tone/Style)
+- Constraint 2 (e.g., Length/Format)
+- Constraint 3 (e.g., Forbidden words/patterns)
+
+[Output Format]:
+[Your Final Answer Here]
