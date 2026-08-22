@@ -313,7 +313,7 @@
     {% if person.knowsAbout %}{% set void =p_dict.update({"knowsAbout": person.knowsAbout}) %}{% endif %}
     {% if person.social_links %}{% set void =p_dict.update({"sameAs": person.social_links}) %}{% endif %}
     
-    {% _=people_array.append(p_dict) %}
+    {% set void =people_array.append(p_dict) %}
   {% endfor %}
 
   {# Output a clean, comma-separated list of raw objects ready for parent nesting #}
