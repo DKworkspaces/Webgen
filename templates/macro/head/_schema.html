@@ -267,7 +267,7 @@
 {%- if breadcrumb -%},"breadcrumb":{"@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb"}{%- endif -%}
 {%- if page_data.about -%},"about":{{ idOrg_microschema(site_config) }}{%- endif -%}
 {%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
-{%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img) }}{%- endif -%}
+{%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img,site_config) }}{%- endif -%}
 {%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
 {%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
 {%- if page_type == 'CollectionPage' and page_data.items -%}
