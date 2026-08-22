@@ -207,7 +207,15 @@
 "name":"{{ site_config.org_name | e }}",
 "url":"{{ site_config.home_url }}",
 "description":{{ site_config.desc | tojson }},
-"logo":{{ image_microschema(site_config.img) }},
+"logo":
+{"@type":"ImageObject",
+"url":"{{ site_config.home_url }}{{ site_config.img.url }}",
+"width":{{ site_config.img.width }},
+"height":{{ site_config.img.height }} }
+
+
+{# {{ image_microschema(site_config.img) }} #}
+,
 "sameAs":{{ site_config.social_links | tojson }}
 {%- if page_type == 'ContactPage' -%}
 ,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
