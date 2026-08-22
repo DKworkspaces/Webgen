@@ -8,7 +8,7 @@
   {# 1. Organization #}
   {{ Org_Schema(page_type, site_config) | trim }}
   
-  {# 2. WebSite #}
+  {# 2. WebSite 
   ,{{ Website_Schema(page_data, site_config) | trim }}
   
   {# 3. Breadcrumb #}
@@ -16,19 +16,19 @@
   ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
   {%- endif -%}
   
- {#  4. WebPage 
+ {#  4. WebPage #}
   ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
   
-  5. Person List 
+ {# 5. Person List #}
   {%- if page_data.author_list -%}
   ,{{ Person_Schema(page_data, site_config) | trim }}
   {%- endif -%}
   
-   6. Injected Extra Entities 
+ {#  6. Injected Extra Entities #}
   {%- for entity in extra_entities -%}
     {%- if entity -%},{{ entity | tojson }}{%- endif -%}
   {%- endfor -%}
-  #}
+  
 ]}</script>
 {%- endmacro %}
 
@@ -228,7 +228,7 @@
 {"@type":"WebSite",
 "@id":"{{ site_config.home_url }}/#website",
 "url":"{{ site_config.home_url }}",
-"name":{{ site_config.name | tojson }},
+"name":{{ site_config.org_name | tojson }},
 "publisher":{"@id":"{{ site_config.home_url }}/#organization"}
 {%- if page_data.ishome -%}
 ,"potentialAction":{{ search_action_microschema(site_config) }}
