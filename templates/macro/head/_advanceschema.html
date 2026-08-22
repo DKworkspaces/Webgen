@@ -142,12 +142,8 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 {# 1. Organization Schema #}
 {% macro idOrg_microschema(site_config) -%}{"@id":"{{ site_config.home_url }}/#organization","@type":"Organization"}{%- endmacro %}
 
-
-
 {# 3. Image Schema #}
-{% macro image_microschema(img,site_config) -%}{% if img -%}
-{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.url }}","width":{{ img.width }},"height":{{ img.height }} }
-{%- endif %}{%- endmacro %}
+{% macro image_microschema(img,site_config) -%}{% if img -%}{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.url }}","width":{{ img.width }},"height":{{ img.height }} }{%- endif %}{%- endmacro %}
 
 {# 4. Contact Point Schema #}
 {% macro contact_point_microschema(contact) -%}
