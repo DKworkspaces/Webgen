@@ -293,6 +293,18 @@
 
 
 {#
+
+
+Child Macro Embedding/Composition:
+Instead of writing flat code, both master objects call pre-defined modular helper macros:
+image_microschema() inside Org_Schema's logo field.
+contact_point_microschema() and postal_address_microschema() inside Org_Schema for full contact listings.
+search_action_microschema() inside Website_Schema's potential actions array.
+_render_list_elements(items, site_config, type, offset)
+        Inside both the listItem_microschema and listBreadcrumbItem_microschema then passedto master Breadcrumb_Schema
+idOrg_microschema(site_config),image_microschema(page_data.img, site_config),itemList_MicroSchema(page_data, site_config),video_MicroSchema(page_data.video, site_config) inside Webpage_Schema
+        itemList_MicroSchema(page_data, site_config)What it targets: Compiles a full collection list array wrapper, executing the private loop engine (_render_list_elements) to calculate pagination offsets.
+
 helper functios for 15
 
 {% macro absolute_url(path, site_config) -%}
