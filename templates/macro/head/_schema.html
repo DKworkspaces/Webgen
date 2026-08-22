@@ -1,204 +1,224 @@
 {# Global Schema #}
 
 {# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
-
 {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
-  {# 1. Organization #}
-  {{ Org_Schema(page_type, site_config) | trim }}
+  {# Initialize a clean, native array block in memory #}
+  {% set graph_list = [] %}
+
+  {# 1. Ingest Organization payload data node #}
+  {% set org_str = Org_Schema(page_type, site_config) | trim %}
+  {% if org_str %}{% _=graph_list.append(org_str | fromjson) %}{% endif %}
   
-  {# 2. WebSite #}
-  ,{{ Website_Schema(page_data, site_config) | trim }}
+  {# 2. Ingest WebSite payload data node #}
+  {% set site_str = Website_Schema(page_data, site_config) | trim %}
+  {% if site_str %}{% _=graph_list.append(site_str | fromjson) %}{% endif %}
   
-  {# 3. Breadcrumb #}
-  {%- if breadcrumb -%}
-  ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
-  {%- endif -%}
+  {# 3. Ingest Breadcrumb payload data node conditionally #}
+  {% if breadcrumb %}
+    {% set bc_str = Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim %}
+    {% if bc_str %}{% _=graph_list.append(bc_str | fromjson) %}{% endif %}
+  {% endif %}
   
-  {# 4. WebPage #}
-  ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
+  {# 4. Ingest WebPage payload data node #}
+  {% set wp_str = Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim %}
+  {% if wp_str %}{% _=graph_list.append(wp_str | fromjson) %}{% endif %}
   
-  {# 5. Person List #}
-  {%- if page_data.author_list -%}
-  ,{{ Person_Schema(page_data, site_config) | trim }}
-  {%- endif -%}
+  {# 5. Ingest Person Array Stream elements cleanly #}
+  {% if page_data.author_list %}
+    {% set person_str = Person_Schema(page_data, site_config) | trim %}
+    {% if person_str %}
+      {# Re-wrap the stream into a temporary array to unpack individual nodes safely #}
+      {% set parsed_people = ("[" ~ person_str ~ "]") | fromjson %}
+      {% for person_obj in parsed_people %}
+        {% _=graph_list.append(person_obj) %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
   
-  {# 6. Injected Extra Entities #}
-  {%- for entity in extra_entities -%}
-    {%- if entity -%},{{ entity | tojson }}{%- endif -%}
-  {%- endfor -%}
-]}</script>
-{%- endmacro %}
+  {# 6. Append dynamic Extra Entities without duplication bugs #}
+  {% for entity in extra_entities if entity %}
+    {# If entity is already a string, parse it; otherwise, append the object directly #}
+    {% set clean_entity = entity | fromjson if entity is string else entity %}
+    {% _=graph_list.append(clean_entity) %}
+  {% endfor %}
 
-
-{#
- 1. url Schema 
-{% macro uurl(link) -%}
-{{ link | trim | rstrip('/') }}
-{%- endmacro %}
- 1. url2  Schema 
-{% macro uurl(linka,linkb) -%}
-{{ linka | trim | rstrip('/') }}/{{ linkb | lstrip('/') }}
+  {# Single compilation pass to dump a perfectly formatted metadata script tag #}
+  <script type="application/ld+json">
+  {{- {"@context": "https://schema.org", "@graph": graph_list} | tojson -}}
+  </script>
 {%- endmacro %}
 
 
 
-{# --- 1. The Ultimate Workhorse Iterator --- #}
-
-{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
-{%- for item in items -%}
-{"@type": "ListItem","position": {{ loop.index + offset }},
-"name": {{ (item.title or item.name) | tojson }}
-  {%- if type == 'breadcrumb' -%}
-  ,"item": "{{ site_config.home_url }}{{ item.path }}"
-  {%- else -%}
-  ,"url": "{{ site_config.home_url }}{{ item.path }}"
-  {%- endif -%}
-}{% if not loop.last %},{% endif %}
-{%- endfor %}
-{%- endmacro %}
-
-
-{# --- 2. List Items Fragment --- #}
-{% macro listItem_microschema(page_data, site_config) -%}
-{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
-"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]
-{%- endmacro %}
-
-
-{# --- 7. List Breadcrumbs Fragment --- #}
-{% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-"itemListElement": [{{ _render_list_elements(breadcrumb, site_config, type='breadcrumb') }}]
-{%- endmacro %}
-
-
-{# --- 8. Complete ItemList Object --- #}
-{% macro itemList_MicroSchema(page_data, site_config) -%}
-{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
-{
-  "@type": "ItemList",
-  "numberOfItems": {{ page_data.items | length }},
-  "itemListOrder": "ItemListOrderUnordered",
-  "itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]
-}
-{%- endmacro %}
-
-
-
-
-
-
-#}
 
 
 {# 1. Organization Schema #}
 {% macro idOrg_microschema(site_config) -%}
-{"@id":"{{ site_config.home_url }}/#organization",
-"@type":"Organization"}
+  {{- {"@id": site_config.home_url ~ "/#organization", "@type": "Organization"} | tojson -}}
 {%- endmacro %}
+
 
 {# 2. List Items Fragment #}
 {% macro listItem_microschema(page_data, site_config) -%}
-{% set offset = (page_data.page - 1) * site_config.per_page -%}
-"itemListElement":[
-{%- for item in page_data.items -%}
-{"@type":"ListItem",
-"position":{{ loop.index + offset }},
-"url":"{{ site_config.home_url }}{{ item.path }}",
-"name":{{ item.title | tojson }}}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]
+  {% set current_page = page_data.page | default(1) %}
+  {% set per_page = site_config.per_page | default(10) %}
+  {% set offset = (current_page - 1) * per_page %}
+  
+  {% set list_elements = [] %}
+  {% for item in page_data.items %}
+    {% _=list_elements.append({
+      "@type": "ListItem",
+      "position": loop.index + offset,
+      "url": site_config.home_url ~ item.path,
+      "name": item.title or item.name
+    }) %}
+  {% endfor %}
+
+  "itemListElement":{{ list_elements | tojson }}
 {%- endmacro %}
 
 {# 3. Image Schema #}
-{% macro image_microschema(img,site_config) -%}
-{% if img -%}
-{"@type":"ImageObject",
-"url":"{{ site_config.home_url }}{{ img.url }}",
-"width":{{ img.width }},
-"height":{{ img.height }} }
-{%- endif %}
+{% macro image_microschema(img, site_config) -%}
+  {% if img -%}
+    {{- {
+      "@type": "ImageObject",
+      "url": site_config.home_url ~ img.url,
+      "width": img.width | int,
+      "height": img.height | int
+    } | tojson -}}
+  {%- endif %}
 {%- endmacro %}
 
 {# 4. Contact Point Schema #}
 {% macro contact_point_microschema(contact) -%}
-{"@type":"ContactPoint","contactType":"customer service"
-{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage }}"{% endif -%}
-{%- if contact.areaServed %},"areaServed":"{{ contact.areaServed }}"{% endif -%}
-{%- if contact.support_email %},"email":"{{ contact.support_email }}"{% endif -%}
-{%- if contact.phone %},"telephone":"{{ contact.phone }}"{% endif -%}
-}
+  {% set data = {
+    "@type": "ContactPoint",
+    "contactType": "customer service"
+  } %}
+  
+  {# Safely inject optional fields dynamically without comma tracking #}
+  {% if contact.availableLanguage %}{% _=data.update({"availableLanguage": contact.availableLanguage}) %}{% endif %}
+  {% if contact.areaServed %}{% _=data.update({"areaServed": contact.areaServed}) %}{% endif %}
+  {% if contact.support_email %}{% _=data.update({"email": contact.support_email}) %}{% endif %}
+  {% if contact.phone %}{% _=data.update({"telephone": contact.phone}) %}{% endif %}
+  
+  {{- data | tojson -}}
 {%- endmacro %}
 
-{# 5. Postal Address #}
+
+{# 5. Postal Address Schema #}
 {% macro postal_address_microschema(address) -%}
-{"@type":"PostalAddress"
-{%- if address.street %},"streetAddress":"{{ address.street }}"{% endif -%}
-{%- if address.city %},"addressLocality":"{{ address.city }}"{% endif -%}
-{%- if address.region %},"addressRegion":"{{ address.region }}"{% endif -%}
-{%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
-{%- if address.country %},"addressCountry":"{{ address.country }}"{% endif -%}
-}
+  {% set data = {
+    "@type": "PostalAddress"
+  } %}
+  
+  {# Dynamically map properties with automated comma tracking #}
+  {% if address.street %}{% _=data.update({"streetAddress": address.street}) %}{% endif %}
+  {% if address.city %}{% _=data.update({"addressLocality": address.city}) %}{% endif %}
+  {% if address.region %}{% _=data.update({"addressRegion": address.region}) %}{% endif %}
+  {% if address.zip %}{% _=data.update({"postalCode": address.zip}) %}{% endif %}
+  
+  {# Enforce a fallback value for country if missing from your data profile #}
+  {% if address.country or address.addressCountry %}
+    {% _=data.update({"addressCountry": address.country or address.addressCountry}) %}
+  {% endif %}
+  
+  {{- data | tojson -}}
 {%- endmacro %}
+
 
 {# 6. Search Action Schema #}
 {% macro search_action_microschema(site_config) -%}
-{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}
+  {{- {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": site_config.home_url ~ "/search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  } | tojson -}}
 {%- endmacro %}
 
 {# 7. List Breadcrumbs #}
 {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-"itemListElement":[
-{%- for item in breadcrumb -%}
-{"@type":"ListItem",
-"position":{{ loop.index }},
-"name":{{ item.name | tojson }},
-"item":"{{ site_config.home_url }}{{ item.path }}"}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]
+  {% set elements = [] %}
+  
+  {% for item in breadcrumb %}
+    {% _=elements.append({
+      "@type": "ListItem",
+      "position": loop.index,
+      "name": item.name,
+      "item": site_config.home_url ~ item.path
+    }) %}
+  {% endfor %}
+
+  "itemListElement":{{ elements | tojson }}
 {%- endmacro %}
 
 
-{# 8. ItemList #}
+
+{# 8. ItemList Master Schema #}
 {% macro itemList_MicroSchema(page_data, site_config) -%}
-{% set offset = (page_data.page - 1) * site_config.per_page -%}
-{"@type":"ItemList",
-"numberOfItems":{{ page_data.items | length }},
-"itemListOrder":"ItemListOrderUnordered",
-"itemListElement":[
-{%- for item in page_data.items -%}
-{"@type":"ListItem",
-"position":{{ loop.index + offset }},
-"url":"{{ site_config.home_url }}{{ item.path }}",
-"name":{{ item.title | tojson }}}
-{%- if not loop.last %},{% endif %}
-{%- endfor %}]}
+  {% set current_page = page_data.page | default(1) %}
+  {% set per_page = site_config.per_page | default(10) %}
+  {% set offset = (current_page - 1) * per_page %}
+  
+  {# Reuse Macro 2 loop engine logic instead of copy-pasting the loop #}
+  {% set list_elements = [] %}
+  {% for item in page_data.items %}
+    {% _=list_elements.append({
+      "@type": "ListItem",
+      "position": loop.index + offset,
+      "url": site_config.home_url ~ item.path,
+      "name": item.title or item.name
+    }) %}
+  {% endfor %}
+
+  {{- {
+    "@type": "ItemList",
+    "numberOfItems": page_data.items | length | default(0),
+    "itemListOrder": "ItemListOrderUnordered",
+    "itemListElement": list_elements
+  } | tojson -}}
 {%- endmacro %}
 
 
-{# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
+
+{# 9. Streamlined Multi-Platform Video Master Schema #}
 {% macro video_MicroSchema(video, site_config) -%}
-{"@type":"VideoObject",
-"name":{{ video.title | tojson }},
-"description":{{ video.description | tojson }},
-"thumbnailUrl":"{{ video.thumbnail_url }}",
-"uploadDate":"{{ video.uploadDate }}"
-{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}
-{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}
-{%- if video.clips -%}
-,"hasPart":[
-  {%- for clip in video.clips -%}
-  {"@type":"Clip",
-  "name":{{ clip.name | tojson }},
-  "startOffset":{{ clip.start }},
-  "endOffset":{{ clip.end }},
-  "url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}
-  {%- if not loop.last %},{% endif -%}
-  {%- endfor -%}
-]
-{%- endif -%}
-}
+  {% set data = {
+    "@type": "VideoObject",
+    "name": video.title,
+    "description": video.description,
+    "thumbnailUrl": video.thumbnail_url,
+    "uploadDate": video.uploadDate
+  } %}
+  
+  {# Dynamically map core optional fields without comma tracking #}
+  {% if video.duration %}{% _=data.update({"duration": video.duration}) %}{% endif %}
+  {% if video.embedUrl %}{% _=data.update({"embedUrl": video.embedUrl}) %}{% endif %}
+  
+  {# Process clips cleanly into a native array if present #}
+  {% if video.clips %}
+    {% set param = '?t=' if video.provider == 'vimeo' else '?start=' %}
+    {% set clips_array = [] %}
+    
+    {% for clip in video.clips %}
+      {% _=clips_array.append({
+        "@type": "Clip",
+        "name": clip.name,
+        "startOffset": clip.start | int,
+        "endOffset": clip.end | int,
+        "url": video.embedUrl ~ param ~ clip.start
+      }) %}
+    {% endfor %}
+    
+    {% _=data.update({"hasPart": clips_array}) %}
+  {% endif %}
+  
+  {{- data | tojson -}}
 {%- endmacro %}
+
 
 
 
@@ -207,489 +227,158 @@
 
 {# 11. Organization Master Schema #}
 {% macro Org_Schema(page_type, site_config) -%}
-{"@type":"Organization",
-"@id":"{{ site_config.home_url }}/#organization",
-"name":"{{ site_config.org_name | e }}",
-"url":"{{ site_config.home_url }}",
-"description":{{ site_config.desc | tojson }},
-"logo":{{ image_microschema(site_config.img | default(none),site_config) }},
-"sameAs":{{ site_config.social_links | default([]) | tojson }}
-{%- if page_type == 'ContactPage' -%}
-,"contactPoint":{{ contact_point_microschema(site_config.contact) }},
-"address":{{ postal_address_microschema(site_config.address) }}
-{%- endif -%}
-}
+  {% set payload = {
+    "@type": "Organization",
+    "@id": site_config.home_url ~ "/#organization",
+    "name": site_config.org_name,
+    "url": site_config.home_url,
+    "description": site_config.desc,
+    "sameAs": site_config.social_links | default([])
+  } %}
+  
+  {# Convert sub-macro string back to object for safe nesting #}
+  {% set img_str = image_microschema(site_config.img | default(none), site_config) | trim %}
+  {% if img_str %}
+    {% _=payload.update({"logo": img_str | fromjson}) %}
+  {% endif %}
+  
+  {# Unpack contact and physical data profiles for contact views #}
+  {% if page_type == 'ContactPage' %}
+    {% if site_config.contact %}
+      {% _=payload.update({"contactPoint": contact_point_microschema(site_config.contact) | fromjson}) %}
+    {% endif %}
+    {% if site_config.address %}
+      {% _=payload.update({"address": postal_address_microschema(site_config.address) | fromjson}) %}
+    {% endif %}
+  {% endif %}
+
+  {{- payload | tojson -}}
 {%- endmacro %}
 
 {# 12. WebSite Master Schema #}
 {% macro Website_Schema(page_data, site_config) -%}
-{"@type":"WebSite",
-"@id":"{{ site_config.home_url }}/#website",
-"url":"{{ site_config.home_url }}",
-"name":{{ site_config.name | tojson }},
-"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
-{%- if page_data.ishome -%}
-,"potentialAction":{{ search_action_microschema(site_config) }}
-{%- endif -%}
-}
+  {% set payload = {
+    "@type": "WebSite",
+    "@id": site_config.home_url ~ "/#website",
+    "url": site_config.home_url,
+    "name": site_config.name,
+    "publisher": {"@id": site_config.home_url ~ "/#organization"}
+  } %}
+  
+  {# Dynamically map discovery capabilities on home page layouts #}
+  {% if page_data.ishome %}
+    {% _=payload.update({"potentialAction": search_action_microschema(site_config) | fromjson}) %}
+  {% endif %}
+  
+  {{- payload | tojson -}}
 {%- endmacro %}
+
 
 {# 13. Breadcrumb Master Schema #}
 {% macro Breadcrumb_Schema(page_data, site_config, breadcrumb=None) -%}
-{% if breadcrumb -%}
-{"@type":"BreadcrumbList","@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb",{{ listBreadcrumbItem_microschema(breadcrumb, site_config) }}}
-{%- endif %}
+  {% if breadcrumb %}
+    {# Trim and safely ingest the sub-macro output fragment #}
+    {% set fragment_str = listBreadcrumbItem_microschema(breadcrumb, site_config) | trim %}
+    
+    {# Safely isolate the nested items array from the fragment string #}
+    {% set items_array = ( "{" ~ fragment_str ~ "}" ) | fromjson if fragment_str else {} %}
+    
+    {{- {
+      "@type": "BreadcrumbList",
+      "@id": site_config.home_url ~ page_data.path ~ "/#breadcrumb",
+      "itemListElement": items_array.itemListElement | default([])
+    } | tojson -}}
+  {% endif %}
 {%- endmacro %}
+
 
 
 {# 14. Person Master Schema (High Performance / Stream Edition) #}
 {% macro Person_Schema(page_data, site_config) -%}
-{%- for person in page_data.author_list -%}
-{%- if person.id -%}
-{"@type":"Person",
-"@id":"{{ site_config.home_url }}/#person/{{ person.id }}",
-"name":{{ person.name | tojson }}
-{%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
-{%- if person.job_title -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
-{%- if person.image -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
-,"worksFor":{"@id":"{{ site_config.home_url }}/#organization"}
-{%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
-{%- if person.social_links -%},"sameAs":{{ person.social_links | tojson }}{%- endif -%}
-}{%- if not loop.last %},{% endif -%}
-{%- endif -%}
-{%- endfor -%}
+  {% set people_array = [] %}
+  
+  {# High-Performance Step: Filter out invalid elements before running the loop #}
+  {% for person in page_data.author_list if person.id %}
+    {% set p_dict = {
+      "@type": "Person",
+      "@id": site_config.home_url ~ "/#person/" ~ person.id,
+      "name": person.name,
+      "worksFor": {"@id": site_config.home_url ~ "/#organization"}
+    } %}
+    
+    {# Dynamically map optional profile elements without manual commas #}
+    {% if person.url %}{% _=p_dict.update({"url": person.url}) %}{% endif %}
+    {% if person.job_title %}{% _=p_dict.update({"jobTitle": person.job_title}) %}{% endif %}
+    {% if person.image %}{% _=p_dict.update({"image": site_config.image_base_url ~ person.image}) %}{% endif %}
+    {% if person.knowsAbout %}{% _=p_dict.update({"knowsAbout": person.knowsAbout}) %}{% endif %}
+    {% if person.social_links %}{% _=p_dict.update({"sameAs": person.social_links}) %}{% endif %}
+    
+    {% _=people_array.append(p_dict) %}
+  {% endfor %}
+
+  {# Output a clean, comma-separated list of raw objects ready for parent nesting #}
+  {{- people_array | tojson | replace('[', '') | replace(']', '') if people_array else '' -}}
 {%- endmacro %}
+
 
 
 
 {# 15. WebPage Master Schema #}
 {% macro Webpage_Schema(page_type, page_data, site_config, breadcrumb=None) -%}
-{"@type":"{{ page_type }}",
-"@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage",
-"url":"{{ site_config.home_url }}{{ page_data.path }}",
-"name":{{ page_data.title | tojson }},
-"isPartOf":{"@id":"{{ site_config.home_url }}/#website"}
-{%- if breadcrumb -%},"breadcrumb":{"@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb"}{%- endif -%}
-{%- if page_data.about -%},"about":{{ idOrg_microschema(site_config) }}{%- endif -%}
-{%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
-{%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img,site_config) }}{%- endif -%}
-{%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
-{%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
-{%- if page_type == 'CollectionPage' and page_data.items -%}
-,"mainEntity":{{ itemList_MicroSchema(page_data, site_config) }}
-{%- elif page_data.main_entity -%}
-,"mainEntity":{{ idOrg_microschema(site_config) }}
-{%- endif -%}
-,"inLanguage":"en-US"
-{%- if page_type == 'BlogPosting' and page_data.author -%}
-,"author":{"@type":"Person","@id":"{{ site_config.home_url }}/#person/{{ page_data.author.id }}","name":{{ page_data.author.name | tojson }}}
-,"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
-,"mainEntityOfPage":{"@type":"WebPage","@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage"}
-{%- endif -%}
-{%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
-}
+  {% set payload = {
+    "@type": page_type,
+    "@id": site_config.home_url ~ page_data.path ~ "/#webpage",
+    "url": site_config.home_url ~ page_data.path,
+    "name": page_data.title,
+    "isPartOf": {"@id": site_config.home_url ~ "/#website"},
+    "inLanguage": "en-US"
+  } %}
+
+  {# 1. Inject Identity Node Cross-References #}
+  {% if breadcrumb %}
+    {% _=payload.update({"breadcrumb": {"@id": site_config.home_url ~ page_data.path ~ "/#breadcrumb"}}) %}
+  {% endif %}
+  
+  {% if page_data.about %}
+    {% _=payload.update({"about": idOrg_microschema(site_config) | fromjson}) %}
+  {% endif %}
+
+  {# 2. Map Core Attributes Dynamically #}
+  {% if page_data.desc %}{% _=payload.update({"description": page_data.desc}) %}{% endif %}
+  {% if page_data.datePublished %}{% _=payload.update({"datePublished": page_data.datePublished}) %}{% endif %}
+  {% if page_data.dateModified %}{% _=payload.update({"dateModified": page_data.dateModified}) %}{% endif %}
+
+  {# 3. Ingest Independent Object Schemas #}
+  {% if page_data.img %}
+    {% _=payload.update({"primaryImageOfPage": image_microschema(page_data.img, site_config) | fromjson}) %}
+  {% endif %}
+
+  {% if page_data.video %}
+    {% _=payload.update({"video": video_MicroSchema(page_data.video, site_config) | fromjson}) %}
+  {% endif %}
+
+  {# 4. Process Main Entity Context Mapping #}
+  {% if page_type == 'CollectionPage' and page_data.items %}
+    {% _=payload.update({"mainEntity": itemList_MicroSchema(page_data, site_config) | fromjson}) %}
+  {% elif page_data.main_entity %}
+    {% _=payload.update({"mainEntity": idOrg_microschema(site_config) | fromjson}) %}
+  {% endif %}
+
+  {# 5. Apply BlogPosting Structural Override #}
+  {% if page_type == 'BlogPosting' and page_data.author %}
+    {% _=payload.update({
+      "author": {
+        "@type": "Person",
+        "@id": site_config.home_url ~ "/#person/" ~ page_data.author.id,
+        "name": page_data.author.name
+      },
+      "publisher": {"@id": site_config.home_url ~ "/#organization"},
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": site_config.home_url ~ page_data.path ~ "/#webpage"
+      }
+    }) %}
+  {% endif %}
+
+  {{- payload | tojson -}}
 {%- endmacro %}
-
-
-
-{#
-
-
-Child Macro Embedding/Composition:
-Instead of writing flat code, both master objects call pre-defined modular helper macros:
-image_microschema() inside Org_Schema's logo field.
-contact_point_microschema() and postal_address_microschema() inside Org_Schema for full contact listings.
-search_action_microschema() inside Website_Schema's potential actions array.
-_render_list_elements(items, site_config, type, offset)
-        Inside both the listItem_microschema and listBreadcrumbItem_microschema then passedto master Breadcrumb_Schema
-idOrg_microschema(site_config),image_microschema(page_data.img, site_config),itemList_MicroSchema(page_data, site_config),video_MicroSchema(page_data.video, site_config) inside Webpage_Schema
-        itemList_MicroSchema(page_data, site_config)What it targets: Compiles a full collection list array wrapper, executing the private loop engine (_render_list_elements) to calculate pagination offsets.
-
-helper functios for 15
-
-{% macro absolute_url(path, site_config) -%}
-  {% set raw_url = site_config.home_url ~ (path | default('')) %}
-  {{ raw_url | replace('://', 'PROTOCOL_HOLD') | replace('//', '/') | replace('PROTOCOL_HOLD', '://') }}
-{%- endmacro %}
-
-{% macro schema_id(path, fragment, site_config) -%}"{{ absolute_url(path, site_config) }}{{ fragment }}"{%- endmacro %}
-
-
-#}
-
-
-{#
-
-
-Test files
-
-
-
-org n website  schema
-
-{
-  "site_config": {
-    "home_url": "https://example.com",
-    "name": "My Premium Web Directory",
-    "org_name": "Global Media Enterprises LLC",
-    "desc": "The leading resource for technology tutorials, curation lists, and video insights.",
-    "social_links": [
-      "https://facebook.com",
-      "https://twitter.com",
-      "https://linkedin.com"
-    ],
-    "logo": {
-      "path": "/assets/brand-logo.png",
-      "width": 600,
-      "height": 60
-    },
-    "contact": {
-      "availableLanguage": "English",
-      "areaServed": "US",
-      "support_email": "help@example.com",
-      "phone": "+1-800-555-0199"
-    },
-    "address": {
-      "street": "123 Tech Boulevard, Suite 400",
-      "city": "San Francisco",
-      "region": "CA",
-      "zip": "94107",
-      "country": "US"
-    }
-  },
-  "page_data": {
-    "ishome": true
-  }
-}
-
-
-
-
-
-
-breadcrumb and person schema 
-
-
-{
-  "site_config": {
-    "home_url": "https://example.com",
-    "image_base_url": "https://example.com"
-  },
-  "page_data": {
-    "path": "/tutorials/advanced-jinja",
-    "author_list": [
-      {
-        "id": "alex-coder",
-        "name": "Alex Rivera",
-        "url": "https://alexrivera.dev",
-        "job_title": "Lead Solutions Architect",
-        "image": "alex-rivera.jpg",
-        "knowsAbout": ["Structured Data", "Jinja2 Templates", "SEO Architecture"],
-        "social_links": [
-          "https://github.com",
-          "https://linkedin.com"
-        ]
-      }
-    ]
-  },
-  "breadcrumb": [
-    {
-      "name": "Home",
-      "path": "/"
-    },
-    {
-      "name": "Tutorials",
-      "path": "/tutorials"
-    },
-    {
-      "name": "Advanced Jinja",
-      "path": "/tutorials/advanced-jinja"
-    }
-  ]
-]
-
-
-
-
-webpage
-blogpost schea
-
-
-
-{
-  "page_data": {
-    "path": "/blog/advanced-seo-strategies",
-    "title": "Advanced SEO Strategies for Modern Web Architectures",
-    "desc": "An in-depth breakdown of schema construction, data tree splitting, and rendering optimization.",
-    "ishome": false,
-    "about": true,
-    "main_entity": false,
-    "datePublished": "2026-03-24T09:00:00Z",
-    "dateModified": "2026-08-20T16:45:00Z",
-    "image": {
-      "path": "/images/seo-architecture-banner.jpg",
-      "width": 1200,
-      "height": 630
-    },
-    "author": {
-      "id": "alex-coder",
-      "name": "Alex Rivera"
-    },
-    "author_list": [
-      {
-        "id": "alex-coder",
-        "name": "Alex Rivera",
-        "url": "https://alexrivera.dev",
-        "job_title": "Lead Solutions Architect",
-        "image": "profiles/alex.jpg",
-        "knowsAbout": ["Structured Data", "SEO Architecture"],
-        "social_links": ["https://github.com"]
-      }
-    ],
-    "video": {
-      "title": "Parsing Schema in High Performance Environments",
-      "description": "A video walk-through demonstrating rapid template generation techniques.",
-      "thumbnail_url": "https://example.com",
-      "uploadDate": "2026-04-12",
-      "duration": "PT8M15S",
-      "embedUrl": "https://youtube.com",
-      "provider": "youtube",
-      "clips": [
-        {
-          "name": "Setting Path Variables",
-          "start": 0,
-          "end": 120
-        },
-        {
-          "name": "Combining Site Config Keys",
-          "start": 121,
-          "end": 350
-        },
-        {
-          "name": "Validating the JSON Graph Output",
-          "start": 351,
-          "end": 495
-        }
-      ]
-    }
-  }
-}
-
-
-
-
-
-
-
-
-webpage Schema collection page
-
-
-{
-  "page_data": {
-    "page": 2,
-    "path": "/categories/tutorials",
-    "title": "Advanced Web Development Tutorials",
-    "desc": "Browse our curated collection of backend engineering guides and template optimization frameworks.",
-    "ishome": false,
-    "about": false,
-    "main_entity": false,
-    "datePublished": "2026-01-10T08:00:00Z",
-    "dateModified": "2026-08-20T22:00:00Z",
-    "image": {
-      "path": "/images/category-tutorials-cover.jpg",
-      "width": 1200,
-      "height": 630
-    },
-    "items": [
-      {
-        "path": "/tutorials/jinja-variable-mapping",
-        "title": "Mastering Jinja Variable Replacements"
-      },
-      {
-        "path": "/tutorials/jsonld-graph-stitching",
-        "title": "Advanced Micro Schema Nesting Methods"
-      },
-      {
-        "path": "/tutorials/high-performance-seo",
-        "title": "Optimizing Schema Graphs for Low Memory Performance"
-      }
-    ]
-  }
-}
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-blog post woth video
-
-
-
-
-#}
-
-
-
-
-
-
-
-
-
-
-
-
-
-{#
-
-
-  "site_config": {
-    "home_url": "https://example.com",
-    "name": "My Premium Web Directory",
-    "org_name": "Global Media Enterprises LLC",
-    "desc": "The leading resource for technology tutorials, curation lists, and video insights.",
-    "per_page": 10,
-    "image_base_url": "https://example.com",
-    "social_links": [
-      "https://facebook.com",
-      "https://twitter.com",
-      "https://linkedin.com"
-    ],
-    "logo": {
-      "path": "/assets/brand-logo.png",
-      "width": 600,
-      "height": 60
-    },
-    "contact": {
-      "availableLanguage": "English",
-      "areaServed": "US",
-      "support_email": "help@example.com",
-      "phone": "+1-800-555-0199"
-    },
-    "address": {
-      "street": "123 Tech Boulevard, Suite 400",
-      "city": "San Francisco",
-      "region": "CA",
-      "zip": "94107",
-      "country": "US"
-    }
-  }
-
-
-
-#}
-
-
-
-{#
-
-  "page_data": {
-    "page": 1,
-    "path": "/blog/top-development-trends",
-    "title": "Top Development Trends to Watch this Year",
-    "desc": "An in-depth collection tracking the shift towards schema-driven dynamic layout systems.",
-    "ishome": false,
-    "about": true,
-    "main_entity": false,
-    "datePublished": "2026-03-15T08:00:00Z",
-    "dateModified": "2026-08-20T14:30:00Z",
-    "image": {
-      "path": "/images/featured-trend-banner.jpg",
-      "width": 1200,
-      "height": 630
-    },
-    "author": {
-      "id": "alex-coder",
-      "name": "Alex Rivera"
-    },
-    "author_list": [
-      {
-        "id": "alex-coder",
-        "name": "Alex Rivera",
-        "url": "https://alexrivera.dev",
-        "job_title": "Lead Solutions Architect",
-        "image": "profiles/alex.jpg",
-        "knowsAbout": ["Structured Data", "Jinja2 Templates", "SEO Architecture"],
-        "social_links": ["https://github.com"]
-      }
-    ],
-    "items": [
-      {
-        "path": "/tools/jinja-formatter",
-        "title": "The Ultimate Jinja String Tree Formatter"
-      },
-      {
-        "path": "/tutorials/jsonld-nesting",
-        "title": "Advanced Micro Schema Nesting Methods"
-      }
-    ],
-    "video": {
-      "title": "Setting up Structured Data with Macros",
-      "description": "Learn how to convert flat URL records into site-config components.",
-      "thumbnail_url": "https://example.com",
-      "uploadDate": "2026-05-10",
-      "duration": "PT5M30S",
-      "embedUrl": "https://youtube.com",
-      "provider": "youtube",
-      "clips": [
-        {
-          "name": "Introduction to Path Merging",
-          "start": 0,
-          "end": 90
-        },
-        {
-          "name": "Debugging Macro Targets",
-          "start": 91,
-          "end": 330
-        }
-      ]
-    }
-  }
-
-#}
-
-
-
-{#
-
-
-"breadcrumbs": [
-  {
-    "name": "Home",
-    "path": "/"
-  },
-  {
-    "name": "Blog",
-    "path": "/blog"
-  },
-  {
-    "name": "Top Trends",
-    "path": "/blog/top-development-trends"
-  }
-]
-
-
-#}
