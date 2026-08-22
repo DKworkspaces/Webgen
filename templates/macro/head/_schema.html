@@ -8,7 +8,7 @@
   {# 1. Organization #}
   {{ Org_Schema(page_type, site_config) | trim }}
   
-  {# 2. WebSite 
+  {# 2. WebSite #}
   ,{{ Website_Schema(page_data, site_config) | trim }}
   
   {# 3. Breadcrumb #}
@@ -16,7 +16,7 @@
   ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
   {%- endif -%}
   
- {#  4. WebPage #}
+ {#  4. WebPage 
   ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
   
  {# 5. Person List #}
