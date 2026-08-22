@@ -344,9 +344,9 @@
   {% endif %}
 
   {# 2. Map Core Attributes Dynamically #}
-  {% if page_data.desc %}{% _=payload.update({"description": page_data.desc}) %}{% endif %}
-  {% if page_data.datePublished %}{% _=payload.update({"datePublished": page_data.datePublished}) %}{% endif %}
-  {% if page_data.dateModified %}{% _=payload.update({"dateModified": page_data.dateModified}) %}{% endif %}
+  {% if page_data.desc %}{% set void =payload.update({"description": page_data.desc}) %}{% endif %}
+  {% if page_data.datePublished %}{% set void =payload.update({"datePublished": page_data.datePublished}) %}{% endif %}
+  {% if page_data.dateModified %}{% set void =payload.update({"dateModified": page_data.dateModified}) %}{% endif %}
 
   {# 3. Ingest Independent Object Schemas #}
   {% if page_data.img %}
