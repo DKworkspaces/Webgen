@@ -1,0 +1,63 @@
+
+#global.json
+{"site_title": "Enterprise Portal","global_status": "Production Mode"}
+
+#page.json
+
+{"page_heading": "System Dashboard","local_metric": "99.9% Uptime"}
+
+
+marcos.html
+{% macro render_card() %}<div class="card"><h3>Macro Component Widget</h3><p><strong>Global Config:</strong> {{ site_title }} ({{ global_status }})</p><p><strong>Page Metric:</strong> {{ local_metric }}</p></div>{% endmacro %}
+
+partial.html
+
+{% import "macros.html" as components with context %}<div class="partial-section"><h4>3rd File (Included Partial)</h4><p>Global status seen here: {{ global_status }}</p><p>Page heading seen here: {{ page_heading }}</p>{{ components.render_card() }}</div>
+
+
+base.html
+
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>{{ site_title }} - {{ page_heading }}</title></head><body><header><h1>System Framework (File 2)</h1><small>Environment: {{ global_status }}</small></header><main>{% block content %}{% endblock %}{% include "partial.html" %}</main></body></html>
+
+
+main.html
+
+{% extends "base.html" %}{% block content %}<div class="main-content"><h2>{{ page_heading }} (File 1 Content)</h2><p>Local Metric: {{ local_metric }}</p><p>Global Title: {{ site_title }}</p></div>{% endblock %}
+
+
+
+#script.py
+
+import json
+import os
+from jinja2 import Environment, FileSystemLoader
+
+def build_static_html():
+    # 1. Initialize environment setup
+    env = Environment(loader=FileSystemLoader('templates'))
+    # 2. Register Global JSON keys directly onto Jinja Environment
+    with open('global.json', 'r') as f:
+        global_vars = json.load(f)
+    env.globals.update(global_vars) 
+    
+    # 3. Load local Page Specific JSON data 
+    with open('page_data.json', 'r') as f:
+        page_vars = json.load(f)
+        
+    # 4. Extract and compile File 1 (main.html)
+    template = env.get_template('main.html')
+    output_html = template.render(page_vars)
+    
+    # 5. Output compilation delivery
+    os.makedirs('dist', exist_ok=True)
+    with open('dist/index.html', 'w') as f:
+        f.write(output_html)
+        
+    print("Static HTML completely generated under dist/index.html")
+
+if __name__ == '__main__':
+    build_static_html()
+
+
+
+
