@@ -124,6 +124,15 @@ eg
 
 
 
+Child Macro Embedding/Composition:
+Instead of writing flat code, both master objects call pre-defined modular helper macros:
+image_microschema() inside Org_Schema's logo field.
+contact_point_microschema() and postal_address_microschema() inside Org_Schema for full contact listings.
+search_action_microschema() inside Website_Schema's potential actions array.
+_render_list_elements(items, site_config, type, offset)
+        Inside both the listItem_microschema and listBreadcrumbItem_microschema then passedto master Breadcrumb_Schema
+idOrg_microschema(site_config),image_microschema(page_data.img, site_config),itemList_MicroSchema(page_data, site_config),video_MicroSchema(page_data.video, site_config) inside Webpage_Schema
+        itemList_MicroSchema(page_data, site_config)What it targets: Compiles a full collection list array wrapper, executing the private loop engine (_render_list_elements) to calculate pagination offsets.
 
 
 
@@ -131,27 +140,19 @@ eg
 
 
 {# 1. Organization Schema #}
-{% macro idOrg_microschema(site_config) -%}
-{"@id":"{{ site_config.home_url }}/#organization",
-"@type":"Organization"}
-{%- endmacro %}
+{% macro idOrg_microschema(site_config) -%}{"@id":"{{ site_config.home_url }}/#organization","@type":"Organization"}{%- endmacro %}
 
 
 
 {# 3. Image Schema #}
-{% macro image_microschema(img,site_config) -%}
-{% if img -%}
-{"@type":"ImageObject",
-"url":"{{ site_config.home_url }}{{ img.url }}",
-"width":{{ img.width }},
-"height":{{ img.height }} }
-{%- endif %}
-{%- endmacro %}
+{% macro image_microschema(img,site_config) -%}{% if img -%}
+{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.url }}","width":{{ img.width }},"height":{{ img.height }} }
+{%- endif %}{%- endmacro %}
 
 {# 4. Contact Point Schema #}
 {% macro contact_point_microschema(contact) -%}
 {"@type":"ContactPoint","contactType":"customer service"
-{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage }}"{% endif -%}
+{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage | default('en-IN')  }}"{% endif -%}
 {%- if contact.areaServed %},"areaServed":"{{ contact.areaServed }}"{% endif -%}
 {%- if contact.support_email %},"email":"{{ contact.support_email }}"{% endif -%}
 {%- if contact.phone %},"telephone":"{{ contact.phone }}"{% endif -%}
@@ -165,74 +166,37 @@ eg
 {%- if address.city %},"addressLocality":"{{ address.city }}"{% endif -%}
 {%- if address.region %},"addressRegion":"{{ address.region }}"{% endif -%}
 {%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
-{%- if address.country %},"addressCountry":"{{ address.country }}"{% endif -%}
+{%- if address.country %},"addressCountry":"{{ address.country | default('IN') }}"{% endif -%}
 }
 {%- endmacro %}
 
 {# 6. Search Action Schema #}
-{% macro search_action_microschema(site_config) -%}
-{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}
-{%- endmacro %}
+{% macro search_action_microschema(site_config) -%}{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}{%- endmacro %}
 
 {# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
 {% macro video_MicroSchema(video, site_config) -%}
-{"@type":"VideoObject",
-"name":{{ video.title | tojson }},
-"description":{{ video.description | tojson }},
-"thumbnailUrl":"{{ video.thumbnail_url }}",
-"uploadDate":"{{ video.uploadDate }}"
+{"@type":"VideoObject","name":{{ video.title | tojson }},"description":{{ video.description | tojson }},"thumbnailUrl":"{{ video.thumbnail_url }}","uploadDate":"{{ video.uploadDate }}"
 {%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}
 {%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}
-{%- if video.clips -%}
-,"hasPart":[
-  {%- for clip in video.clips -%}
-  {"@type":"Clip",
-  "name":{{ clip.name | tojson }},
-  "startOffset":{{ clip.start }},
-  "endOffset":{{ clip.end }},
-  "url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}
-  {%- if not loop.last %},{% endif -%}
-  {%- endfor -%}
-]
-{%- endif -%}
-}
-{%- endmacro %}
+{%- if video.clips -%},"hasPart":[{%- for clip in video.clips -%}{"@type":"Clip","name":{{ clip.name | tojson }},"startOffset":{{ clip.start }},"endOffset":{{ clip.end }},"url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}{%- if not loop.last %},{% endif -%}{%- endfor -%}]{%- endif -%}
+}{%- endmacro %}
 
 
 {# modified with common layout #}
 {# 2. The Ultimate Workhorse Iterator #}
 
-{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
-{%- for item in items -%}
-{"@type": "ListItem","position": {{ loop.index + offset }},
-"name": {{ (item.title or item.name) | tojson }}
-  {%- if type == 'breadcrumb' -%}
-  ,"item": "{{ site_config.home_url }}{{ item.path }}"
-  {%- else -%}
-  ,"url": "{{ site_config.home_url }}{{ item.path }}"
-  {%- endif -%}
-}{% if not loop.last %},{% endif %}
-{%- endfor %}
-{%- endmacro %}
+{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}{"@type": "ListItem","position": {{ loop.index + offset }},"name": {{ (item.title or item.name) | tojson }}
+{%- if type == 'breadcrumb' -%},"item": "{{ site_config.home_url }}{{ item.path }}"
+{%- else -%},"url": "{{ site_config.home_url }}{{ item.path }}"
+{%- endif -%}}{% if not loop.last %},{% endif %}{%- endfor %}{%- endmacro %}
 
 
 {# --- 2. List Items Fragment --- #}
-{% macro listItem_microschema(page_data, site_config) -%}
-{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
-"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]
-{%- endmacro %}
-
+{% macro listItem_microschema(page_data, site_config) -%}{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]{%- endmacro %}
 {# --- 7. List Breadcrumbs Fragment --- #}
-{% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-"itemListElement": [{{ _render_list_elements(breadcrumb, site_config, type='breadcrumb') }}]
-{%- endmacro %}
-
+{% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}"itemListElement": [{{ _render_list_elements(breadcrumb, site_config, type='breadcrumb') }}]{%- endmacro %}
 {# --- 8. Complete ItemList Object --- #}
-{% macro itemList_MicroSchema(page_data, site_config) -%}
-{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
-{"@type": "ItemList","numberOfItems": {{ page_data.items | length }},"itemListOrder": "ItemListOrderUnordered",
-"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]}
-{%- endmacro %}
+{% macro itemList_MicroSchema(page_data, site_config) -%}{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}{"@type": "ItemList","numberOfItems": {{ page_data.items | length }},"itemListOrder": "ItemListOrderUnordered","itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]}{%- endmacro %}
 
 
 
