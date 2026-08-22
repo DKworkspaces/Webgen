@@ -239,7 +239,7 @@
   {# Convert sub-macro string back to object for safe nesting #}
   {% set img_str = image_microschema(site_config.img | default(none), site_config) | trim %}
   {% if img_str %}
-    {% set void =payload.update({"logo": img_str | fromjson} | default({})) %}
+    {% set void =payload.update({"logo": img_str | fromjson} | default(none)) %}
   {% endif %}
   
   {# Unpack contact and physical data profiles for contact views #}
@@ -252,7 +252,7 @@
     {% endif %}
   {% endif %}
 
-  {{- payload | tojson | default({}) -}}
+  {{- payload | to json -}}
 {%- endmacro %}
 
 {# 12. WebSite Master Schema #}
@@ -380,5 +380,5 @@
     }) %}
   {% endif %}
 
-  {{- payload | tojson | default({}) -}}
+  {{- payload | tojson -}}
 {%- endmacro %}
