@@ -109,10 +109,12 @@
 
 {# 3. Image Schema #}
 {% macro image_microschema(img,site_config) -%}
+{% if img -%}
 {"@type":"ImageObject",
 "url":"{{ site_config.home_url }}{{ img.url }}",
 "width":{{ img.width }},
 "height":{{ img.height }} }
+{%- endif %}
 {%- endmacro %}
 
 {# 4. Contact Point Schema #}
