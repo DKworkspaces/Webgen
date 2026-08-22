@@ -139,53 +139,38 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 
 
 
-{# 1. Organization Schema #}
-{% macro idOrg_microschema(site_config) -%}{"@id":"{{ site_config.home_url }}/#organization","@type":"Organization"}{%- endmacro %}
+{# 1. id type Schema #}
+{% macro id_type_microschema(url,id,type) -%}{"@id":"{{- url ~ '/' ~ id -}}","@type":"{{ type }}"}{%- endmacro %}
+
+{# 1.a. id type blank Schema #}
+{% macro id_type_b_microschema(url,id,type) -%}"@id":"{{- url ~ '/' ~ id -}}","@type":"{{ type }}"{%- endmacro %}
+
+
+{# 1.b. id Schema #}
+{% macro id_microschema(url,id) -%}{"@id":"{{- url ~ '/' ~ id -}}"}{%- endmacro %}
+{# person metatag #}
+{% macro id_person_microschema(url,name,id) -%}"@type":"Person","@id":"{{- url ~ '/#person/' ~ id -}}","name":{{ name | tojson }}{%- endmacro %}
+
 
 {# 3. Image Schema #}
 {% macro image_microschema(img,site_config) -%}{% if img -%}{"@type":"ImageObject","url":"{{ site_config.home_url }}{{ img.url }}","width":{{ img.width }},"height":{{ img.height }} }{%- endif %}{%- endmacro %}
 
 {# 4. Contact Point Schema #}
-{% macro contact_point_microschema(contact) -%}
-{"@type":"ContactPoint","contactType":"customer service"
-{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage | default('en-IN')  }}"{% endif -%}
-{%- if contact.areaServed %},"areaServed":"{{ contact.areaServed }}"{% endif -%}
-{%- if contact.support_email %},"email":"{{ contact.support_email }}"{% endif -%}
-{%- if contact.phone %},"telephone":"{{ contact.phone }}"{% endif -%}
-}
-{%- endmacro %}
+{% macro contact_point_microschema(contact) -%}{"@type":"ContactPoint","contactType":"customer service"{%- if contact.availableLanguage %},"availableLanguage":"{{ contact.availableLanguage | default('en-IN')  }}"{% endif -%}{%- if contact.areaServed %},"areaServed":"{{ contact.areaServed }}"{% endif -%}{%- if contact.support_email %},"email":"{{ contact.support_email }}"{% endif -%}{%- if contact.phone %},"telephone":"{{ contact.phone }}"{% endif -%}}{%- endmacro %}
 
 {# 5. Postal Address #}
-{% macro postal_address_microschema(address) -%}
-{"@type":"PostalAddress"
-{%- if address.street %},"streetAddress":"{{ address.street }}"{% endif -%}
-{%- if address.city %},"addressLocality":"{{ address.city }}"{% endif -%}
-{%- if address.region %},"addressRegion":"{{ address.region }}"{% endif -%}
-{%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}
-{%- if address.country %},"addressCountry":"{{ address.country | default('IN') }}"{% endif -%}
-}
-{%- endmacro %}
+{% macro postal_address_microschema(address) -%}{"@type":"PostalAddress"{%- if address.street %},"streetAddress":"{{ address.street }}"{% endif -%}{%- if address.city %},"addressLocality":"{{ address.city }}"{% endif -%}{%- if address.region %},"addressRegion":"{{ address.region }}"{% endif -%}{%- if address.zip %},"postalCode":"{{ address.zip }}"{% endif -%}{%- if address.country %},"addressCountry":"{{ address.country | default('IN') }}"{% endif -%}}{%- endmacro %}
 
 {# 6. Search Action Schema #}
 {% macro search_action_microschema(site_config) -%}{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}{%- endmacro %}
 
 {# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
-{% macro video_MicroSchema(video, site_config) -%}
-{"@type":"VideoObject","name":{{ video.title | tojson }},"description":{{ video.description | tojson }},"thumbnailUrl":"{{ video.thumbnail_url }}","uploadDate":"{{ video.uploadDate }}"
-{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}
-{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}
-{%- if video.clips -%},"hasPart":[{%- for clip in video.clips -%}{"@type":"Clip","name":{{ clip.name | tojson }},"startOffset":{{ clip.start }},"endOffset":{{ clip.end }},"url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}{%- if not loop.last %},{% endif -%}{%- endfor -%}]{%- endif -%}
-}{%- endmacro %}
+{% macro video_MicroSchema(video, site_config) -%}{"@type":"VideoObject","name":{{ video.title | tojson }},"description":{{ video.description | tojson }},"thumbnailUrl":"{{ video.thumbnail_url }}","uploadDate":"{{ video.uploadDate }}"{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}{%- if video.clips -%},"hasPart":[{%- for clip in video.clips -%}{"@type":"Clip","name":{{ clip.name | tojson }},"startOffset":{{ clip.start }},"endOffset":{{ clip.end }},"url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}{%- if not loop.last %},{% endif -%}{%- endfor -%}]{%- endif -%}}{%- endmacro %}
 
 
 {# modified with common layout #}
 {# 2. The Ultimate Workhorse Iterator #}
-
-{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}{"@type": "ListItem","position": {{ loop.index + offset }},"name": {{ (item.title or item.name) | tojson }}
-{%- if type == 'breadcrumb' -%},"item": "{{ site_config.home_url }}{{ item.path }}"
-{%- else -%},"url": "{{ site_config.home_url }}{{ item.path }}"
-{%- endif -%}}{% if not loop.last %},{% endif %}{%- endfor %}{%- endmacro %}
-
+{% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}{"@type": "ListItem","position": {{ loop.index + offset }},"name": {{ (item.title or item.name) | tojson }}{%- if type == 'breadcrumb' -%},"item": "{{ site_config.home_url }}{{ item.path }}"{%- else -%},"url": "{{ site_config.home_url }}{{ item.path }}"{%- endif -%}}{% if not loop.last %},{% endif %}{%- endfor %}{%- endmacro %}
 
 {# --- 2. List Items Fragment --- #}
 {% macro listItem_microschema(page_data, site_config) -%}{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}"itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]{%- endmacro %}
@@ -204,17 +189,8 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 
 
 {# --- The Master Wrapper for Common Fields --- #}
-{% macro base_schema(type, url, id, site_config) -%}{"@type": "{{ type }}","url": "{{ url }}","@id": "{{ url }}{{ id }}"
-{%- if caller %},{{ caller() }}{%- endif %}
-}{%- endmacro %}
+{% macro base_schema(type, url, id) -%}{"@type": "{{ type }}","url": "{{ url }}","@id": "{{ url }}{{ id }}"{%- if caller %},{{ caller() }}{%- endif %} }{%- endmacro %}
 
-
-{# --- The Master 2 Wrapper for Common Fields --- #}
-{% macro base_lite_schema(type,url, id, site_config) -%}
-{"@type": "{{ type }}",
-"@id": "{{ url }}{{ id }}"
-{%- if caller %},{{ caller() }}{%- endif %}
-}{%- endmacro %}
 
 
 
@@ -226,11 +202,8 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 {# 11. Organization Master Schema #}
 
 {% macro Org_Schema(page_data, site_config) -%}
-  {% call base_schema("Organization", site_config.home_url, "#organization", site_config) %}
-  "name": "{{ site_config.org_name }}",
-  "description":{{ site_config.desc | tojson }},
-  "logo":{{ image_microschema(site_config.img | default(none),site_config) }},
-  "sameAs":{{ site_config.social_links | default([]) | tojson }}
+  {% call base_schema("Organization", site_config.home_url, "#organization") %}
+  "name": "{{ site_config.org_name }}","description":{{ site_config.desc | tojson }},"logo":{{ image_microschema(site_config.img | default(none),site_config) }},"sameAs":{{ site_config.social_links | default([]) | tojson }}
   {%- if page_type == 'ContactPage' -%},"contactPoint":{{ contact_point_microschema(site_config.contact) }},"address":{{ postal_address_microschema(site_config.address) }}{%- endif -%}
   {% endcall %}
 {%- endmacro %}
@@ -238,33 +211,27 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 {# 12. WebSite Master Schema #}
 
 {% macro Website_Schema(page_data, site_config) -%}
-  {% call base_schema("Website", site_config.home_url, "#website", site_config) %}
-  "name":{{ site_config.name | tojson }},"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
-  {%- if page_data.ishome -%},"potentialAction":{{ search_action_microschema(site_config) }}{%- endif -%}
+  {% call base_schema("Website", site_config.home_url, "#website") %}
+  "name":{{ site_config.name | tojson }},"publisher":{{ id_microschema(site_config.home_url,"#organization") }}{%- if page_data.ishome -%},"potentialAction":{{ search_action_microschema(site_config) }}{%- endif -%}
   {% endcall %}
 {%- endmacro %}
 
 {# 13. Breadcrumb Master Schema #}
 
 {% macro Breadcrumb_Schema(page_data, site_config, breadcrumb=None) -%}
- {% if breadcrumb -%}{"@type":"BreadcrumbList","@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb",{{ listBreadcrumbItem_microschema(breadcrumb, site_config) }}}{%- endif %}
+ {% if breadcrumb -%}{ {{ id_type_b_microschema(site_config.home_url+ page_data.path,"#breadcrumb","BreadcrumbList") }},{{ listBreadcrumbItem_microschema(breadcrumb, site_config) }} }{%- endif %}
 {%- endmacro %}
-
-
 
 
 {# 14. Person Master Schema (High Performance / Stream Edition) #}
 
 {% macro Person_Schema(page_data, site_config) -%}
 {%- for person in page_data.author_list -%}
-{%- if person.id -%}
-{"@type":"Person",
-"@id":"{{ site_config.home_url }}/#person/{{ person.id }}",
-"name":{{ person.name | tojson }}
+{%- if person.id -%}{ {{ id_person_microschema(site_config.home_url,person.name,person.id) }}
 {%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
 {%- if person.job_title -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
 {%- if person.image -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
-,"worksFor":{"@id":"{{ site_config.home_url }}/#organization"}
+,"worksFor":{{ id_microschema(site_config.home_url,"#organization") }}
 {%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
 {%- if person.social_links -%},"sameAs":{{ person.social_links | tojson }}{%- endif -%}
 }{%- if not loop.last %},{% endif -%}
@@ -276,25 +243,12 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 
 {# 15. WebPage Master Schema #}
 
-{# --- Organization Unique Fields --- #}
-{% macro organization_schema(current_path, site_config) -%}
-  {% call base_schema("Organization", current_path, "#organization", site_config) %}
-  "name": "{{ site_config.site_name }}",
-  "logo": "{{ site_config.home_url }}{{ site_config.logo_url }}"
-  {% endcall %}
-{%- endmacro %}
-
-
-
-
 {% macro Webpage_Schema(page_type, page_data, site_config, breadcrumb=None) -%}
-{"@type":"{{ page_type }}",
-"@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage",
-"url":"{{ site_config.home_url }}{{ page_data.path }}",
+  {% call base_schema(page_type, site_config.home_url + page_data.path , "#webpage") %}
 "name":{{ page_data.title | tojson }},
-"isPartOf":{"@id":"{{ site_config.home_url }}/#website"}
-{%- if breadcrumb -%},"breadcrumb":{"@id":"{{ site_config.home_url }}{{ page_data.path }}/#breadcrumb"}{%- endif -%}
-{%- if page_data.about -%},"about":{{ idOrg_microschema(site_config) }}{%- endif -%}
+"isPartOf": {{ id_microschema(site_config.home_url,"#website") }}
+{%- if breadcrumb -%},"breadcrumb":{{ id_microschema(site_config.home_url+ page_data.path,"#breadcrumb") }}{%- endif -%}
+{%- if page_data.about -%},"about":{{ id_type_microschema(site_config.home_url,"#organization","Organization") }}{%- endif -%}
 {%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
 {%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img,site_config) }}{%- endif -%}
 {%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
@@ -302,14 +256,12 @@ idOrg_microschema(site_config),image_microschema(page_data.img, site_config),ite
 {%- if page_type == 'CollectionPage' and page_data.items -%}
 ,"mainEntity":{{ itemList_MicroSchema(page_data, site_config) }}
 {%- elif page_data.main_entity -%}
-,"mainEntity":{{ idOrg_microschema(site_config) }}
-{%- endif -%}
+,"mainEntity":{{ id_type_microschema(site_config.home_url,"#organization","Organization") }}{%- endif -%}
 ,"inLanguage":"en-IN"
 {%- if page_type == 'BlogPosting' and page_data.author -%}
-,"author":{"@type":"Person","@id":"{{ site_config.home_url }}/#person/{{ page_data.author.id }}","name":{{ page_data.author.name | tojson }}}
-,"publisher":{"@id":"{{ site_config.home_url }}/#organization"}
-,"mainEntityOfPage":{"@type":"WebPage","@id":"{{ site_config.home_url }}{{ page_data.path }}/#webpage"}
-{%- endif -%}
+,"author":{ {{ id_person_microschema(site_config.home_url,page_data.author.name,page_data.author.id) }} }
+,"publisher":{{ id_microschema(site_config.home_url,"#organization") }}
+,"mainEntityOfPage":{{ id_microschema(site_config.home_url+ page_data.path,"#webpage") }}{%- endif -%}
 {%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
-}
+  {% endcall %}
 {%- endmacro %}
