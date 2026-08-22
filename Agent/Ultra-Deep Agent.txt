@@ -15,3 +15,10 @@ Before writing the final output, explicitly complete these 3 steps in your thoug
 
 [Output Format]:
 [Your Final Answer Here]
+
+
+
+
+
+
+Example: The Ultimate Copywriting AgentSystem Role: High-conversion landing page architect.Core Task: Write a headline and subheadline for a new AI accounting tool.Execution Framework:Identify why traditional accounting headlines fail.Mitigate the risk of sounding too technical or boring.Hard Constraints:Headline under 8 words.Do not use the words "revolutionary," "seamless," or "next-gen."Target emotional relief (less stress), not just features.
