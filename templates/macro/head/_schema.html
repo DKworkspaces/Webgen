@@ -7,21 +7,21 @@
 
   {# 1. Ingest Organization payload data node #}
   {% set org_str = Org_Schema(page_type, site_config) | trim %}
-  {% if org_str %}{% _=graph_list.append(org_str | fromjson) %}{% endif %}
+  {% if org_str %}{% set void =graph_list.append(org_str | fromjson) %}{% endif %}
   
   {# 2. Ingest WebSite payload data node #}
   {% set site_str = Website_Schema(page_data, site_config) | trim %}
-  {% if site_str %}{% _=graph_list.append(site_str | fromjson) %}{% endif %}
+  {% if site_str %}{% set void =graph_list.append(site_str | fromjson) %}{% endif %}
   
   {# 3. Ingest Breadcrumb payload data node conditionally #}
   {% if breadcrumb %}
     {% set bc_str = Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim %}
-    {% if bc_str %}{% _=graph_list.append(bc_str | fromjson) %}{% endif %}
+    {% if bc_str %}{% set void =graph_list.append(bc_str | fromjson) %}{% endif %}
   {% endif %}
   
   {# 4. Ingest WebPage payload data node #}
   {% set wp_str = Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim %}
-  {% if wp_str %}{% _=graph_list.append(wp_str | fromjson) %}{% endif %}
+  {% if wp_str %}{% set void =graph_list.append(wp_str | fromjson) %}{% endif %}
   
   {# 5. Ingest Person Array Stream elements cleanly #}
   {% if page_data.author_list %}
@@ -30,7 +30,7 @@
       {# Re-wrap the stream into a temporary array to unpack individual nodes safely #}
       {% set parsed_people = ("[" ~ person_str ~ "]") | fromjson %}
       {% for person_obj in parsed_people %}
-        {% _=graph_list.append(person_obj) %}
+        {% set void =graph_list.append(person_obj) %}
       {% endfor %}
     {% endif %}
   {% endif %}
@@ -39,7 +39,7 @@
   {% for entity in extra_entities if entity %}
     {# If entity is already a string, parse it; otherwise, append the object directly #}
     {% set clean_entity = entity | fromjson if entity is string else entity %}
-    {% _=graph_list.append(clean_entity) %}
+    {% set void =graph_list.append(clean_entity) %}
   {% endfor %}
 
   {# Single compilation pass to dump a perfectly formatted metadata script tag #}
@@ -66,7 +66,7 @@
   
   {% set list_elements = [] %}
   {% for item in page_data.items %}
-    {% _=list_elements.append({
+    {% set void =list_elements.append({
       "@type": "ListItem",
       "position": loop.index + offset,
       "url": site_config.home_url ~ item.path,
@@ -97,10 +97,10 @@
   } %}
   
   {# Safely inject optional fields dynamically without comma tracking #}
-  {% if contact.availableLanguage %}{% _=data.update({"availableLanguage": contact.availableLanguage}) %}{% endif %}
-  {% if contact.areaServed %}{% _=data.update({"areaServed": contact.areaServed}) %}{% endif %}
-  {% if contact.support_email %}{% _=data.update({"email": contact.support_email}) %}{% endif %}
-  {% if contact.phone %}{% _=data.update({"telephone": contact.phone}) %}{% endif %}
+  {% if contact.availableLanguage %}{% set void =data.update({"availableLanguage": contact.availableLanguage}) %}{% endif %}
+  {% if contact.areaServed %}{% set void =data.update({"areaServed": contact.areaServed}) %}{% endif %}
+  {% if contact.support_email %}{% set void =data.update({"email": contact.support_email}) %}{% endif %}
+  {% if contact.phone %}{% set void =data.update({"telephone": contact.phone}) %}{% endif %}
   
   {{- data | tojson -}}
 {%- endmacro %}
@@ -113,14 +113,14 @@
   } %}
   
   {# Dynamically map properties with automated comma tracking #}
-  {% if address.street %}{% _=data.update({"streetAddress": address.street}) %}{% endif %}
-  {% if address.city %}{% _=data.update({"addressLocality": address.city}) %}{% endif %}
-  {% if address.region %}{% _=data.update({"addressRegion": address.region}) %}{% endif %}
-  {% if address.zip %}{% _=data.update({"postalCode": address.zip}) %}{% endif %}
+  {% if address.street %}{% set void =data.update({"streetAddress": address.street}) %}{% endif %}
+  {% if address.city %}{% set void =data.update({"addressLocality": address.city}) %}{% endif %}
+  {% if address.region %}{% set void =data.update({"addressRegion": address.region}) %}{% endif %}
+  {% if address.zip %}{% set void =data.update({"postalCode": address.zip}) %}{% endif %}
   
   {# Enforce a fallback value for country if missing from your data profile #}
   {% if address.country or address.addressCountry %}
-    {% _=data.update({"addressCountry": address.country or address.addressCountry}) %}
+    {% set void =data.update({"addressCountry": address.country or address.addressCountry}) %}
   {% endif %}
   
   {{- data | tojson -}}
@@ -144,7 +144,7 @@
   {% set elements = [] %}
   
   {% for item in breadcrumb %}
-    {% _=elements.append({
+    {% set void =elements.append({
       "@type": "ListItem",
       "position": loop.index,
       "name": item.name,
@@ -166,7 +166,7 @@
   {# Reuse Macro 2 loop engine logic instead of copy-pasting the loop #}
   {% set list_elements = [] %}
   {% for item in page_data.items %}
-    {% _=list_elements.append({
+    {% set void =list_elements.append({
       "@type": "ListItem",
       "position": loop.index + offset,
       "url": site_config.home_url ~ item.path,
@@ -195,8 +195,8 @@
   } %}
   
   {# Dynamically map core optional fields without comma tracking #}
-  {% if video.duration %}{% _=data.update({"duration": video.duration}) %}{% endif %}
-  {% if video.embedUrl %}{% _=data.update({"embedUrl": video.embedUrl}) %}{% endif %}
+  {% if video.duration %}{% set void =data.update({"duration": video.duration}) %}{% endif %}
+  {% if video.embedUrl %}{% set void =data.update({"embedUrl": video.embedUrl}) %}{% endif %}
   
   {# Process clips cleanly into a native array if present #}
   {% if video.clips %}
@@ -204,7 +204,7 @@
     {% set clips_array = [] %}
     
     {% for clip in video.clips %}
-      {% _=clips_array.append({
+      {% set void =clips_array.append({
         "@type": "Clip",
         "name": clip.name,
         "startOffset": clip.start | int,
@@ -213,7 +213,7 @@
       }) %}
     {% endfor %}
     
-    {% _=data.update({"hasPart": clips_array}) %}
+    {% set void =data.update({"hasPart": clips_array}) %}
   {% endif %}
   
   {{- data | tojson -}}
@@ -239,16 +239,16 @@
   {# Convert sub-macro string back to object for safe nesting #}
   {% set img_str = image_microschema(site_config.img | default(none), site_config) | trim %}
   {% if img_str %}
-    {% _=payload.update({"logo": img_str | fromjson}) %}
+    {% set void =payload.update({"logo": img_str | fromjson}) %}
   {% endif %}
   
   {# Unpack contact and physical data profiles for contact views #}
   {% if page_type == 'ContactPage' %}
     {% if site_config.contact %}
-      {% _=payload.update({"contactPoint": contact_point_microschema(site_config.contact) | fromjson}) %}
+      {% set void =payload.update({"contactPoint": contact_point_microschema(site_config.contact) | fromjson}) %}
     {% endif %}
     {% if site_config.address %}
-      {% _=payload.update({"address": postal_address_microschema(site_config.address) | fromjson}) %}
+      {% set void =payload.update({"address": postal_address_microschema(site_config.address) | fromjson}) %}
     {% endif %}
   {% endif %}
 
@@ -267,7 +267,7 @@
   
   {# Dynamically map discovery capabilities on home page layouts #}
   {% if page_data.ishome %}
-    {% _=payload.update({"potentialAction": search_action_microschema(site_config) | fromjson}) %}
+    {% set void =payload.update({"potentialAction": search_action_microschema(site_config) | fromjson}) %}
   {% endif %}
   
   {{- payload | tojson -}}
@@ -307,11 +307,11 @@
     } %}
     
     {# Dynamically map optional profile elements without manual commas #}
-    {% if person.url %}{% _=p_dict.update({"url": person.url}) %}{% endif %}
-    {% if person.job_title %}{% _=p_dict.update({"jobTitle": person.job_title}) %}{% endif %}
-    {% if person.image %}{% _=p_dict.update({"image": site_config.image_base_url ~ person.image}) %}{% endif %}
-    {% if person.knowsAbout %}{% _=p_dict.update({"knowsAbout": person.knowsAbout}) %}{% endif %}
-    {% if person.social_links %}{% _=p_dict.update({"sameAs": person.social_links}) %}{% endif %}
+    {% if person.url %}{% set void =p_dict.update({"url": person.url}) %}{% endif %}
+    {% if person.job_title %}{% set void =p_dict.update({"jobTitle": person.job_title}) %}{% endif %}
+    {% if person.image %}{% set void =p_dict.update({"image": site_config.image_base_url ~ person.image}) %}{% endif %}
+    {% if person.knowsAbout %}{% set void =p_dict.update({"knowsAbout": person.knowsAbout}) %}{% endif %}
+    {% if person.social_links %}{% set void =p_dict.update({"sameAs": person.social_links}) %}{% endif %}
     
     {% _=people_array.append(p_dict) %}
   {% endfor %}
@@ -336,11 +336,11 @@
 
   {# 1. Inject Identity Node Cross-References #}
   {% if breadcrumb %}
-    {% _=payload.update({"breadcrumb": {"@id": site_config.home_url ~ page_data.path ~ "/#breadcrumb"}}) %}
+    {% set void =payload.update({"breadcrumb": {"@id": site_config.home_url ~ page_data.path ~ "/#breadcrumb"}}) %}
   {% endif %}
   
   {% if page_data.about %}
-    {% _=payload.update({"about": idOrg_microschema(site_config) | fromjson}) %}
+    {% set void =payload.update({"about": idOrg_microschema(site_config) | fromjson}) %}
   {% endif %}
 
   {# 2. Map Core Attributes Dynamically #}
@@ -350,23 +350,23 @@
 
   {# 3. Ingest Independent Object Schemas #}
   {% if page_data.img %}
-    {% _=payload.update({"primaryImageOfPage": image_microschema(page_data.img, site_config) | fromjson}) %}
+    {% set void =payload.update({"primaryImageOfPage": image_microschema(page_data.img, site_config) | fromjson}) %}
   {% endif %}
 
   {% if page_data.video %}
-    {% _=payload.update({"video": video_MicroSchema(page_data.video, site_config) | fromjson}) %}
+    {% set void =payload.update({"video": video_MicroSchema(page_data.video, site_config) | fromjson}) %}
   {% endif %}
 
   {# 4. Process Main Entity Context Mapping #}
   {% if page_type == 'CollectionPage' and page_data.items %}
-    {% _=payload.update({"mainEntity": itemList_MicroSchema(page_data, site_config) | fromjson}) %}
+    {% set void =payload.update({"mainEntity": itemList_MicroSchema(page_data, site_config) | fromjson}) %}
   {% elif page_data.main_entity %}
-    {% _=payload.update({"mainEntity": idOrg_microschema(site_config) | fromjson}) %}
+    {% set void =payload.update({"mainEntity": idOrg_microschema(site_config) | fromjson}) %}
   {% endif %}
 
   {# 5. Apply BlogPosting Structural Override #}
   {% if page_type == 'BlogPosting' and page_data.author %}
-    {% _=payload.update({
+    {% set void =payload.update({
       "author": {
         "@type": "Person",
         "@id": site_config.home_url ~ "/#person/" ~ page_data.author.id,
