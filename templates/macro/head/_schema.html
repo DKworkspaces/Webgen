@@ -228,7 +228,7 @@
 {"@type":"WebSite",
 "@id":"{{ site_config.home_url }}/#website",
 "url":"{{ site_config.home_url }}",
-"name":{{ site_config.org_name | tojson }},
+"name":"{{ site_config.name }}",
 "publisher":{"@id":"{{ site_config.home_url }}/#organization"}
 {%- if page_data.ishome -%}
 ,"potentialAction":{{ search_action_microschema(site_config) }}
