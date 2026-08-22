@@ -1,0 +1,55 @@
+{# --- The Master Wrapper for Common Fields --- #}
+{% macro base_schema(type, url, id, site_config) -%}
+{% set canonical_url = site_config.home_url ~ current_path %}
+{"@type": "{{ type }}","url": "{{ canonical_url }}","@id": "{{ canonical_url }}{{ id }}"
+  {%- if caller %},
+    {{ caller() }}
+  {%- endif %}
+}
+{%- endmacro %}
+
+
+
+eg
+{# --- Organization Unique Fields --- #}
+{% macro organization_schema(current_path, site_config) -%}
+  {% call base_schema("Organization", current_path, "#organization", site_config) %}
+  "name": "{{ site_config.site_name }}",
+  "logo": "{{ site_config.home_url }}{{ site_config.logo_url }}"
+  {% endcall %}
+{%- endmacro %}
+
+{# --- Article Unique Fields --- #}
+{% macro article_schema(page, current_path, site_config) -%}
+  {% call base_schema("Article", current_path, "#article", site_config) %}
+  "headline": "{{ page.title }}",
+  "image": "{{ site_config.home_url }}{{ page.image_url }}"
+  {% endcall %}
+{%- endmacro %}
+
+
+
+
+{# Import the macros #}
+{% from "schemas.html" import organization_schema, article_schema %}
+
+{# Render schemas with dynamic canonical calculations #}
+{{ organization_schema(page.current_path, site_config) }}
+{{ article_schema(page, page.current_path, site_config) }}
+
+
+
+
+
+{
+  "site_config": {
+    "home_url": "https://example.com",
+    "site_name": "DevHub",
+    "logo_url": "/assets/logo.png"
+  },
+  "page": {
+    "title": "Mastering Jinja Layouts",
+    "image_url": "/assets/blog-hero.jpg",
+    "current_path": "/blog/jinja-layouts/"
+  }
+}
