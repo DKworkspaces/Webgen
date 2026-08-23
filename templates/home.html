@@ -13,7 +13,6 @@
 {# Execute the macro to assign the data to a local variable #}
 {% set app_config = get_json() %}
 
-{% set app_con_fig = 200 %}
 
 
 {% set site_config %}
@@ -111,7 +110,7 @@
 
 <p>
   const url = "{{ app_config.api_url }}";
-  const timeout = {{ app_con_fig }};
+  const timeout = {{ app_config.timeout }};
 </p>
 
 {% endblock %}
