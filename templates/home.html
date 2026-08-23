@@ -1,5 +1,18 @@
 {% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S with context %}
 
+{% macro get_json() %}
+  {{ {
+    "api_url": "https://example.com",
+    "timeout": 5000,
+    "debug_mode": true
+  } }}
+{% endmacro %}
+
+
+
+
+
+
 {% set site_config %}
  {
     "home_url": "https://techcorp.com",
@@ -86,6 +99,17 @@
 <p>User Name: {{ user.name }}</p>
 <p>Role: {{ user.role }}</p>
 
+{# Import the macro file #}
+{#
+{% import "data_store.html" as store %}
+#}
 
+{# Execute the macro to assign the data to a local variable #}
+{% set app_config = get_json() %}
+
+<p>
+  const url = "{{ app_config.api_url }}";
+  const timeout = {{ app_config.timeout }};
+</p>
 
 {% endblock %}
