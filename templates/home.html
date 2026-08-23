@@ -5,13 +5,11 @@
     "api_url": "https://example.com",
     "timeout": 5000,
     "debug_mode": true
-  } | tojson }}
+  } }}
 {% endmacro %}
 
 
 
-{# Execute the macro to assign the data to a local variable #}
-{% set app_config = get_json() | from_json %}
 
 
 
@@ -106,6 +104,8 @@
 {% import "data_store.html" as store %}
 #}
 
+{# Execute the macro to assign the data to a local variable #}
+{% set app_config = get_json() | to_json %}
 
 
 <p>
