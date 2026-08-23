@@ -11,7 +11,7 @@
 
 {% macro Org_Schema(page_data, site_config) -%}
   {% call base_schema("Organization", site_config.home_url, "#organization") %}
-  "name": "{{ site_config.org_name }}","description":{{ site_config.desc | tojson }},"logo":{{ image_microschema(site_config.img | default(none),site_config) }},"sameAs":{{ site_config.social_links | default([]) | tojson }}
+  "name": "{{ site_config.org_name }}","description":"{{ site_config.desc }}","logo":{{ image_microschema(site_config.img | default(none),site_config) }},"sameAs":{{ site_config.social_links | default([]) | tojson }}
   {%- if page_type == 'ContactPage' -%},"contactPoint":{{ contact_point_microschema(site_config.contact) }},"address":{{ postal_address_microschema(site_config.address) }}{%- endif -%}
   {% endcall %}
 {%- endmacro %}
@@ -20,7 +20,7 @@
 
 {% macro Website_Schema(page_data, site_config) -%}
   {% call base_schema("Website", site_config.home_url, "#website") %}
-  "name":{{ site_config.name | tojson }},"publisher":{{ id_microschema(site_config.home_url,"#organization") }}{%- if page_data.ishome -%},"potentialAction":{{ search_action_microschema(site_config) }}{%- endif -%}
+  "name":"{{ site_config.name }}","publisher":{{ id_microschema(site_config.home_url,"#organization") }}{%- if page_data.ishome -%},"potentialAction":{{ search_action_microschema(site_config) }}{%- endif -%}
   {% endcall %}
 {%- endmacro %}
 
@@ -37,7 +37,7 @@
 {%- for person in page_data.author_list -%}
 {%- if person.id -%}{ {{ id_person_microschema(site_config.home_url,person.name,person.id) }}
 {%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
-{%- if person.job_title -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
+{%- if person.job_title -%},"jobTitle":"{{ person.job_title }}"{%- endif -%}
 {%- if person.image -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
 ,"worksFor":{{ id_microschema(site_config.home_url,"#organization") }}
 {%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
@@ -53,11 +53,11 @@
 
 {% macro Webpage_Schema(page_type, page_data, site_config, breadcrumb=None) -%}
   {% call base_schema(page_type, site_config.home_url + page_data.path , "#webpage") %}
-"name":{{ page_data.title | tojson }},
+"name":"{{ page_data.title }}",
 "isPartOf": {{ id_microschema(site_config.home_url,"#website") }}
 {%- if breadcrumb -%},"breadcrumb":{{ id_microschema(site_config.home_url+ page_data.path,"#breadcrumb") }}{%- endif -%}
 {%- if page_data.about -%},"about":{{ id_type_microschema(site_config.home_url,"#organization","Organization") }}{%- endif -%}
-{%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
+{%- if page_data.desc -%},"description":"{{ page_data.desc }}"{%- endif -%}
 {%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img,site_config) }}{%- endif -%}
 {%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
 {%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
