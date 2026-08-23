@@ -94,7 +94,7 @@
 {# Global Schema #}
 
 {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-{% from 'schema/master.html' import Org_Schema, Website_Schema, Breadcrumb_Schema, Person_Schema, Webpage_Schema %}
+{% from '/schema/master.html' import Org_Schema, Website_Schema, Breadcrumb_Schema, Person_Schema, Webpage_Schema %}
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
   {# 1. Organization #}
   {{ Org_Schema(page_type, site_config) | trim }}
