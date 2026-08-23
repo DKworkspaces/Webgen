@@ -11,7 +11,7 @@
 
 
 {# Execute the macro to assign the data to a local variable #}
-{% set app_config = get_json() %}
+{% set app_config = get_json() | from_json %}
 
 
 
