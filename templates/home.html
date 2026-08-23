@@ -10,7 +10,8 @@
 
 
 
-
+{# Execute the macro to assign the data to a local variable #}
+{% set app_config = get_json() %}
 
 
 {% set site_config %}
@@ -104,8 +105,7 @@
 {% import "data_store.html" as store %}
 #}
 
-{# Execute the macro to assign the data to a local variable #}
-{% set app_config = get_json() %}
+
 
 <p>
   const url = "{{ app_config.api_url }}";
