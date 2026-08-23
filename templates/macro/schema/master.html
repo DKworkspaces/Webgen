@@ -73,36 +73,3 @@
 {%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
   {% endcall %}
 {%- endmacro %}
-
-
-{# Global Schema #}
-
-{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
-
-{% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
-  {# 1. Organization #}
-  {{ Org_Schema(page_type, site_config) | trim }}
-  
-  {# 2. WebSite #}
-  ,{{ Website_Schema(page_data, site_config) | trim }}
-  
-  {# 3. Breadcrumb #}
-  {%- if breadcrumb -%}
-  ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
-  {%- endif -%}
-  
-  {# 4. WebPage #}
-  ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
-  
-  {# 5. Person List #}
-  {%- if page_data.author_list -%}
-  ,{{ Person_Schema(page_data, site_config) | trim }}
-  {%- endif -%}
-  
-  {# 6. Injected Extra Entities #}
-  {%- for entity in extra_entities -%}
-    {%- if entity -%},{{ entity | tojson }}{%- endif -%}
-  {%- endfor -%}
-]}</script>
-{%- endmacro %}
