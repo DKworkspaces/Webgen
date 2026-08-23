@@ -41,8 +41,8 @@ def generate_layout_snippets():
     md('templates/temp')
     hd= load_data_profiles()
     # 1. Compile and save plain header snippet
-    h_t=base_f('_header.html')
-    generate(h_t,'templates/temp/header.html',site_config=hd)
+    h_t=base_f('_nav.html')
+    generate(h_t,'templates/temp/nav.html',site_config=hd)
     # 2. Compile and save plain footer snippet
     f_t=base_f('_footer.html')
     generate(f_t,'templates/temp/footer.html',site_config=hd)
