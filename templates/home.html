@@ -1,10 +1,54 @@
 {% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S with context %}
 
-{% set app_config = namespace(
-    site_title = "GitHub CI Dashboard",
-    refresh_rate = 30,
-    features = {"api_url": "https://example.com","timeout": 5000,"debug_mode": true}
-) %}
+
+{% set header = 
+{
+  "logo": "Xocumentary",
+  "menus":[
+  {"type": "search"},
+  {"title":"Categories","type":"megamenu","categories":[
+      {"cat_title": "By Region","links": [{"title": "Indo-Pacific","url": "#"},{"title": "Eruope & Eurasia","url": "#"},{"title": "MiddleEast & Africa","url": "#"},{"title": "The Americas","url": "#"}]},
+      {"cat_title": "By Subject","links": [{"title": "Geopolitics","url": "#"},{"title": "History","url": "#"},{"title": "Science","url": "#"}]}
+  ]},
+  {"type": "select","children": [{"title": "System Mode","val": "system"},{"title": "Light Mode","val": "light"},{"title": "Dark Mode","val": "dark"}]},
+  {"title":"About Us","url":"#","type":"standard"},
+  {"title":"Contact Us","url":"#","type":"standard"}
+] 
+} %}
+
+{% set footer ={
+  "year": "2026",
+  "links": [{"title": "Sitemap","url": "#"},{"title": "Privacy Policy","url": "#"},{"title": "Terms of Use","url": "#"}],
+  "columns":[
+    {"title":"Explore Content","id":"f-t1","link_id":"m1","links": [
+        {"title":"Latest Release","url":"#"},{"title":"Most Popular Archives","url":"#"},{"title":"RSS Feed","url":"#"},{"title":"Interactive Maps/Timeline","url":"#"}]},
+    {"title":"Browse","id":"f-t2","link_id":"m2","links": [
+        {"title":"All Topics Index","url":"#"},{"title":"Categories Index","url":"#"},{"title":"Indo-pacific","url":"#"},{"title":"Europe & Eurasia","url":"#"},{"title":"MiddleEast & Africa","url":"#"},{"title":"The Americas","url":"#"}]},
+    {"title":"Connect & Follow","id":"f-t3","link_id":"m3","links": [
+        {"title":"Youtube Channel","url":"#"},{"title":"Dailymotion Channel","url":"#"},{"title":"Facebook Page","url":"#"}]},
+    {"title":"Legal & Compliance","id":"f-t4","link_id":"m4","links": [
+        {"title":"Editorial Policy","url":"#"},{"title":"Affiliate & Ad Disclosure","url":"#"},{"title":"Fact Checking Policy","url":"#"}]}
+    ]}
+%}
+
+{% set org_website_schema ={
+  "home_url": "https://example.com",
+  "org_name": "Example Corporation",
+  "name": "Example Corp Site"
+  "desc": "Leading provider of innovative software engineering solutions.",
+  "img": {"url": "/assets/logo.png","width": 512,"height": 512},
+  "social_links": ["https://facebook.com","https://twitter.com","https://linkedin.com"],
+  "contact": {"phone": "+1-800-555-0199","support_email": "support@example.com","availableLanguage": "English","areaServed": "US"},
+  "address": {"street": "123 Innovation Way, Suite 400","city": "Silicon Valley","region": "CA","zip": "94025","country": "US"}
+  }
+%}
+
+{% set global = namespace(data = {}) %}
+
+{# Merge sequentially using the update dictionary method wrapped in a dummy set execution #}
+{% set _ = global.data.update(header) %}
+{% set _ = global.data.update(footer) %}
+{% set _ = global.data.update(org_website_schema) %}
 
 
 
@@ -12,37 +56,12 @@
 
 
 
-{% set site_config %}
- {
-    "home_url": "https://techcorp.com",
-    "org_name": "TechCorp Innovations",
-    "name": "TechCorp Global Developer Hub",
-    "desc": "An enterprise ecosystem specialized in building high-performance modular orchestration frameworks.",
-    "social_links": [
-      "https://github.com",
-      "https://linkedin.com",
-      "https://twitter.com"
-    ],
-    "img": {
-      "url": "/assets/branding/logo.png",
-      "width": 600,
-      "height": 60
-    },
-    "contact": {
-      "availableLanguage": "English",
-      "areaServed": "Global",
-      "support_email": "ops@techcorp.com",
-      "phone": "+1-800-555-0100"
-    },
-    "address": {
-      "street": "100 Innovation Boulevard, Suite 400",
-      "city": "Austin",
-      "region": "TX",
-      "zip": "78701",
-      "country": "US"
-    }
-}
-{% endset %}
+
+
+
+
+
+
 
 {% set page_data %}
 {
@@ -54,62 +73,24 @@
 {% endset %}
 
 {% set breadcrumb_data %}
-
-    [
-    {
-      "name": "Home",
-      "path": ""
-    },
-    {
-      "name": "Solutions",
-      "path": "/solutions"
-    },
-    {
-      "name": "Cloud Computing",
-      "path": "/solutions/cloud"
-    },
-    {
-      "name": "Automation Engine",
-      "path": "/solutions/cloud/automation"
-    }
-  ]
+    [{"name": "Home","path": "/"},
+    {"name": "About","path": "/about"}]
 
 {% endset %}
 
 
 {% block content %}
 <h1>Testing purposes</h1>
-{#
-<p>{{ Organization_S(page_type='ContactPage', site_config=site_config) }}</p>
+{# Execute the macro to assign the data to a local variable #}
+{% set site_config = global.data  %}
 
+<p>{{ Organization_S(page_type='ContactPage', site_config=site_config) }}</p>
+{#
 
 <p>{{ Website_S(page_data=page_data, site_config=site_config) }}</p>
 
+
 <p>{{ Breadcrumb_S(page_data, site_config, breadcrumb=breadcrumb_data) }}</p>
 #}
-
-
-{% set user = {
-    "name": "Alex",
-    "role": "Developer",
-    "active": true
-} %}
-
-<p>User Name: {{ user.name }}</p>
-<p>Role: {{ user.role }}</p>
-
-{# Import the macro file #}
-{#
-{% import "data_store.html" as store %}
-#}
-
-{# Execute the macro to assign the data to a local variable #}
-{% set app_con_fig = app_config.features  %}
-
-
-<p>
-  const url = "{{ app_con_fig.api_url }}";
-  const timeout = {{ app_con_fig.timeout }};
-</p>
 
 {% endblock %}
