@@ -1,90 +1,102 @@
-header fiels
-
-
-{"logo": "DESIGNCO",
-  "menus": [
-    {"type": "search"},
-    {"title": "Services","type": "dropdown","children": [
-        {"title": "Web Development", "url": "/services/web-dev"},
-        {"title": "UI/UX Design","url": "/services/ui-ux"},
-        {"title": "DevOps","url": "/services/devops"}
-      ]},
-    {"title":"Solutions","type":"megamenu","categories":[
-        {"cat_title": "Enterprise","links": [
-            {"title": "Cloud Scale","url": "/solutions/cloud"},
-            {"title": "Data Logistics","url": "/solutions/data"}
-          ]},
-        {"cat_title": "Security","links": [
-            {"title": "Zero Trust Access","url": "/solutions/security"},
-            {"title": "Identity Vault","url": "/solutions/identity"}
-          ]}
-      ]},
-    {"type": "select","children": [
-        {"title": "System Mode","val": "system"},
-        {"title": "Light Mode","val": "light"},
-        {"title": "Dark Mode","val": "dark"},
-        {"title": "Redlight Mode","val": "red"},
-        {"title": "Eye Protection Mode","val": "eye"}
-      ]
-    },
-    {"title":"About","url":"/about","type":"standard"}
-  ]
-        }
-
-
-
-
-
-
-footer fields
-
-
-
+header code
 {
-  "company": "Acme Corp",
-  "desc": "Building scalable, next-generation digital experiences for global forward-thinkers.",
-  "add": "123 Innovation Way, Tech District,<br>Silicon Valley, CA 94025",
-  "tel": "+15551234567",
-  "mail": "hello@acme.corp",
+  "logo": "Xocumentary",
+  "menus": [
+            {"type": "search"},
+            {"title":"Categories","type":"megamenu","categories":[
+                  {"cat_title": "By Region","links": [
+                        {"title": "Indo-Pacific","url": "#"},{"title": "Eruope & Eurasia","url": "#"},{"title": "MiddleEast & Africa","url": "#"},{"title": "The Americas","url": "#"}
+                  ]},
+                  {"cat_title": "By Subject","links": [
+                        {"title": "Geopolitics","url": "#"},{"title": "History","url": "#"},{"title": "Science","url": "#"}
+                  ]}
+            ]},
+            {"type": "select","children": [
+                  {"title": "System Mode","val": "system"},{"title": "Light Mode","val": "light"},{"title": "Dark Mode","val": "dark"}
+            ]},
+            {"title":"About Us","url":"#","type":"standard"},
+            {"title":"Contact Us","url":"#","type":"standard"}
+      ]
+}
+
+footer code
+{
   "year": "2026",
-  "social": [
-    {"type": "X","sym": "X","url": "#"},
-    {"type": "LimkednkedIn","sym": "In","url": "#"},
-    {"type": "Github","sym": "Git","url": "#}
-  ],
   "links": [
-    {"title": "Sitemap","url": "/sitemap"},
-    {"title": "Privacy Policy","url": "/privacy"},
-    {"title": "Terms of Use","url": "/terms"}
-  ],
-  "columns":[
-    {"title":"Platform","id":"f-t1","link_id":"m1","links": [
-        {"title":"Core Engine","url":"/solutions/core"},
-        {"title":"Integrations","url":"/solutions/int"},
-        {"title":"Security Specs","url":"/solutions/sp"},
-        {"title":"Pricing Plans","url":"/solutions/pri"}
+            {"title": "Sitemap","url": "#"},{"title": "Privacy Policy","url": "#"},{"title": "Terms of Use","url": "#"}
+      ],
+      "columns":[
+            {"title":"Explore Content","id":"f-t1","link_id":"m1","links": [
+                  {"title":"Latest Release","url":"#"},{"title":"Most Popular Archives","url":"#"},{"title":"RSS Feed","url":"#"},{"title":"Interactive Maps/Timeline","url":"#"}
+            ]},
+            {"title":"Browse","id":"f-t2","link_id":"m2","links": [
+                  {"title":"All Topics Index","url":"#"},{"title":"Categories Index","url":"#"},{"title":"Indo-pacific","url":"#"},{"title":"Europe & Eurasia","url":"#"},{"title":"MiddleEast & Africa","url":"#"},{"title":"The Americas","url":"#"}
+            ]},
+            {"title":"Connect & Follow","id":"f-t3","link_id":"m3","links": [
+                  {"title":"Youtube Channel","url":"#"},{"title":"Dailymotion Channel","url":"#"},{"title":"Facebook Page","url":"#"}
+            ]},
+            {"title":"Legal & Compliance","id":"f-t4","link_id":"m4","links": [
+                  {"title":"Editorial Policy","url":"#"},{"title":"Affiliate & Ad Disclosure","url":"#"},{"title":"Fact Checking Policy","url":"#"}
+            ]}
       ]
-    },
-    {"title":"Resources","id":"f-t2","link_id":"m2","links": [
-        {"title":"Documentation","url":"/solutions/doc"},
-        {"title":"API Reference","url":"/solutions/api"},
-        {"title":"System Status","url":"/solutions/st"},
-        {"title":"Open Source","url":"/solutions/os"}
-      ]
-    },
-    {"title":"Company","id":"f-t3","link_id":"m3","links": [
-        {"title":"About Us","url":"/about"},
-        {"title":"Careers","url":"/solutions/career"},
-        {"title":"Press Kit","url":"/solutions/pk"},
-        {"title":"Contact","url":"/contact"}
-      ]
-    },
-    {"title":"Governance","id":"f-t4","link_id":"m4","links": [
-        {"title":"Compliance","url":"/solutions/com"},
-        {"title":"GDPR Rules","url":"/solutions/gdpr"},
-        {"title":"Trust Center","url":"/solutions/tc"},
-        {"title":"SLA Pact","url":"/solutions/sla"}
-      ]
-    }
-  ]
-        }
+}
+
+
+
+
+
+      
+      "name": "Global Tech Insights",
+      "org_name": "Tech Insights Media Group LLC",
+      "title": "My Default Website Title",
+      "desc": "Leading platform providing verified, cutting-edge software architecture analyses and framework documentation.",
+      "home_url": "https://example.com",
+      "twitter_site": "@ChannelTwitter",
+      "robots": "index, follow",
+      "per_page": 10,
+      "base_url":"https:dkworkspaces.github.io",
+      "image_base_url": "https://example.com",
+      "icon": {
+            "favicon_svg": "favicon.svg",
+            "favicon_ico": "favicon.ico",
+            "apple_touch": "apple-touch-icon.png"
+      },
+      "img": {
+            "url": "https://example.com",
+            "width": 512,
+            "height": 512
+      },
+      "social_links": [
+            "https://linkedin.com",
+            "https://x.com",
+            "https://github.com"
+      ],
+      "contact": {
+            "availableLanguage": "English",
+            "areaServed": "US, CA, GB",
+            "support_email": "support@example.com",
+            "phone": "+1-800-555-0199"
+      },
+      "address": {
+            "street": "100 Innovation Way, Suite 400",
+            "city": "Austin",
+            "region": "Texas",
+            "zip": "78701",
+            "country": "US"
+      },
+      
+      
+      }
+                          
+              
+              
+
+
+
+
+
+
+
+
+
+
