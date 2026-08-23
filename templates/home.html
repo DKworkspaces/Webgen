@@ -1,12 +1,11 @@
 {% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S with context %}
 
-{% macro get_json() %}
-  {{ {
-    "api_url": "https://example.com",
-    "timeout": 5000,
-    "debug_mode": true
-  } | to_json }}
-{% endmacro %}
+{% set app_config = namespace(
+    site_title = "GitHub CI Dashboard",
+    refresh_rate = 30,
+    features = {"api_url": "https://example.com","timeout": 5000,"debug_mode": true}
+) %}
+
 
 
 
@@ -105,12 +104,12 @@
 #}
 
 {# Execute the macro to assign the data to a local variable #}
-{% set app_config = get_json() | from_json %}
+{% set app_con_fig = app_config.features  %}
 
 
 <p>
-  const url = "{{ app_config.api_url }}";
-  const timeout = {{ app_config.timeout }};
+  const url = "{{ app_con_fig.api_url }}";
+  const timeout = {{ app_con_fig.timeout }};
 </p>
 
 {% endblock %}
