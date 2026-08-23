@@ -43,6 +43,192 @@ footer code
 
 
 
+organization n website schema
+{
+  "site_config": {
+    "home_url": "https://example.com",
+    "org_name": "Example Corporation",
+    "name": "Example Corp Site"
+    "desc": "Leading provider of innovative software engineering solutions.",
+    "img": {
+      "url": "/assets/logo.png",
+      "width": 512,
+      "height": 512
+    },
+    "social_links": [
+      "https://facebook.com",
+      "https://twitter.com",
+      "https://linkedin.com"
+    ],
+    "contact": {
+      "phone": "+1-800-555-0199",
+      "support_email": "support@example.com",
+      "availableLanguage": "English",
+      "areaServed": "US"
+    },
+    "address": {
+      "street": "123 Innovation Way, Suite 400",
+      "city": "Silicon Valley",
+      "region": "CA",
+      "zip": "94025",
+      "country": "US"
+    }
+  }
+    }
+
+
+
+
+breadcrumb schema 
+
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  },
+  "page_data": {
+    "path": "/blog/how-to-use-jinja-schemas"
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "path": ""
+    },
+    {
+      "name": "Blog",
+      "path": "/blog"
+    },
+    {
+      "name": "Jinja Tutorial",
+      "path": "/blog/how-to-use-jinja-schemas"
+    }
+  ]
+}
+
+person schema 
+
+
+{
+  "site_config": {
+    "home_url": "https://example.com",
+    "image_base_url": "https://example.com"
+  },
+  "page_data": {
+    "author_list": [
+      {
+        "id": "alice-vance",
+        "name": "Alice Vance",
+        "url": "https://example.com/authors/alice-vance",
+        "job_title": "Founder & CEO",
+        "image": "alice-vance.jpg",
+        "knowsAbout": [
+          "Business Strategy",
+          "System Architecture"
+        ],
+        "social_links": [
+          "https://linkedin.com"
+        ]
+      },
+      {
+        "id": "jane-doe",
+        "name": "Jane Doe",
+        "url": "https://example.com/authors/jane-doe",
+        "job_title": "Lead Software Architect",
+        "image": "jane-doe.jpg",
+        "knowsAbout": [
+          "Python",
+          "Web Performance"
+        ],
+        "social_links": [
+          "https://github.com"
+        ]
+      },
+      {
+        "id": "john-smith",
+        "name": "John Smith",
+        "url": "https://example.com/authors/john-smith",
+        "job_title": "Senior Technical Writer",
+        "image": "john-smith.jpg",
+        "knowsAbout": [
+          "Jinja Templates",
+          "JSON-LD Documentation"
+        ],
+        "social_links": [
+          "https://twitter.com"
+        ]
+      }
+    ]
+  }
+      }
+
+
+
+
+webpage schema 
+
+{
+  "site_config": {
+    "home_url": "https://example.com",
+    "per_page": 10
+  },
+  "page_data": {
+    "path": "/blog/how-to-use-jinja-schemas",
+    "title": "How to Build Dynamic JSON-LD Schemas Using Jinja2 Macros",
+    "desc": "A step-by-step technical guide to setting up automated structured data pipelines with reusable macros.",
+    "img": {
+      "url": "/assets/blog/jinja-schemas-banner.jpg",
+      "width": 1200,
+      "height": 630
+    },
+    "datePublished": "2026-03-15T08:00:00+00:00",
+    "dateModified": "2026-08-23T14:30:00+00:00",
+    "about": true,
+    "main_entity": true,
+    "page": 1,
+    "author": {
+      "id": "jane-doe",
+      "name": "Jane Doe"
+    },
+    "items": [
+      {
+        "name": "Jinja2 Syntax Guide",
+        "path": "/blog/jinja2-syntax-guide"
+      },
+      {
+        "title": "JSON-LD For Beginners",
+        "path": "/blog/json-ld-for-beginners"
+      }
+    ],
+    "video": {
+      "title": "Jinja Schema Tutorial Walkthrough",
+      "description": "Video tutorial covering nested macro setups and structural validation.",
+      "thumbnail_url": "https://example.com",
+      "uploadDate": "2026-03-16T10:00:00+00:00",
+      "duration": "PT5M30S",
+      "embedUrl": "https://youtube.com",
+      "provider": "youtube",
+      "clips": [
+        {
+          "name": "Introduction to Entity Bases",
+          "start": 0,
+          "end": 90
+        }
+      ]
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       
@@ -67,6 +253,9 @@ footer code
             "height": 512
       },
       "social_links": [
+
+
+
             "https://linkedin.com",
             "https://x.com",
             "https://github.com"
