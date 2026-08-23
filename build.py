@@ -4,6 +4,8 @@ from jinja2 import Environment, FileSystemLoader, Template
 
 # Global environment runner setup pointing to templates folder
 env = Environment(loader=FileSystemLoader('templates'))
+# Register Python's json.loads as the 'from_json' filter
+env.filters['from_json'] = json.loads
 
 def md(location):
     """Assembles index pages using pre-compiled components into dist/."""
