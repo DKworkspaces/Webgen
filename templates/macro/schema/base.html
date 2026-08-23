@@ -1,14 +1,3 @@
-{# --- The Master Wrapper for Common Fields --- #}
-{% macro base_schema(type, url, id, site_config) -%}
-{% set canonical_url = site_config.home_url ~ current_path %}
-{"@type": "{{ type }}","url": "{{ canonical_url }}","@id": "{{ canonical_url }}{{ id }}"
-  {%- if caller %},
-    {{ caller() }}
-  {%- endif %}
-}
-{%- endmacro %}
-
-
 
 {# 1. id type Schema #}
 {% macro id_type_microschema(url,id,type) -%}{"@id":"{{- url ~ '/' ~ id -}}","@type":"{{ type }}"}{%- endmacro %}
@@ -49,8 +38,3 @@
 {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}"itemListElement": [{{ _render_list_elements(breadcrumb, site_config, type='breadcrumb') }}]{%- endmacro %}
 {# --- 8. Complete ItemList Object --- #}
 {% macro itemList_MicroSchema(page_data, site_config) -%}{% set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}{"@type": "ItemList","numberOfItems": {{ page_data.items | length }},"itemListOrder": "ItemListOrderUnordered","itemListElement": [{{ _render_list_elements(page_data.items, site_config, type='item', offset=offset) }}]}{%- endmacro %}
-
-
-{# --- The Master Wrapper for Common Fields --- #}
-{% macro base_schema(type, url, id) -%}{"@type": "{{ type }}","url": "{{ url }}","@id": "{{ url }}{{ id }}"{%- if caller %},{{ caller() }}{%- endif %} }{%- endmacro %}
-
