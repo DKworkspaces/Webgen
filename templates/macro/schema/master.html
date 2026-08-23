@@ -1,17 +1,4 @@
 
-{% macro schema_graph() -%}
-{"@context": "https://schema.org","@graph": [{{- caller() -}}]}
-{%- endmacro %}
-
-{% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-{%- call schema_graph() -%}
-  {{- Organization_S(page_type, site_config) | trim -}},{{- Website_S(page_data, site_config) | trim -}}
-  {%- if breadcrumb -%},{{- Breadcrumb_S(page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
-  {%- if page_data and not page_data.is_home -%}{{- Webpage_S(page_type, page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
-  {%- if page_data.author_list -%},{{- Person_S(page_data, site_config) | trim -}}{%- endif -%}
-  {%- for entity in extra_entities -%}{%- if entity -%},{{- entity | tojson -}}{%- endif -%}{%- endfor -%}
-{%- endcall -%}{%- endmacro %}
-
 
 {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
   {%- for item in items -%}
