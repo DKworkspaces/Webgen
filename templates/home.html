@@ -69,10 +69,23 @@
 <h1>Testing purposes</h1>
 {#
 <p>{{ Organization_S(page_type='ContactPage', site_config=site_config) }}</p>
-#}
+
 
 <p>{{ Website_S(page_data=page_data, site_config=site_config) }}</p>
 
 <p>{{ Breadcrumb_S(page_data, site_config, breadcrumb=breadcrumb_data) }}</p>
+#}
+
+
+{% set user = {
+    "name": "Alex",
+    "role": "Developer",
+    "active": true
+} %}
+
+<p>User Name: {{ user.name }}</p>
+<p>Role: {{ user.role }}</p>
+
+
 
 {% endblock %}
