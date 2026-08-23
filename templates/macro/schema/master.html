@@ -1,0 +1,108 @@
+{% from 'base.html' import id_type_microschema, id_type_b_microschema, id_microschema, id_person_microschema, image_microschema, contact_point_microschema, postal_address_microschema, search_action_microschema, video_MicroSchema, listItem_microschema, listBreadcrumbItem_microschema, itemList_MicroSchema %}
+
+
+{# --- The Master Wrapper for Common Fields --- #}
+{% macro base_schema(type, url, id) -%}{"@type": "{{ type }}","url": "{{ url }}","@id": "{{ url }}{{ id }}"{%- if caller %},{{ caller() }}{%- endif %} }{%- endmacro %}
+
+
+{# Macro Templates #}
+
+{# 11. Organization Master Schema #}
+
+{% macro Org_Schema(page_data, site_config) -%}
+  {% call base_schema("Organization", site_config.home_url, "#organization") %}
+  "name": "{{ site_config.org_name }}","description":{{ site_config.desc | tojson }},"logo":{{ image_microschema(site_config.img | default(none),site_config) }},"sameAs":{{ site_config.social_links | default([]) | tojson }}
+  {%- if page_type == 'ContactPage' -%},"contactPoint":{{ contact_point_microschema(site_config.contact) }},"address":{{ postal_address_microschema(site_config.address) }}{%- endif -%}
+  {% endcall %}
+{%- endmacro %}
+
+{# 12. WebSite Master Schema #}
+
+{% macro Website_Schema(page_data, site_config) -%}
+  {% call base_schema("Website", site_config.home_url, "#website") %}
+  "name":{{ site_config.name | tojson }},"publisher":{{ id_microschema(site_config.home_url,"#organization") }}{%- if page_data.ishome -%},"potentialAction":{{ search_action_microschema(site_config) }}{%- endif -%}
+  {% endcall %}
+{%- endmacro %}
+
+{# 13. Breadcrumb Master Schema #}
+
+{% macro Breadcrumb_Schema(page_data, site_config, breadcrumb=None) -%}
+ {% if breadcrumb -%}{ {{ id_type_b_microschema(site_config.home_url+ page_data.path,"#breadcrumb","BreadcrumbList") }},{{ listBreadcrumbItem_microschema(breadcrumb, site_config) }} }{%- endif %}
+{%- endmacro %}
+
+
+{# 14. Person Master Schema (High Performance / Stream Edition) #}
+
+{% macro Person_Schema(page_data, site_config) -%}
+{%- for person in page_data.author_list -%}
+{%- if person.id -%}{ {{ id_person_microschema(site_config.home_url,person.name,person.id) }}
+{%- if person.url -%},"url":"{{ person.url }}"{%- endif -%}
+{%- if person.job_title -%},"jobTitle":{{ person.job_title | tojson }}{%- endif -%}
+{%- if person.image -%},"image":"{{ site_config.image_base_url }}{{ person.image }}"{%- endif -%}
+,"worksFor":{{ id_microschema(site_config.home_url,"#organization") }}
+{%- if person.knowsAbout -%},"knowsAbout":{{ person.knowsAbout | tojson }}{%- endif -%}
+{%- if person.social_links -%},"sameAs":{{ person.social_links | tojson }}{%- endif -%}
+}{%- if not loop.last %},{% endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro %}
+
+
+
+{# 15. WebPage Master Schema #}
+
+{% macro Webpage_Schema(page_type, page_data, site_config, breadcrumb=None) -%}
+  {% call base_schema(page_type, site_config.home_url + page_data.path , "#webpage") %}
+"name":{{ page_data.title | tojson }},
+"isPartOf": {{ id_microschema(site_config.home_url,"#website") }}
+{%- if breadcrumb -%},"breadcrumb":{{ id_microschema(site_config.home_url+ page_data.path,"#breadcrumb") }}{%- endif -%}
+{%- if page_data.about -%},"about":{{ id_type_microschema(site_config.home_url,"#organization","Organization") }}{%- endif -%}
+{%- if page_data.desc -%},"description":{{ page_data.desc | tojson }}{%- endif -%}
+{%- if page_data.img -%},"primaryImageOfPage":{{ image_microschema(page_data.img,site_config) }}{%- endif -%}
+{%- if page_data.datePublished -%},"datePublished":"{{ page_data.datePublished }}"{%- endif -%}
+{%- if page_data.dateModified -%},"dateModified":"{{ page_data.dateModified }}"{%- endif -%}
+{%- if page_type == 'CollectionPage' and page_data.items -%}
+,"mainEntity":{{ itemList_MicroSchema(page_data, site_config) }}
+{%- elif page_data.main_entity -%}
+,"mainEntity":{{ id_type_microschema(site_config.home_url,"#organization","Organization") }}{%- endif -%}
+,"inLanguage":"en-IN"
+{%- if page_type == 'BlogPosting' and page_data.author -%}
+,"author":{ {{ id_person_microschema(site_config.home_url,page_data.author.name,page_data.author.id) }} }
+,"publisher":{{ id_microschema(site_config.home_url,"#organization") }}
+,"mainEntityOfPage":{{ id_microschema(site_config.home_url+ page_data.path,"#webpage") }}{%- endif -%}
+{%- if page_data.video -%},"video":{{ video_MicroSchema(page_data.video, site_config) }}{%- endif -%}
+  {% endcall %}
+{%- endmacro %}
+
+
+{# Global Schema #}
+
+{# 20. Master Schema Graph (High Performance / Low Memory Stream Edition) #}
+
+{% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+  {# 1. Organization #}
+  {{ Org_Schema(page_type, site_config) | trim }}
+  
+  {# 2. WebSite #}
+  ,{{ Website_Schema(page_data, site_config) | trim }}
+  
+  {# 3. Breadcrumb #}
+  {%- if breadcrumb -%}
+  ,{{ Breadcrumb_Schema(page_data, site_config, breadcrumb) | trim }}
+  {%- endif -%}
+  
+  {# 4. WebPage #}
+  ,{{ Webpage_Schema(page_type, page_data, site_config, breadcrumb) | trim }}
+  
+  {# 5. Person List #}
+  {%- if page_data.author_list -%}
+  ,{{ Person_Schema(page_data, site_config) | trim }}
+  {%- endif -%}
+  
+  {# 6. Injected Extra Entities #}
+  {%- for entity in extra_entities -%}
+    {%- if entity -%},{{ entity | tojson }}{%- endif -%}
+  {%- endfor -%}
+]}</script>
+{%- endmacro %}
