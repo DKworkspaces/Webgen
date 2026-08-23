@@ -9,7 +9,7 @@
 {# 1.b. id Schema #}
 {% macro id_microschema(url,id) -%}{"@id":"{{- url ~ '/' ~ id -}}"}{%- endmacro %}
 {# person metatag #}
-{% macro id_person_microschema(url,name,id) -%}"@type":"Person","@id":"{{- url ~ '/#person/' ~ id -}}","name":{{ name | tojson }}{%- endmacro %}
+{% macro id_person_microschema(url,name,id) -%}"@type":"Person","@id":"{{- url ~ '/#person/' ~ id -}}","name":"{{ name }}"{%- endmacro %}
 
 
 {# 3. Image Schema #}
@@ -25,7 +25,7 @@
 {% macro search_action_microschema(site_config) -%}{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_config.home_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}{%- endmacro %}
 
 {# 9. Streamlined Multi-Platform Video Master Schema (High Performance) #}
-{% macro video_MicroSchema(video, site_config) -%}{"@type":"VideoObject","name":{{ video.title | tojson }},"description":{{ video.description | tojson }},"thumbnailUrl":"{{ video.thumbnail_url }}","uploadDate":"{{ video.uploadDate }}"{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}{%- if video.clips -%},"hasPart":[{%- for clip in video.clips -%}{"@type":"Clip","name":{{ clip.name | tojson }},"startOffset":{{ clip.start }},"endOffset":{{ clip.end }},"url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}{%- if not loop.last %},{% endif -%}{%- endfor -%}]{%- endif -%}}{%- endmacro %}
+{% macro video_MicroSchema(video, site_config) -%}{"@type":"VideoObject","name":"{{ video.title }}","description":"{{ video.description }}","thumbnailUrl":"{{ video.thumbnail_url }}","uploadDate":"{{ video.uploadDate }}"{%- if video.duration -%},"duration":"{{ video.duration }}"{%- endif -%}{%- if video.embedUrl -%},"embedUrl":"{{ video.embedUrl }}"{%- endif -%}{%- if video.clips -%},"hasPart":[{%- for clip in video.clips -%}{"@type":"Clip","name":"{{ clip.name }}","startOffset":{{ clip.start }},"endOffset":{{ clip.end }},"url":"{{ video.embedUrl }}{{ '?start=' if video.provider == 'youtube' else '?start=' if video.provider == 'dailymotion' else '?t=' }}{{ clip.start }}"}{%- if not loop.last %},{% endif -%}{%- endfor -%}]{%- endif -%}}{%- endmacro %}
 
 
 {# modified with common layout #}
