@@ -1,91 +1,90 @@
 header fiels
 
 
-{
-  "logo": "DESIGNCO",
+{"logo": "DESIGNCO",
   "menus": [
-    {
-      "type": "search"
-    },
-    {
-      "title": "Services",
-      "type": "dropdown",
-      "children": [
-        {
-          "title": "Web Development", 
-          "url": "/services/web-dev"
-        },
-        {
-          "title": "UI/UX Design",
-          "url": "/services/ui-ux"
-        },
-        {
-          "title": "DevOps",
-          "url": "/services/devops"
-        }
+    {"type": "search"},
+    {"title": "Services","type": "dropdown","children": [
+        {"title": "Web Development", "url": "/services/web-dev"},
+        {"title": "UI/UX Design","url": "/services/ui-ux"},
+        {"title": "DevOps","url": "/services/devops"}
+      ]},
+    {"title":"Solutions","type":"megamenu","categories":[
+        {"cat_title": "Enterprise","links": [
+            {"title": "Cloud Scale","url": "/solutions/cloud"},
+            {"title": "Data Logistics","url": "/solutions/data"}
+          ]},
+        {"cat_title": "Security","links": [
+            {"title": "Zero Trust Access","url": "/solutions/security"},
+            {"title": "Identity Vault","url": "/solutions/identity"}
+          ]}
+      ]},
+    {"type": "select","children": [
+        {"title": "System Mode","val": "system"},
+        {"title": "Light Mode","val": "light"},
+        {"title": "Dark Mode","val": "dark"},
+        {"title": "Redlight Mode","val": "red"},
+        {"title": "Eye Protection Mode","val": "eye"}
       ]
     },
-    {
-      "title":"Solutions",
-      "type":"megamenu",
-      "categories":[
-        {
-          "cat_title": "Enterprise",
-          "links": [
-            {
-              "title": "Cloud Scale",
-              "url": "/solutions/cloud"
-            },
-            {
-              "title": "Data Logistics",
-              "url": "/solutions/data"
-            }
-          ]
-        },
-        {
-          "cat_title": "Security",
-          "links": [
-            {
-              "title": "Zero Trust Access",
-              "url": "/solutions/security"
-            },
-            {
-              "title": "Identity Vault",
-              "url": "/solutions/identity"
-            }
-          ]
+    {"title":"About","url":"/about","type":"standard"}
+  ]
         }
+
+
+
+
+
+
+footer fields
+
+
+
+{
+  "company": "Acme Corp",
+  "desc": "Building scalable, next-generation digital experiences for global forward-thinkers.",
+  "add": "123 Innovation Way, Tech District,<br>Silicon Valley, CA 94025",
+  "tel": "+15551234567",
+  "mail": "hello@acme.corp",
+  "year": "2026",
+  "social": [
+    {"type": "X","sym": "X","url": "#"},
+    {"type": "LimkednkedIn","sym": "In","url": "#"},
+    {"type": "Github","sym": "Git","url": "#}
+  ],
+  "links": [
+    {"title": "Sitemap","url": "/sitemap"},
+    {"title": "Privacy Policy","url": "/privacy"},
+    {"title": "Terms of Use","url": "/terms"}
+  ],
+  "columns":[
+    {"title":"Platform","id":"f-t1","link_id":"m1","links": [
+        {"title":"Core Engine","url":"/solutions/core"},
+        {"title":"Integrations","url":"/solutions/int"},
+        {"title":"Security Specs","url":"/solutions/sp"},
+        {"title":"Pricing Plans","url":"/solutions/pri"}
       ]
     },
-    {
-      "type": "select",
-      "children": [
-        {
-          "title": "System Mode",
-          "val": "system"
-        },
-        {
-          "title": "Light Mode",
-          "val": "light"
-        },
-        {
-          "title": "Dark Mode",
-          "val": "dark"
-        },
-        {
-          "title": "Redlight Mode",
-          "val": "red"
-        },
-        {
-          "title": "Eye Protection Mode",
-          "val": "eye"
-        }
+    {"title":"Resources","id":"f-t2","link_id":"m2","links": [
+        {"title":"Documentation","url":"/solutions/doc"},
+        {"title":"API Reference","url":"/solutions/api"},
+        {"title":"System Status","url":"/solutions/st"},
+        {"title":"Open Source","url":"/solutions/os"}
       ]
     },
-    {
-      "title":"About",
-      "url":"/about",
-      "type":"standard"
+    {"title":"Company","id":"f-t3","link_id":"m3","links": [
+        {"title":"About Us","url":"/about"},
+        {"title":"Careers","url":"/solutions/career"},
+        {"title":"Press Kit","url":"/solutions/pk"},
+        {"title":"Contact","url":"/contact"}
+      ]
+    },
+    {"title":"Governance","id":"f-t4","link_id":"m4","links": [
+        {"title":"Compliance","url":"/solutions/com"},
+        {"title":"GDPR Rules","url":"/solutions/gdpr"},
+        {"title":"Trust Center","url":"/solutions/tc"},
+        {"title":"SLA Pact","url":"/solutions/sla"}
+      ]
     }
   ]
         }
