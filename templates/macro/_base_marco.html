@@ -19,6 +19,18 @@
 {% endmacro %}
 
 
+{#
+{
+  "segs": [
+    "tutorials",
+    "web-development",
+    "jinja2_macro_frameworks"
+  ]
+}
+
+#}
+
+
 {% set share_endpoints = {
     'btn-twitter':  'https://twitter.com' ~ target_url | urlencode ~ '&text=' ~ title | urlencode,
     'btn-facebook': 'https://facebook.com' ~ target_url | urlencode,
@@ -50,13 +62,32 @@
 {%- endmacro %}
 
 
+{#
+{
+  "page_url": "https://example.com",
+  "page_title": "Mastering Advanced Template Frameworks"
+}
+
+#}
+
 {# Component : Banner Hero #}
 {% macro r_hero_banner(title, img_src="", read_time="", watch_time="") %}
 <div class="article-hero"><div class="hero-image-wrapper">
-<img src="{{ img_src }}" alt="{{ title | escape }}" loading="eager" fetchpriority="high"{% endif %}>
+<img src="{{ img_src }}" alt="{{ title | escape }}" loading="eager" fetchpriority="high">
 </div>
 <div class="hero-meta-heading"><div class="article-performance-metrics"><span class="metric-item">{{ read_time }} read time</span><span class="metric-item">{{ watch_time }} watch time</span></div></div>
 </div>
 {% endmacro %}
+
+
+{#
+{
+  "title": "Mastering Advanced Template Frameworks",
+  "img": "/assets/images/hero/template-guide.jpg",
+  "read_time": "5 min",
+  "watch_time": "12 min"
+}
+
+#}
 
 
