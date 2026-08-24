@@ -270,3 +270,116 @@ article video
 
 
 #}
+
+
+
+
+
+
+
+
+
+
+{#
+_header_seo.html
+
+macro r_page_id(page_data,site_config)
+and
+macro r_can(page_data,site_config)
+
+
+{"page_data": {
+  "title": "My Awesome Blog Post",
+  "desc": "A comprehensive guide to understanding Jinja2 macros with JSON inputs.",
+  "robots": "index, follow","path": "/blog/jinja2-macro-guide"
+},"site_config": {
+  "title": "Default Site Title",
+  "desc": "Welcome to my default website description.",
+  "robots": "noindex, nofollow","home_url": "https://example.com"
+}}
+
+macro r_page_res_hints(type=None)
+{"type": "yt"}
+
+
+macro r_g_icons(site_config)
+
+{"site_config": {
+  "image_base_url": "https://example.com",
+  "icon": {
+    "favicon_svg": "/assets/brand/favicon.svg",
+    "favicon_ico": "/assets/brand/favicon.ico",
+    "apple_touch": "/assets/brand/apple-touch-icon.png"
+}}}
+
+
+macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None)
+
+{"page_type": "article","page_data": {},
+"site_config": {},"breadcrumb": [],
+"extra_entities": []}
+
+
+
+
+macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image')
+
+pagetype website 
+{"page_data": {
+  "title": "Welcome to Our Homepage",
+  "desc": "The primary hub for our digital products and services.",
+  "media": "image","type": "website",
+  "og": {"img": "/assets/hero-banner.jpg","alt": "A sleek modern office workspace layout"},
+  "pin": {"img": "/assets/pinterest-graphic.jpg","alt": "Infographic summarizing our digital product features"}
+},"site_config": {
+  "title": "Tech Solutions Corp",
+  "desc": "Innovative technology solutions for your business.",
+  "twitter_site": "@TechSolutionsCorp","image_base_url": "https://example.com"
+}}
+
+
+
+
+page type article 
+
+
+{"page_data": {
+  "title": "Mastering Jinja2 Template Architectures",
+  "desc": "A comprehensive deep dive into clean macro patterns and metadata management.",
+  "media": "image","type": "article",
+  "og": {"img": "/blog/assets/jinja-guide-og.jpg","alt": "Graphic illustrating code flow in a Jinja2 template environment"},
+  "pin": {"img": "/blog/assets/jinja-guide-pinterest.jpg","alt": "Infographic cheat sheet detailing Jinja2 macro structures"},
+  "post": {
+    "published_time": "2026-08-24T12:00:00Z","modified_time": "2026-08-24T13:45:00Z",
+    "author_url": "https://example.com","publisher": "https://facebook.com",
+    "section": "Web Engineering","tags": ["jinja2", "python", "devops", "json"],
+    "twitter_creator_Handler": "@DevTeamHandle"
+  }},
+"site_config": {
+  "title": "Tech Dev Portal",
+  "desc": "The primary community resource for web development engineering.",
+  "twitter_site": "@OfficialCompany","image_base_url": "https://example.com"
+}}
+
+article video
+
+{"page_data": {
+  "title": "Video Tutorial: Advanced Jinja2 Architecture",
+  "desc": "Watch our comprehensive deep dive into clean macro patterns and automation.",
+  "media": "video","type": "article",
+  "video": {"type": "youtube","id": "dQw4w9WgXcQ"},
+  "pin": {"img": "/blog/assets/jinja-video-pinterest.jpg","alt": "Infographic breakdown of the Jinja2 video training guide"},
+  "post": {
+  "published_time": "2026-08-24T12:00:00Z","modified_time": "2026-08-24T13:45:00Z",
+  "author_url": "https://example.com","publisher": "https://facebook.com",
+  "section": "Web Engineering","tags": ["jinja2", "video-tutorial", "python"],
+  "twitter_creator_Handler": "@DevTeamHandle"
+  }},
+"site_config": {
+  "title": "Tech Dev Portal",
+  "desc": "The primary community resource for web development engineering.",
+  "twitter_site": "@OfficialCompany","image_base_url": "https://example.com"
+}}
+
+#}
+
