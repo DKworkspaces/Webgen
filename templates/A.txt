@@ -201,14 +201,15 @@ about us page
 "page_type": "AboutPage"
 
 "page_data": {
-"title": "page name ",
+"title": "About Us ",
 "desc": "Learn more about our mission, history, and the talented team behind our services.",
 "datePublished": "2024-05-12T09:00:00Z",
 "dateModified": "2026-01-10T15:45:00Z",
 "about": true,
 "main_entity": true,
-"img": {"url": "/images/office-team.jpg","alt": "Our team working together in the office"},
-
+"img": {"url":"/ass/office/team.jpg" ,"width": 1200,"height": 630
+{# "alt": "Our team working together in the office" #}
+},
 "slug": "/about",
 "path": "/about"
 }
@@ -221,23 +222,26 @@ about us page
 
 
 
-"page_data": {"path": "/about-us",
-  "title": "About Our Company",
-  "items": null,"author": null,"video": null},
 
 
 
 contact us page
+"page_type": "ContactPage"
 
+"page_data": {
+"path": "/contact","slug": "/contact",
+"title": "Contact Us",
+"desc": "Get in touch with our customer support and sales teams for inquiries and assistance.",
+"datePublished": "2024-05-12T09:00:00Z",
+"dateModified": "2026-03-01T11:20:00Z",
+"about": true,
+"main_entity": true
+}
 
-{"page_type": "ContactPage","breadcrumb": true,
-"page_data": {"path": "/contact",
-  "title": "Contact Us","desc": "Get in touch with our customer support and sales teams for inquiries and assistance.",
-  "datePublished": "2024-05-12T09:00:00Z","dateModified": "2026-03-01T11:20:00Z",
-  "about": true,"main_entity": false,
-  "img": null,"items": null,"author": null,"video": null},
-
-
+"breadcrumb": [
+    {"name": "Home","url": "/"},
+    {"name": "Contact Us","url": "/contact"}
+]}
 
 
 editorial policy page 
