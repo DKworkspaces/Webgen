@@ -1,34 +1,47 @@
 {#
 _header_seo.html
 
-macro r_page_id(page_data,site_config)
-and
-macro r_can(page_data,site_config)
 
-
-{"page_data": {
-  "title": "My Awesome Blog Post",
-  "desc": "A comprehensive guide to understanding Jinja2 macros with JSON inputs.",
-  "robots": "index, follow","path": "/blog/jinja2-macro-guide"
-},"site_config": {
-  "title": "Default Site Title",
-  "desc": "Welcome to my default website description.",
-  "robots": "noindex, nofollow","home_url": "https://example.com"
-}}
-
+no input json 
 macro r_page_res_hints(type=None)
-{"type": "yt"}
 
-
+macro r_page_id(page_data,site_config)
+macro r_can(page_data,site_config)
 macro r_g_icons(site_config)
 
-{"site_config": {
-  "image_base_url": "https://example.com",
+{
+#page specific data
+"page_data": 
+{
+  "title": " ",
+  "desc": " ",
+  "robots": " ",
+  "path": " "
+},
+#default or common data
+"site_config": 
+{
+  "title": "Default Site Title",
+  "desc": "Default website description.",
+  "robots": " ",
+  "home_url": "Domain home path",
+  "image_base_url": "web image base url",
   "icon": {
-    "favicon_svg": "/assets/brand/favicon.svg",
-    "favicon_ico": "/assets/brand/favicon.ico",
-    "apple_touch": "/assets/brand/apple-touch-icon.png"
-}}}
+"favicon_svg":"/assets/brand/favicon.svg",
+"favicon_ico":"/assets/brand/favicon.ico",
+"apple_touch":"/assets/brand/apple-touch-icon.png"
+}
+
+
+}
+}
+
+
+
+
+
+
+
 
 
 macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None)
@@ -107,62 +120,55 @@ article video
 
 {#
 _nav.html
+already maded seperate json file we use that only
 
 
-
-Component: SVG
-{% macro r_svg() %}
-Component: Search
-{% macro r_search() %}
-
-Component: Standard Dropdown Menu
-{% macro r_dropdown(site_config,item) %}
-
-{"site_config": {"home_url": "https://example.com"},
-"item": {"title": "Resources","children": [
- {"title": "Tutorials","url": "/tutorials"},
- {"title": "Documentation","url": "/docs"},
- {"title": "API Reference","url": "/api"}]
-}}
-
-Component: Mega Menu
-{% macro r_mega(site_config,item) %}
-
-{"site_config": {"home_url": "https://example.com"},
-"item": {"title": "Products","categories": [
- {"cat_title": "Hardware","links": [
-  {"title": "Laptops","url": "/products/laptops"},
-  {"title": "Monitors","url": "/products/monitors"}
- ]},
- {"cat_title": "Software","links": [
-  {"title": "Cloud Suite","url": "/software/cloud"},
-  {"title": "Security Dev","url": "/software/security"}
- ]}
-]}
+"site_config": 
+{
+"home_url": "https://example.com"
 }
-
-Component: Mode Selector
-{% macro r_mode(item) %}
-  
-{"item": {"children": [
-  {"val": "light","title": "Light Mode"},
-  {"val": "dark","title": "Dark Mode"},
-  {"val": "system","title": "System Default"}
-]}}
-
-#}
 
 
 
 
 {# 
 _footer.html
+already maded seperate json file we use that only
 
-Component: Footer Mega Menu
-{% macro r_fmega(site_config) %}
+"site_config": 
+{
+"home_url": "https://example.com"
+}
 
-{"site_config": {"home_url": "https://example.com","columns": [
-  {"id": "f-col-products","link_id": "f-links-products","title": "Products","links": [{"title": "Cloud Platform","url": "/products/cloud"},{"title": "Data Security","url": "/products/security"}]},
-  {"id": "f-col-company","link_id": "f-links-company","title": "Company","links": [{"title": "About Us","url": "/about"},{"title": "Careers","url": "/careers"}]}
- ]}}
+
+
+
+
+{#
+_base_marco.html
+
+
+Component : Progress Bar 
+ macro r_progressbar() -no input
+
+Component : Breadcrumbs 
+r_breadcrumbs(segs)
+
+{"segs": [
+"tutorials","web-development",
+"jinja2_macro_frameworks"]}
+
+Component : Social Sharing 
+macro r_widget(page_url, page_title='')
+
+{"page_url": "https://example.com","page_title": "Mastering Advanced Template Frameworks"}
+
+Component : Banner Hero
+macro r_hero_banner(title, img_src="", read_time="", watch_time="") 
+
+{"title": "Mastering Advanced Template Frameworks",
+"img": "/assets/images/hero/template-guide.jpg",
+"read_time": "5 min","watch_time": "12 min"}
+
+
 #}
