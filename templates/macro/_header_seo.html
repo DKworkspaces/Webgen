@@ -241,7 +241,7 @@ article video
 {%- endmacro %}
 
 {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-{% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S, Person_S, Webpage_S %}
+{% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S, Person_S, Webpage_S with context %}
 
 {%- call schema_graph() -%}
   {{- Organization_S(page_type, site_config) | trim -}},{{- Website_S(page_data, site_config) | trim -}}
