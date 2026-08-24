@@ -3,7 +3,7 @@
 {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
   {%- for item in items -%}
     {%- call entity_base('ListItem') -%}
-      {{ kv('position', loop.index + offset) }}{{ kv('name', item.title or item.name) }}
+      {{ kv('position', loop.index + offset) }}{{ kv('name', item.name) }}
       {%- if type == 'breadcrumb' -%}{{ kv('item', site_config.home_url ~ item.path) }}{%- else -%}{{ kv('url', site_config.home_url ~ item.path) }}{%- endif -%}
     {%- endcall -%}
     {%- if not loop.last -%},{%- endif -%}
