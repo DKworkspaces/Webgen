@@ -151,3 +151,83 @@ macro r_hero_banner(title, img_src="", read_time="", watch_time="")
 
 
 #}
+
+
+
+
+
+
+
+
+
+{#
+
+macro idOrg_microschema(site_config) 
+{"site_config": {"home_url": "https://example.com"}}
+
+macro listItem_microschema(page_data, site_config) 
+
+{"page_data": {"page": 3,"items": [
+    {"name": "Jinja Architecture Deep Dive","url": "/blog/jinja-architecture"},
+    {"name": "JSON Context Modeling","url": "/blog/json-modeling"}
+ ]},
+ "site_config": {"per_page": 12}
+}
+
+macro image_microschema(img, site_config)
+
+{"img": {"url": "/assets/media/branding/og-card.png","width": 1200,"height": 630},
+  "site_config": {"home_url": "https://example.com"}}
+
+macro contact_point_microschema(contact)
+{"contact": {
+    "availableLanguage": "English","areaServed": "Worldwide",
+    "support_email": "support@example.com","phone": "+1-555-0199"}
+}
+
+macro postal_address_microschema(address)
+{"address": {
+    "street": "1600 Amphitheatre Parkway","city": "Mountain View",
+    "region": "CA","zip": "94043","country": "USA"}
+}
+
+macro search_action_microschema(site_config)
+{"site_config": {"home_url": "https://example.com"}}
+
+macro listBreadcrumbItem_microschema(breadcrumb, site_config)
+
+{"site_config": {"home_url": "https://example.com"},
+ "breadcrumb": [
+  {"name": "Home","url": "/"},
+  {"name": "Books","url": "/books"},
+  {"name": "Science Fiction","url": "/books/sci-fi"}
+]}
+
+macro itemList_MicroSchema(page_data, site_config) 
+
+{"site_config": {"per_page": 10},
+  "page_data": {"page": 3,
+    "items": [
+      {"id": "prod-021","name": "Wireless Mechanical Keyboard","url": "/products/wireless-mechanical-keyboard"},
+      {"id": "prod-022","name": "Ergonomic Vertical Mouse","url": "/products/ergonomic-vertical-mouse"},
+      {"id": "prod-023","name": "Ultra-Wide 4K Monitor","url": "/products/ultra-wide-4k-monitor"}
+  ]}
+}
+
+macro video_MicroSchema(video, site_config)
+##video with clip
+###Time Token Resolver note to be chec for correct
+
+{"site_config": {"home_url": "https://example.com"},
+  "video": {"title": "How to Build a Custom Mechanical Keyboard",
+  "description": "A comprehensive, step-by-step tutorial on building a custom mechanical keyboard from scratch.",
+  "thumbnail_url": "https://example.com",
+  "uploadDate": "2026-08-24","duration": "PT15M30S",
+  "embedUrl": "https://youtube.com","provider": "youtube",
+  "clips": [
+      {"name": "Introduction and Tools Needed","start": 0,"end": 120},
+      {"name": "Soldering the Switches","start": 121,"end": 450},
+      {"name": "Assembling the Case and Keycaps","start": 451,"end": 930}
+  ]}
+}
+
