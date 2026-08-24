@@ -61,27 +61,39 @@ macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrum
 
 macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image')
 
+
+
+
+common json data
+{
+  "page_data": {
+    "title": "Welcome to Our Homepage",
+    "desc": "The primary hub for our digital products and services.",
+    "pin": {
+      "img": "/assets/pinterest-graphic.jpg",
+      "alt": "Infographic summarizing our digital product features"
+    }
+  }
+}
+
+uncommon json data
+
 pagetype website 
 {"page_data": {
-  "title": "Welcome to Our Homepage",
-  "desc": "The primary hub for our digital products and services.",
-  "media": "image","type": "website",
+
+  "media": "image",
   "og": {"img": "/assets/hero-banner.jpg","alt": "A sleek modern office workspace layout"},
-  "pin": {"img": "/assets/pinterest-graphic.jpg","alt": "Infographic summarizing our digital product features"}
 }
 
 
 
-
+for blogpost
 page type article 
 
 
 {"page_data": {
-  "title": "Mastering Jinja2 Template Architectures",
-  "desc": "A comprehensive deep dive into clean macro patterns and metadata management.",
   "media": "image","type": "article",
   "og": {"img": "/blog/assets/jinja-guide-og.jpg","alt": "Graphic illustrating code flow in a Jinja2 template environment"},
-  "pin": {"img": "/blog/assets/jinja-guide-pinterest.jpg","alt": "Infographic cheat sheet detailing Jinja2 macro structures"},
   "post": {
     "published_time": "2026-08-24T12:00:00Z","modified_time": "2026-08-24T13:45:00Z",
     "author_url": "https://example.com","publisher": "https://facebook.com",
@@ -93,11 +105,8 @@ page type article
 article video
 
 {"page_data": {
-  "title": "Video Tutorial: Advanced Jinja2 Architecture",
-  "desc": "Watch our comprehensive deep dive into clean macro patterns and automation.",
   "media": "video","type": "article",
   "video": {"type": "youtube","id": "dQw4w9WgXcQ"},
-  "pin": {"img": "/blog/assets/jinja-video-pinterest.jpg","alt": "Infographic breakdown of the Jinja2 video training guide"},
   "post": {
   "published_time": "2026-08-24T12:00:00Z","modified_time": "2026-08-24T13:45:00Z",
   "author_url": "https://example.com","publisher": "https://facebook.com",
