@@ -1,18 +1,81 @@
 {% from 'macro/_header_seo.html' import PageSchema with context %}
 
+{% set header = 
+{
+  "logo": "Xocumentary",
+  "menus":[
+  {"type": "search"},
+  {"title":"Categories","type":"megamenu","categories":[
+      {"cat_title": "By Region","links": [{"title": "Indo-Pacific","url": "#"},{"title": "Eruope & Eurasia","url": "#"},{"title": "MiddleEast & Africa","url": "#"},{"title": "The Americas","url": "#"}]},
+      {"cat_title": "By Subject","links": [{"title": "Geopolitics","url": "#"},{"title": "History","url": "#"},{"title": "Science","url": "#"}]}
+  ]},
+  {"type": "select","children": [{"title": "System Mode","val": "system"},{"title": "Light Mode","val": "light"},{"title": "Dark Mode","val": "dark"}]},
+  {"title":"About Us","url":"#","type":"standard"},
+  {"title":"Contact Us","url":"#","type":"standard"}
+] 
+} %}
+
+{% set footer ={
+  "year": "2026",
+  "links": [{"title": "Sitemap","url": "#"},{"title": "Privacy Policy","url": "#"},{"title": "Terms of Use","url": "#"}],
+  "columns":[
+    {"title":"Explore Content","id":"f-t1","link_id":"m1","links": [
+        {"title":"Latest Release","url":"#"},{"title":"Most Popular Archives","url":"#"},{"title":"RSS Feed","url":"#"},{"title":"Interactive Maps/Timeline","url":"#"}]},
+    {"title":"Browse","id":"f-t2","link_id":"m2","links": [
+        {"title":"All Topics Index","url":"#"},{"title":"Categories Index","url":"#"},{"title":"Indo-pacific","url":"#"},{"title":"Europe & Eurasia","url":"#"},{"title":"MiddleEast & Africa","url":"#"},{"title":"The Americas","url":"#"}]},
+    {"title":"Connect & Follow","id":"f-t3","link_id":"m3","links": [
+        {"title":"Youtube Channel","url":"#"},{"title":"Dailymotion Channel","url":"#"},{"title":"Facebook Page","url":"#"}]},
+    {"title":"Legal & Compliance","id":"f-t4","link_id":"m4","links": [
+        {"title":"Editorial Policy","url":"#"},{"title":"Affiliate & Ad Disclosure","url":"#"},{"title":"Fact Checking Policy","url":"#"}]}
+    ]}
+%}
+
+{% set org_website_schema ={
+  "home_url": "https://example.com",
+  "org_name": "Example Corporation",
+  "name": "Example Corp Site",
+  "desc": "Leading provider of innovative software engineering solutions.",
+  "img": {"url": "/assets/logo.png","width": 512,"height": 512},
+  "social_links": ["https://facebook.com","https://twitter.com","https://linkedin.com"],
+  "contact": {"phone": "+1-800-555-0199","support_email": "support@example.com","availableLanguage": "English","areaServed": "US"},
+  "address": {"street": "123 Innovation Way, Suite 400","city": "Silicon Valley","region": "CA","zip": "94025","country": "US"}
+  }
+%}
+
+{% set global = namespace(data = {}, pg_data={}) %}
+
+{# Merge sequentially using the update dictionary method wrapped in a dummy set execution #}
+{% set _ = global.data.update(header) %}
+{% set _ = global.data.update(footer) %}
+{% set _ = global.data.update(org_website_schema) %}
+
+{#
+item.name or item.title error at item.title so we rename it as
+item.name
+#}
+
+
 {% set page_data = {
     'ishome':'true',
     'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
     'desc': "Leading resource for enterprise-grade Flask architectures.",
     'robots': "index, follow, max-image-preview:large",
-    'canonical_url': site_config.home_Url,
+    'path': "/",
       'datePublished': site_config.launch_date,
       'dateModified': "2026-07-20",
     'about': { "@id": site_config.home_Url ~ '/#organization'  ,"@type": "Organization"}
     ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
 } %}
+
+{% set _ = global.pg_data.update(page_data) %}
+
+
+{% set site_config = global.data  %}
+{% set page_data = global.pg_data  %}
+
+
 {% extends "_base.html" %}
 {% block page_schema %}
-{{ PageSchema(site_config.home_Url,'WebPage', page_data, site_config) }}
+{{ PageSchema(site_config.home_url,'WebPage', page_data, site_config) }}
 {% endblock %}
 {% block content %} Welcome Home{% endblock %}
