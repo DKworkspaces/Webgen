@@ -5,11 +5,12 @@ _header_seo.html
 no input json 
 macro r_page_res_hints(type=None)
 
+
 macro r_page_id(page_data,site_config)
 macro r_can(page_data,site_config)
 macro r_g_icons(site_config)
 
-{
+
 #page specific data
 "page_data": 
 {
@@ -17,13 +18,15 @@ macro r_g_icons(site_config)
   "desc": " ",
   "robots": " ",
   "path": " "
-},
+}
+
 #default or common data
 "site_config": 
 {
   "title": "Default Site Title",
   "desc": "Default website description.",
   "robots": " ",
+  "twitter_site": "@twitter handel",
   "home_url": "Domain home path",
   "image_base_url": "web image base url",
   "icon": {
@@ -34,7 +37,10 @@ macro r_g_icons(site_config)
 
 
 }
-}
+
+
+
+
 
 
 
@@ -62,11 +68,7 @@ pagetype website
   "media": "image","type": "website",
   "og": {"img": "/assets/hero-banner.jpg","alt": "A sleek modern office workspace layout"},
   "pin": {"img": "/assets/pinterest-graphic.jpg","alt": "Infographic summarizing our digital product features"}
-},"site_config": {
-  "title": "Tech Solutions Corp",
-  "desc": "Innovative technology solutions for your business.",
-  "twitter_site": "@TechSolutionsCorp","image_base_url": "https://example.com"
-}}
+}
 
 
 
@@ -85,12 +87,8 @@ page type article
     "author_url": "https://example.com","publisher": "https://facebook.com",
     "section": "Web Engineering","tags": ["jinja2", "python", "devops", "json"],
     "twitter_creator_Handler": "@DevTeamHandle"
-  }},
-"site_config": {
-  "title": "Tech Dev Portal",
-  "desc": "The primary community resource for web development engineering.",
-  "twitter_site": "@OfficialCompany","image_base_url": "https://example.com"
-}}
+  }}
+
 
 article video
 
@@ -105,12 +103,7 @@ article video
   "author_url": "https://example.com","publisher": "https://facebook.com",
   "section": "Web Engineering","tags": ["jinja2", "video-tutorial", "python"],
   "twitter_creator_Handler": "@DevTeamHandle"
-  }},
-"site_config": {
-  "title": "Tech Dev Portal",
-  "desc": "The primary community resource for web development engineering.",
-  "twitter_site": "@OfficialCompany","image_base_url": "https://example.com"
-}}
+  }}
 
 #}
 
@@ -122,24 +115,10 @@ article video
 _nav.html
 already maded seperate json file we use that only
 
-
-"site_config": 
-{
-"home_url": "https://example.com"
-}
-
-
-
-
-{# 
 _footer.html
 already maded seperate json file we use that only
 
-"site_config": 
-{
-"home_url": "https://example.com"
-}
-
+#}
 
 
 
