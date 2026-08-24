@@ -47,7 +47,7 @@
 "contact": {"availableLanguage": "English","areaServed": "Worldwide","support_email": "support@example.com","phone": "+1-555-0199"},
 "address": {"street": "1600 Amphitheatre Parkway","city": "Mountain View","region": "CA","zip": "94043","country": "USA"},
 "per_page": 10,
-"separator":"|"
+"separator":"|","css_js_url":"https://css.com"
 }
 %}
 
@@ -78,6 +78,9 @@
 
 {% set site_config = global.data  %}
 {% set page_data = global.pg_data  %}
+
+{% set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" %}
+{% set js_base = "{{ site_config.css,_js_url }}js/mgr/0.1/" %}
 
 
 {% extends "_base.html" %}
