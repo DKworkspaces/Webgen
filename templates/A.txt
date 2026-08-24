@@ -188,11 +188,41 @@ schema.html
 }
 
 
+
+
+
+new add-ons main entity
+
+
+for homepage
+"mainEntity": {"@type": "Organization", "@id": "https://example.com#organization"}
+
+From an Inner Page (About Us, Contact, Policies)
+"about": { "@type":"Organization", "@id":"https://example.com#organization"}
+
+for collection pages
+"about": {"@type": "DefinedTerm","name": "{{ category.name }}","description": "{{ category.topic_description }}", "sameAs": "{{ category.authority_url }}"  }
+
+new add-ons caption as alt tag in schema 
+
+img
+{"caption":""}
+
+new add-ons founder schema and authers schema
+founder schema use in homepage, about us page
+auther schema use in blogpost and profilePage
+
+
+
+
+
 home page
 
-"page_data": {
-"ishome": true,
-"path": "/"}
+"page_data": {"title": "Home ",
+"desc": "Learn more about our mission, history, and the talented team behind our services.",
+"datePublished": "2024-05-12T09:00:00Z",
+"dateModified": "2026-01-10T15:45:00Z",
+"ishome": true,"path": "/"}
 "breadcrumb": [
     {"name": "Home","url": "/"}
 ]}
@@ -202,7 +232,7 @@ about us page
 
 "page_data": {
 "title": "About Us ",
-"desc": "Learn more about our mission, history, and the talented team behind our services.",
+"desc": " ",
 "datePublished": "2024-05-12T09:00:00Z",
 "dateModified": "2026-01-10T15:45:00Z",
 "about": true,
@@ -210,7 +240,6 @@ about us page
 "img": {"url":"/ass/office/team.jpg" ,"width": 1200,"height": 630
 {# "alt": "Our team working together in the office" #}
 },
-"slug": "/about",
 "path": "/about"
 }
 
@@ -229,9 +258,9 @@ contact us page
 "page_type": "ContactPage"
 
 "page_data": {
-"path": "/contact","slug": "/contact",
+"path": "/contact",
 "title": "Contact Us",
-"desc": "Get in touch with our customer support and sales teams for inquiries and assistance.",
+"desc": " ",
 "datePublished": "2024-05-12T09:00:00Z",
 "dateModified": "2026-03-01T11:20:00Z",
 "about": true,
@@ -244,15 +273,51 @@ contact us page
 ]}
 
 
-editorial policy page 
-privacy policy page 
-terms of service page 
-factcheck policy page
-categories list page
-tags list page
-archive list page
-archive year list page
-archive year month list page
+editorial policy page ,privacy policy page , terms of service page ,factcheck policy page
+"page_type": "WebPage"
+"page_data": {
+"path": "/...",
+"title": " ",
+"desc": " ",
+"datePublished": "2024-05-12T09:00:00Z",
+"dateModified": "2026-03-01T11:20:00Z",
+"about": true,
+"main_entity": false
+}
+
+"breadcrumb": [
+    {"name": "Home","url": "/"},
+    {"name": " ","url": "/.."}
+]}
+
+
+
+categories list page, tags list page, archive list page
+"page_type": "CollectionPage"
+
+"page_data":{
+"path": "/categories/",
+"title": " ",
+"desc": " ",
+"datePublished": "2026-01-01T00:00:00Z",
+"dateModified": "2026-02-24T14:23:00Z",
+"about": false,"main_entity": false,
+"img": {"url":"/ass/office/team.jpg" ,"width": 1200,"height": 630, "alt": " "},
+ "page": 3,
+"items": [
+{"id": "post-1","name": "Top SEO Tips for 2026","url": "/blog/seo-tips-2026"},
+   {"id": "post-2","name": "Understanding Core Web Vitals","url": "/blog/core-web-vitals"}
+  ]
+}
+
+
+blog post
+
+
+
+
+
+
 
 
 login page 
@@ -358,18 +423,9 @@ macro Person_S(page_data, site_config)
 macro Webpage_S(page_type, page_data, site_config, breadcrumb=None) 
 
 
-collection page
 
-{"page_type": "CollectionPage","breadcrumb": true,
-"page_data": {"path": "/blog/categories/seo",
-  "title": "SEO Articles & Guides","desc": "A curated collection of our best articles, tutorials, and insights regarding search engine optimization.",
-  "datePublished": "2026-01-01T00:00:00Z","dateModified": "2026-02-24T14:23:00Z",
-  "about": false,"main_entity": false,
-  "img": {"url": "/images/seo-category-banner.jpg","alt": "SEO category banner"},
-  "items": [
-   {"id": "post-1","name": "Top SEO Tips for 2026","url": "/blog/seo-tips-2026"},
-   {"id": "post-2","name": "Understanding Core Web Vitals","url": "/blog/core-web-vitals"}
-  ],"author": null,"video": null},
+
+
 
 
 BlogPosting 
