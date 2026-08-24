@@ -161,6 +161,8 @@ macro r_hero_banner(title, img_src="", read_time="", watch_time="")
 
 
 {#
+schema.html
+
 
 macro idOrg_microschema(site_config) 
 {"site_config": {"home_url": "https://example.com"}}
@@ -230,4 +232,76 @@ macro video_MicroSchema(video, site_config)
       {"name": "Assembling the Case and Keycaps","start": 451,"end": 930}
   ]}
 }
+
+
+
+
+
+
+#main macros
+
+
+
+macro Organization_S(page_type, site_config)
+
+contactpage setup
+{"page_type": "ContactPage",
+"site_config": {
+  "home_url": "https://example.com",
+  "org_name": "Acme Global Solutions",
+  "desc": "Leading global provider of innovative logistics and cloud services.",
+  "img": {"url": "https://example.com","width": 600,"height": 60},
+  "social_links": ["https://facebook.com","https://linkedin.com","https://x.com"],
+  "contact": {"availableLanguage": "English","areaServed": "Worldwide","support_email": "corporate@example.com","phone": "+1-800-555-0100"},
+  "address": {"street": "123 Business Parkway, Suite 500","city": "Austin","region": "TX","zip": "78701","country": "USA"}
+}}
+standard page
+{"page_type": "HomePage",
+"site_config": {
+  "home_url": "https://example.com",
+  "org_name": "Acme Global Solutions",
+  "desc": "Leading global provider of innovative logistics and cloud services.",
+  "img": null,
+  "social_links": []
+}}
+
+
+macro Website_S(page_data, site_config)
+home page
+
+{"page_data": {"ishome": true},
+"site_config": {"home_url": "https://example.com","name": "Acme Platform Portal"}}
+other pages
+{"page_data": {"title": "About Us","slug": "/about"},
+"site_config": {"home_url": "https://example.com","name": "Acme Platform Portal"
+}}
+
+macro Breadcrumb_S(page_data, site_config, breadcrumb=None)
+
+{"site_config": {"home_url": "https://example.com"},
+"page_data": {"path": "/blog/tech/news"},
+"breadcrumb": [
+    {"name": "Home","url": "/"},
+    {"name": "Blog","url": "/blog"},
+    {"name": "Technology","url": "/blog/tech"}
+]}
+
+macro Person_S(page_data, site_config) 
+
+{"page_data": {
+"author_list": [
+ {"id": "johndoe","name": "John Doe",
+  "url": "https://example.com",
+  "job_title": "Senior Technical Writer",
+  "image": "/images/authors/johndoe.jpg",
+  "knowsAbout": ["Search Engine Optimization","Web Development","JSON-LD Schema"],
+  "social_links": ["https://twitter.com","https://linkedin.com"]},
+ {"id": "janesmith","name": "Jane Smith",
+  "url": "","job_title": "Content Strategist",
+  "image": "","knowsAbout": [],"social_links": []}
+]},
+"site_config": {
+ "home_url": "https://mysite.com",
+ "image_base_url": "https://mysite.com"
+}}
 
