@@ -100,3 +100,54 @@ article video
 }}
 
 #}
+
+
+
+
+
+{#
+_nav.html
+
+
+
+Component: SVG
+{% macro r_svg() %}
+Component: Search
+{% macro r_search() %}
+
+Component: Standard Dropdown Menu
+{% macro r_dropdown(site_config,item) %}
+
+{"site_config": {"home_url": "https://example.com"},
+"item": {"title": "Resources","children": [
+ {"title": "Tutorials","url": "/tutorials"},
+ {"title": "Documentation","url": "/docs"},
+ {"title": "API Reference","url": "/api"}]
+}}
+
+Component: Mega Menu
+{% macro r_mega(site_config,item) %}
+
+{"site_config": {"home_url": "https://example.com"},
+"item": {"title": "Products","categories": [
+ {"cat_title": "Hardware","links": [
+  {"title": "Laptops","url": "/products/laptops"},
+  {"title": "Monitors","url": "/products/monitors"}
+ ]},
+ {"cat_title": "Software","links": [
+  {"title": "Cloud Suite","url": "/software/cloud"},
+  {"title": "Security Dev","url": "/software/security"}
+ ]}
+]}
+}
+
+Component: Mode Selector
+{% macro r_mode(item) %}
+  
+{"item": {"children": [
+  {"val": "light","title": "Light Mode"},
+  {"val": "dark","title": "Dark Mode"},
+  {"val": "system","title": "System Default"}
+]}}
+
+#}
