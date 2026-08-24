@@ -60,7 +60,7 @@
 
 
 
-
+{% block content %}
 
 
 {% set page_data %}
@@ -79,18 +79,18 @@
 {% endset %}
 
 
-{% block content %}
+
 <h1>Testing purposes</h1>
 {# Execute the macro to assign the data to a local variable #}
 {% set site_config = global.data  %}
 
 <p>{{ Organization_S(page_type='ContactPage', site_config=site_config) }}</p>
-{#
+
 
 <p>{{ Website_S(page_data=page_data, site_config=site_config) }}</p>
 
 
 <p>{{ Breadcrumb_S(page_data, site_config, breadcrumb=breadcrumb_data) }}</p>
-#}
+
 
 {% endblock %}
