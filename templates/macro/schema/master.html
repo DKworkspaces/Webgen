@@ -20,11 +20,43 @@
   {%- endcall -%}
 {%- endmacro %}
 
+{#
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  }
+}
+
+#}
+
 {% macro listItem_microschema(page_data, site_config) -%}
   {%- set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
   {%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}
   {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
 {%- endmacro %}
+
+{#
+{
+  "page_data": {
+    "page": 3,
+    "items": [
+      {
+        "name": "Jinja Architecture Deep Dive",
+        "url": "/blog/jinja-architecture"
+      },
+      {
+        "name": "JSON Context Modeling",
+        "url": "/blog/json-modeling"
+      }
+    ]
+  },
+  "site_config": {
+    "per_page": 12
+  }
+}
+
+#}
+
 
 {% macro image_microschema(img, site_config) -%}
 {% if img -%}
@@ -36,6 +68,21 @@
 {%- endif %}
 {%- endmacro %}
 
+{#
+{
+  "img": {
+    "url": "/assets/media/branding/og-card.png",
+    "width": 1200,
+    "height": 630
+  },
+  "site_config": {
+    "home_url": "https://example.com"
+  }
+}
+
+#}
+
+
 {% macro contact_point_microschema(contact) -%}{%- call entity_base("ContactPoint") -%}
     {{- kv("contactType", "customer service") -}}
     {%- if contact.availableLanguage -%}{{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
@@ -43,6 +90,18 @@
     {%- if contact.support_email -%}{{- kv("email", contact.support_email) -}}{%- endif -%}
     {%- if contact.phone -%}{{- kv("telephone", contact.phone) -}}{%- endif -%}
 {%- endcall -%}{%- endmacro %}
+
+{#
+{
+  "contact": {
+    "availableLanguage": "English",
+    "areaServed": "Worldwide",
+    "support_email": "support@example.com",
+    "phone": "+1-555-0199"
+  }
+}
+
+#}
 
 {% macro postal_address_microschema(address) -%}{%- call entity_base("PostalAddress") -%}
     {%- if address.street -%}{{- kv("streetAddress", address.street) -}}{%- endif -%}
@@ -52,33 +111,112 @@
     {%- if address.country -%}{{- kv("addressCountry", address.country) -}}{%- endif -%}
 {%- endcall -%}{%- endmacro %}
 
+{#
+{
+  "address": {
+    "street": "1600 Amphitheatre Parkway",
+    "city": "Mountain View",
+    "region": "CA",
+    "zip": "94043",
+    "country": "USA"
+  }
+}
+
+#}
+
 {% macro search_action_microschema(site_config) -%}{%- call entity_base("SearchAction") -%}
     {%- set target_entry -%}
-      {%- call entity_base("EntryPoint") -%}{{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}
+      {%- call entity_base("EntryPoint") -%}{{- 
+kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}
     {%- endset -%}
     {{- kv("target", target_entry, is_json=true) -}}
     {{- kv("query-input", "required name=search_term_string") -}}
 {%- endcall -%}{%- endmacro %}
+
+{#
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  }
+}
+
+#}
 
 {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
   {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}
   {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
 {%- endmacro %}
 
-{% macro itemList_MicroSchema(page_data, site_config) -%}
+{#
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "/"
+    },
+    {
+      "name": "Books",
+      "url": "/books"
+    },
+    {
+      "name": "Science Fiction",
+      "url": "/books/sci-fi"
+    }
+  ]
+}
+
+#}
+
+{% macro itemList_MicroSchema(page
+_data, site_config) -%}
   {%- set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
   {%- call entity_base("ItemList") -%}
     {{- kv("numberOfItems", page_data.items | length, is_json=true) -}}
     {{- kv("itemListOrder", "ItemListOrderUnordered") -}}
     {%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}
-    {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
+    {{- kv("itemListElement", "[" ~ elements ~ "]", i
+s_json=true) -}}
   {%- endcall -%}
 {%- endmacro %}
+
+{#
+{
+  "site_config": {
+    "per_page": 10
+  },
+  "page_data": {
+    "page": 3,
+    "items": [
+      {
+        "id": "prod-021",
+        "name": "Wireless Mechanical Keyboard",
+        "url": "/products/wireless-mechanical-keyboard"
+      },
+      {
+        "id": "prod-022",
+        "name": "Ergonomic Vertical Mouse",
+        "url": "/products/ergonomic-vertical-mouse"
+      },
+      {
+        "id": "prod-023",
+        "name": "Ultra-Wide 4K Monitor",
+        "url": "/products/ultra-wide-4k-monitor"
+      }
+    ]
+  }
+}
+
+#}
+
 
 {% macro video_MicroSchema(video, site_config) -%}{%- call entity_base("VideoObject") -%}
     {{- kv("name", video.title) -}}
     {{- kv("description", video.description) -}}
-    {{- kv("thumbnailUrl", video.thumbnail_url) -}}
+    {{- kv("thumb
+nailUrl", video.thumbnail_url) -}}
     {{- kv("uploadDate", video.uploadDate) -}}
     {%- if video.duration -%}{{- kv("duration", video.duration) -}}{%- endif -%}
     {%- if video.embedUrl -%}{{- kv("embedUrl", video.embedUrl) -}}{%- endif -%}
@@ -99,6 +237,43 @@
     {%- endif -%}
 {%- endcall -%}{%- endmacro %}
 
+{#
+video with clip
+Time Token Resolver note to be chec for correct
+
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  },
+  "video": {
+    "title": "How to Build a Custom Mechanical Keyboard",
+    "description": "A comprehensive, step-by-step tutorial on building a custom mechanical keyboard from scratch.",
+    "thumbnail_url": "https://example.com",
+    "uploadDate": "2026-08-24",
+    "duration": "PT15M30S",
+    "embedUrl": "https://youtube.com",
+    "provider": "youtube",
+    "clips": [
+      {
+        "name": "Introduction and Tools Needed",
+        "start": 0,
+        "end": 120
+      },
+      {
+        "name": "Soldering the Switches",
+        "start": 121,
+        "end": 450
+      },
+      {
+        "name": "Assembling the Case and Keycaps",
+        "start": 451,
+        "end": 930
+      }
+    ]
+  }
+}
+
+#}
 
 
 
@@ -125,6 +300,56 @@
   {%- endcall -%}
 {%- endmacro %}
 
+{#
+contactpage setup
+{
+  "page_type": "ContactPage",
+  "site_config": {
+    "home_url": "https://example.com",
+    "org_name": "Acme Global Solutions",
+    "desc": "Leading global provider of innovative logistics and cloud services.",
+    "img": {
+      "url": "https://example.com",
+      "width": 600,
+      "height": 60
+    },
+    "social_links": [
+      "https://facebook.com",
+      "https://linkedin.com",
+      "https://x.com"
+    ],
+    "contact": {
+      "availableLanguage": "English",
+      "areaServed": "Worldwide",
+      "support_email": "corporate@example.com",
+      "phone": "+1-800-555-0100"
+    },
+    "address": {
+      "street": "123 Business Parkway, Suite 500",
+      "city": "Austin",
+      "region": "TX",
+      "zip": "78701",
+      "country": "USA"
+    }
+  }
+}
+
+
+
+standard page
+{
+  "page_type": "HomePage",
+  "site_config": {
+    "home_url": "https://example.com",
+    "org_name": "Acme Global Solutions",
+    "desc": "Leading global provider of innovative logistics and cloud services.",
+    "img": null,
+    "social_links": []
+  }
+}
+
+
+#}
 {% macro Website_S(page_data, site_config) -%}
   {%- call entity_base('WebSite') -%}
     {{- kv('@id', site_config.home_url ~ '/#website') -}}
@@ -137,6 +362,36 @@
   {%- endcall -%}
 {%- endmacro %}
 
+{#
+home page
+
+{
+  "page_data": {
+    "ishome": true
+  },
+  "site_config": {
+    "home_url": "https://example.com",
+    "name": "Acme Platform Portal"
+  }
+}
+
+other pages
+{
+  "page_data": {
+    "title": "About Us",
+    "slug": "/about"
+  },
+  "site_config": {
+    "home_url": "https://example.com",
+    "name": "Acme Platform Portal"
+  }
+}
+
+
+
+#}
+
+
 {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
   {%- if breadcrumb -%}
     {%- call entity_base('BreadcrumbList') -%}
@@ -145,6 +400,33 @@
     {%- endcall -%}
   {%- endif -%}
 {%- endmacro %}
+
+{#
+{
+  "site_config": {
+    "home_url": "https://example.com"
+  },
+  "page_data": {
+    "path": "/blog/tech/news"
+  },
+  "breadcrumb": [
+    {
+      "name": "Home",
+      "url": "/"
+    },
+    {
+      "name": "Blog",
+      "url": "/blog"
+    },
+    {
+      "name": "Technology",
+      "url": "/blog/tech"
+    }
+  ]
+}
+
+#}
+
 
 {% macro Person_S(page_data, site_config) -%}
   {%- for person in page_data.author_list -%}
@@ -163,6 +445,46 @@
     {%- endif -%}
   {%- endfor -%}
 {%- endmacro %}
+
+{#
+{
+  "page_data": {
+    "author_list": [
+      {
+        "id": "johndoe",
+        "name": "John Doe",
+        "url": "https://example.com",
+        "job_title": "Senior Technical Writer",
+        "image": "/images/authors/johndoe.jpg",
+        "knowsAbout": [
+          "Search Engine Optimization",
+          "Web Development",
+          "JSON-LD Schema"
+        ],
+        "social_links": [
+          "https://twitter.com",
+          "https://linkedin.com"
+        ]
+      },
+      {
+        "id": "janesmith",
+        "name": "Jane Smith",
+        "url": "",
+        "job_title": "Content Strategist",
+        "image": "",
+        "knowsAbout": [],
+        "social_links": []
+      }
+    ]
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+
+#}
 
 {% macro Webpage_S(page_type, page_data, site_config, breadcrumb=None) -%}
   {%- call entity_base(page_type) -%}
@@ -205,7 +527,204 @@
   {%- endcall -%}
 {%- endmacro %}
 
+{#
+about page
 
+{
+  "page_type": "AboutPage",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/about-us",
+    "title": "About Our Company",
+    "desc": "Learn more about our mission, history, and the talented team behind our services.",
+    "datePublished": "2024-05-12T09:00:00Z",
+    "dateModified": "2026-01-10T15:45:00Z",
+    "about": true,
+    "main_entity": true,
+    "img": {
+      "url": "/images/office-team.jpg",
+      "alt": "Our team working together in the office"
+    },
+    "items": null,
+    "author": null,
+    "video": null
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+
+
+contact page
+{
+  "page_type": "ContactPage",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/contact",
+    "title": "Contact Us",
+    "desc": "Get in touch with our customer support and sales teams for inquiries and assistance.",
+    "datePublished": "2024-05-12T09:00:00Z",
+    "dateModified": "2026-03-01T11:20:00Z",
+    "about": true,
+    "main_entity": false,
+    "img": null,
+    "items": null,
+    "author": null,
+    "video": null
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+collection page
+
+{
+  "page_type": "CollectionPage",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/blog/categories/seo",
+    "title": "SEO Articles & Guides",
+    "desc": "A curated collection of our best articles, tutorials, and insights regarding search engine optimization.",
+    "datePublished": "2026-01-01T00:00:00Z",
+    "dateModified": "2026-02-24T14:23:00Z",
+    "about": false,
+    "main_entity": false,
+    "img": {
+      "url": "/images/seo-category-banner.jpg",
+      "alt": "SEO category banner"
+    },
+    "items": [
+      {
+        "id": "post-1",
+        "name": "Top SEO Tips for 2026",
+        "url": "/blog/seo-tips-2026"
+      },
+      {
+        "id": "post-2",
+        "name": "Understanding Core Web Vitals",
+        "url": "/blog/core-web-vitals"
+      }
+    ],
+    "author": null,
+    "video": null
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+
+BlogPosting 
+{
+  "page_type": "BlogPosting",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/blog/seo-tips-2026",
+    "title": "Top SEO Tips for 2026",
+    "desc": "A comprehensive guide to modern search engine optimization tactics.",
+    "datePublished": "2026-01-15T08:00:00Z",
+    "dateModified": "2026-02-20T10:30:00Z",
+    "about": true,
+    "main_entity": true,
+    "img": {
+      "url": "/images/seo-guide.jpg",
+      "alt": "SEO strategy illustration"
+    },
+    "author": {
+      "id": "johndoe",
+      "name": "John Doe"
+    },
+    "items": [
+      {
+        "id": "item-1",
+        "name": "First item details"
+      }
+    ],
+    "video": {
+      "title": "SEO Guide Walkthrough",
+      "url": "/videos/seo-walkthrough.mp4",
+      "duration": "PT5M30S"
+    }
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+article page
+
+{
+  "page_type": "Article",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/news/industry-trends-2026",
+    "title": "Global Industry Shifts to Keep an Eye On",
+    "desc": "An in-depth analysis of global trade, remote work transformations, and shifting economic policies.",
+    "datePublished": "2026-08-20T06:00:00Z",
+    "dateModified": "2026-08-24T12:00:00Z",
+    "about": true,
+    "main_entity": false,
+    "img": {
+      "url": "/images/industry-trends-banner.jpg",
+      "alt": "Chart depicting market growth paths"
+    },
+    "author": {
+      "id": "emily-watson",
+      "name": "Emily Watson"
+    },
+    "items": null,
+    "video": null
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+
+tech article page 
+{
+  "page_type": "TechArticle",
+  "breadcrumb": true,
+  "page_data": {
+    "path": "/dev/async-python-performance",
+    "title": "Optimizing Asyncio Performance in Python 3.13",
+    "desc": "A technical breakdown of event loop modifications and memory profiles for high-throughput network applications.",
+    "datePublished": "2026-07-11T14:30:00Z",
+    "dateModified": "2026-08-02T09:15:00Z",
+    "about": true,
+    "main_entity": true,
+    "img": {
+      "url": "/images/python-async-benchmarks.jpg",
+      "alt": "Benchmark visualization graphs comparing event loops"
+    },
+    "author": {
+      "id": "alex-rivera",
+      "name": "Alex Rivera"
+    },
+    "items": null,
+    "video": {
+      "title": "Profiling Async Applications Live Demo",
+      "url": "/videos/python-profiling-session.mp4",
+      "duration": "PT14M45S"
+    }
+  },
+  "site_config": {
+    "home_url": "https://mysite.com",
+    "image_base_url": "https://mysite.com"
+  }
+}
+
+
+
+
+#}
 
 
 
