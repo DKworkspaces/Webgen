@@ -27,7 +27,7 @@
 
 
 {% macro image_microschema(img, site_config) -%}{% if img -%}
-  {%- call entity_base("ImageObject") -%}{{- kv("url", site_config.home_url ~ img.url) -}}{{- kv("width", img.width, is_json=true) -}}{{- kv("height", img.height, is_json=true) -}}{{- kv('description', img.desc) -}}
+  {%- call entity_base("ImageObject") -%}{{- kv("url", site_config.home_url ~ img.url) -}}{{- kv("width", img.width, is_json=true) -}}{{- kv("height", img.height, is_json=true) -}}{{- kv('caption', img.desc) -}}
 {%- endcall -%}
 {%- endif %}{%- endmacro %}
 
