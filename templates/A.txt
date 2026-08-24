@@ -212,10 +212,13 @@ From an Inner Page (About Us, Contact, Policies)
 for collection pages
 "about": {"@type": "DefinedTerm","name": "{{ category.name }}","description": "{{ category.topic_description }}", "sameAs": "{{ category.authority_url }}"  }
 
-new add-ons caption as alt tag in schema 
 
-img
+
+
+(done )new add-ons caption as alt tag in schema img
 {"caption":""}
+
+
 
 new add-ons founder schema and authers schema
 founder schema use in homepage, about us page
