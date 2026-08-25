@@ -39,16 +39,25 @@ def load_data_profiles():
 
 def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
-    md('templates/temp')
-    hd= load_data_profiles()
-    # 1. Compile and save plain header snippet
-    h_t=base_f('_nav.html')
-    generate(h_t,'templates/temp/nav.html',site_config=hd)
+    os.makedirs('templates/temp', exist_ok=True)
+    hd=none;
+    with open('data/header_footer.json', 'r', encoding='utf-8') as h_f:
+        hd= json.load(h_f)
+    
+    h_t= env.get_template('_nav.html')
+    with open('templates/temp/nav.html', 'w', encoding='utf-8') as o_f:
+        o_f.write(h_t.render(site_config=hd))
+    print(f"Success: Isolated page generated explicitly at: {'templates/temp/nav.html'}")
+    
     # 2. Compile and save plain footer snippet
-    f_t=base_f('_footer.html')
-    generate(f_t,'templates/temp/footer.html',site_config=hd)
-    print("Success: Standalone layout modules compiled into templates/temp/")
-        
+    f_t= env.get_template('_footer.html')
+    with open('templates/temp/footer.html', 'w', encoding='utf-8') as o_f:
+        o_f.write(f_t.render(site_config=hd))
+    print(f"Success: Isolated page generated explicitly at: {'templates/temp/footer.html'}")
+
+    
+
+
 def generate_page(base_file,op_loc,op_file,**kwargs):
     md(op_loc)
     bt,ot=base_template(base_file,op_loc,op_file)
