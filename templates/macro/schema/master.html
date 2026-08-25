@@ -1,4 +1,17 @@
 
+
+{# Safely combines a base URL and a path, cleaning up double slashes #}
+{% macro safe_url(base, path='') -%}
+  {%- set base_clean = base | trim | rstrip('/') -%}
+  {%- set path_clean = path | trim | lstrip('/') -%}
+  {{- {%- if path_clean -%}{{- base_clean ~ '/' ~ path_clean | urlencode -}}
+  {%- else -%}{{- base_clean -}}{%- endif -%}
+{%- endmacro %}
+
+
+
+
+
 {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}
   {%- call entity_base('ListItem') -%}
     {{- kv('position', loop.index + offset) -}}{{- kv('name', item.name) -}}
