@@ -1,6 +1,7 @@
 
+{#
+to be tested 
 
-{# Safely combines a base URL and a path, cleaning up double slashes #}
 {% macro safe_url(base, path='') -%}
   {%- set base_clean = base | trim | rstrip('/') -%}
   {%- set path_clean = path | trim | lstrip('/') -%}
@@ -8,7 +9,27 @@
   {%- else -%}{{- base_clean -}}{%- endif -%}
 {%- endmacro %}
 
+{% macro about_subschema(page_type, page_data, site_config) -%}
+  {%- if page_type in ['AboutPage', 'ContactPage'] -%}{{- kv('about', site_config.home_url ~ '/#organization', is_json=true) -}}
+  {%- elif page_type == 'HomePage' -%}{{- kv('about', site_config.home_url ~ '/#website', is_json=true) -}}
+  {%- elif page_data.about_custom -%}
+    {%- set items_array = [] -%}
+    {%- for item in page_data.about_custom -%}
+      {%- do items_array.append(item) -%}
+    {%- endfor -%}
+    {{- kv('about', items_array | tojson, is_json=true) -}}
+  {%- endif -%}
+{%- endmacro %}
 
+
+{% macro mainEntity_subschema(page_type, page_data, site_config) -%}
+  {%- if page_type in ['AboutPage', 'TechArticle'] and page_data.main_entity -%}{{- kv('mainEntity', idOrg_microschema(site_config), is_json=true) -}}
+  {%- elif page_type == 'CollectionPage' and page_data.items -%}{{- kv('mainEntity', itemList_MicroSchema(page_data, site_config), is_json=true) -}}
+  {%- elif page_data.main_entity_custom -%}{{- kv('mainEntity', page_data.main_entity_custom | tojson, is_json=true) -}}{%- endif -%}
+{%- endmacro %}
+
+
+#}
 
 
 
