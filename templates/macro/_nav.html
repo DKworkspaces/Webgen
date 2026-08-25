@@ -1,6 +1,6 @@
-{% macro _m_url(base_url, path) -%}
- {{- (base_url | trim | rstrip('/')) ~ '/' ~ (path | trim | lstrip('/')) -}}
-{%- endmacro %}
+{% from 'macro/minor/base.html' import _m_url %}
+
+
 
 
 
