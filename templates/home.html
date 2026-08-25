@@ -76,6 +76,7 @@
     ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
 } -%}
 
+
 {%- set global.pg_data = pae_data -%}
 
 {%- set page_data = global.pg_data  -%}
@@ -84,9 +85,11 @@
 {%- set js_base = site_config.css,_js_url ~ "js/mgr/0.1/" -%}
 
 
+
+
+
 {%- extends "_base.html" -%}
 {%- block page_schema -%}
 {{ PageSchema(page_type='WebPage',page_data=page_data,site_config=site_config) }}
-
 {%- endblock -%}
 {%- block content -%} Welcome Home{% endblock -%}
