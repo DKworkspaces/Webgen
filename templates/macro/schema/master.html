@@ -34,12 +34,12 @@ to be tested
 {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}
   {%- call entity_base('ListItem') -%}
     {{- kv('position', loop.index + offset) -}}{{- kv('name', item.name) -}}
-    {%- if type == 'breadcrumb' -%}{{- kv('item', "{{ _m_url(site_config.home_url, item.path) }}") -}}{%- else -%}{{- kv('url', "{{ _m_url(site_config.home_url, item.path) }}") -}}{%- endif -%}
+    {%- if type == 'breadcrumb' -%}{{- kv('item', _m_url(site_config.home_url, item.path)) -}}{%- else -%}{{- kv('url', _m_url(site_config.home_url, item.path)) -}}{%- endif -%}
   {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
 {%- endfor -%}{%- endmacro %}
 
 {% macro idOrg_microschema(site_config) -%}{%- call entity_base('Organization') -%}
-    {{- kv('@id', "{{ _m_url(site_config.home_url, '#organization') }}") -}}
+    {{- kv('@id', _m_url(site_config.home_url, '#organization')) -}}
 {%- endcall -%}{%- endmacro %}
 
 {#
@@ -59,7 +59,7 @@ to be tested
 
 
 {% macro image_microschema(img, site_config) -%}{% if img -%}
-  {%- call entity_base("ImageObject") -%}{{- kv("url","{{ _m_url(site_config.home_url, img.url) }}") -}}{{- kv("width", img.width, is_json=true) -}}{{- kv("height", img.height, is_json=true) -}}{{- kv('caption', img.desc) -}}
+  {%- call entity_base("ImageObject") -%}{{- kv("url", _m_url(site_config.home_url, img.url)) -}}{{- kv("width", img.width, is_json=true) -}}{{- kv("height", img.height, is_json=true) -}}{{- kv('caption', img.desc) -}}
 {%- endcall -%}
 {%- endif %}{%- endmacro %}
 
@@ -160,7 +160,7 @@ Time Token Resolver note to be chec for correct
 
 
 {% macro Organization_S(page_type, site_config) -%}{%- call entity_base('Organization') -%}
-    {{- kv('@id', "{{ _m_url(site_config.home_url, '/#organization') }}") -}}{{- kv('name', site_config.org_name) -}}{{- kv('url', site_config.home_url) -}}{{- kv('description', site_config.org_desc) -}}{{- kv('logo', image_microschema(site_config.img | default(none), site_config), is_json=true) -}}{{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
+    {{- kv('@id', _m_url(site_config.home_url, '/#organization')) -}}{{- kv('name', site_config.org_name) -}}{{- kv('url', site_config.home_url) -}}{{- kv('description', site_config.org_desc) -}}{{- kv('logo', image_microschema(site_config.img | default(none), site_config), is_json=true) -}}{{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
     {%- if page_type == 'ContactPage' -%}{{- kv('contactPoint', contact_point_microschema(site_config.contact), is_json=true) -}}{{- kv('address', postal_address_microschema(site_config.address), is_json=true) -}}{%- endif -%}
 {%- endcall -%}{%- endmacro %}
 
@@ -184,7 +184,7 @@ standard page
 
 #}
 {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}
-    {{- kv('@id', "{{ _m_url(site_config.home_url, '/#website') }}") -}}{{- kv('url', site_config.home_url) -}}{{- kv('name', site_config.name) -}}{{- kv('publisher', '{"@id": "' ~ site_config.home_url ~ '/#organization"}', is_json=true) -}}
+    {{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}{{- kv('url', site_config.home_url) -}}{{- kv('name', site_config.name) -}}{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization')  '"}, is_json=true)-}}
     {%- if page_data.ishome -%}{{- kv('potentialAction', search_action_microschema(site_config), is_json=true) -}}{%- endif -%}
 {%- endcall -%}{%- endmacro %}
 
@@ -202,7 +202,7 @@ other pages
 
 {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
 {%- if breadcrumb -%}{%- call entity_base('BreadcrumbList') -%}
-  {{- kv('@id',"{{ _m_url(site_config.home_url, page_data.path, '/#breadcrumb') }}") -}}{{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}{{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
 {%- endcall -%}{%- endif -%}
 {%- endmacro %}
 
@@ -216,10 +216,10 @@ other pages
 {% macro Person_S(page_data, site_config) -%}
   {%- for person in page_data.author_list -%}{%- if person.id -%}
       {%- call entity_base('Person') -%}
-        {{- kv('@id',"{{ _m_url(site_config.home_url, '/#person/' ,person.id) }}") -}}{{- kv('name', person.name) -}}
+        {{- kv('@id',_m_url(site_config.home_url, '/#person/' ,person.id)) -}}{{- kv('name', person.name) -}}
         {%- if person.url -%}{{- kv('url', person.url) -}}{%- endif -%}
         {%- if person.job_title -%}{{- kv('jobTitle', person.job_title) -}}{%- endif -%}
-        {%- if person.image -%}{{- kv('image', site_config.image_base_url ~ person.image) -}}{%- endif -%}{{- kv('worksFor', '{"@id": "' ~ site_config.home_url ~ '/#organization"}', is_json=true) -}}
+        {%- if person.image -%}{{- kv('image', _m_url(site_config.image_base_url,person.image)) -}}{%- endif -%}{{- kv('worksFor', '{"@id":"' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
         {%- if person.knowsAbout -%}{{- kv('knowsAbout', person.knowsAbout | tojson, is_json=true) -}}{%- endif -%}
         {%- if person.social_links -%}{{- kv('sameAs', person.social_links | tojson, is_json=true) -}}{%- endif -%}
       {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
@@ -235,7 +235,7 @@ other pages
 
 {% macro Webpage_S(page_type, page_data, site_config, breadcrumb=None) -%}
   {%- call entity_base(page_type) -%}{{- kv('@id', site_config.home_url ~ page_data.path ~ '/#webpage') -}}{{- kv('url', site_config.home_url ~ page_data.path) -}}{{- kv('name', page_data.title) -}}{{- kv('isPartOf', '{"@id": "' ~ site_config.home_url ~ '/#website"}', is_json=true) -}}
-    {%- if breadcrumb -%}{{- kv('breadcrumb', '{"@id":"{{ _m_url(site_config.home_url, page_data.path, '/#breadcrumb') }}"}', is_json=true) -}}{%- endif -%}
+    {%- if breadcrumb -%}{{- kv('breadcrumb', '{"@id":"' ~ _m_url(site_config.home_url,page_data.path, '/#breadcrumb') ~ '"}', is_json=true) -}}{%- endif -%}
     {%- if page_data.about -%}{{- kv('about', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
     {%- if page_data.desc -%}{{- kv('description', page_data.desc) -}}{%- endif -%}
     {%- if page_data.img -%}{{- kv('primaryImageOfPage', image_microschema(page_data.img, site_config), is_json=true) -}}{%- endif -%}
@@ -243,7 +243,7 @@ other pages
     {%- if page_data.dateModified -%}{{- kv('dateModified', page_data.dateModified) -}}{%- endif -%}
     {%- if page_type == 'CollectionPage' and page_data.items -%}{{- kv('mainEntity', itemList_MicroSchema(page_data, site_config), is_json=true) -}}{%- elif page_data.main_entity -%}{{- kv('mainEntity', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
     {{- kv('inLanguage', 'en-US') -}}
-    {%- if page_type == 'BlogPosting' and page_data.author -%}{{- kv('author', '{"@type": "Person", "@id": "{{ _m_url(site_config.home_url, '/#person/', page_data.auther.id) }}", "name": ' ~ page_data.author.name | tojson ~ '}', is_json=true) -}}{{- kv('publisher', '{"@id": "' ~ site_config.home_url ~ '/#organization"}', is_json=true) -}}{{- kv('mainEntityOfPage', '{"@type": "WebPage", "@id": "' ~ site_config.home_url ~ page_data.path ~ '/#webpage"}', is_json=true) -}}{%- endif -%}
+    {%- if page_type == 'BlogPosting' and page_data.author -%}{{- kv('author', '{"@type": "Person", "@id":"' ~ _m_url(site_config.home_url, '/#person/', page_data.author.id) ~ '", "name": ' ~ page_data.author.name | tojson ~ '}', is_json=true) -}}{{- kv('publisher', '{"@id":"' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}{{- kv('mainEntityOfPage', '{"@type": "WebPage", "@id":"' ~ _m_url(site_config.home_url,page_data.path, '/#webpage') ~ '"}', is_json=true) -}}{%- endif -%}
     {%- if page_data.video -%}{{- kv('video', video_MicroSchema(page_data.video, site_config), is_json=true) -}}{%- endif -%}
   {%- endcall -%}
 {%- endmacro %}
