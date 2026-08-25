@@ -80,13 +80,12 @@
 
 {%- set page_data = global.pg_data  -%}
 
-{%- set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" -%}
-{%- set js_base = "{{ site_config.css,_js_url }}js/mgr/0.1/" -%}
+{%- set css_base = site_config.css_js_url ~ "css/mgr/0.1/" -%}
+{%- set js_base = site_config.css,_js_url ~ "js/mgr/0.1/" -%}
 
 
 {%- extends "_base.html" -%}
 {%- block page_schema -%}
-
-{{ PageSchema('WebPage', global.pg_data, global.data) }}
+{{ PageSchema('WebPage', page_data, site_config) }}
 {%- endblock -%}
 {%- block content -%} Welcome Home{% endblock -%}
