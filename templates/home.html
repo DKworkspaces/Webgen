@@ -1,6 +1,6 @@
 {% from 'macro/_header_seo.html' import PageSchema with context %}
 
-{% set header = 
+{%- set header = 
 {
   "logo": "Xocumentary",
   "menus":[
@@ -13,9 +13,9 @@
   {"title":"About Us","url":"#","type":"standard"},
   {"title":"Contact Us","url":"#","type":"standard"}
 ] 
-} %}
+} -%}
 
-{% set footer ={
+{%- set footer ={
   "year": "2026",
   "links": [{"title": "Sitemap","url": "#"},{"title": "Privacy Policy","url": "#"},{"title": "Terms of Use","url": "#"}],
   "columns":[
@@ -28,10 +28,10 @@
     {"title":"Legal & Compliance","id":"f-t4","link_id":"m4","links": [
         {"title":"Editorial Policy","url":"#"},{"title":"Affiliate & Ad Disclosure","url":"#"},{"title":"Fact Checking Policy","url":"#"}]}
     ]}
-%}
+-%}
 
 
-{% set org_website_schema ={
+{%- set org_website_schema ={
 "home_url":"https://dkworkspaces.github.io/Webgen",
 "image_base_url":"https://mysite.com",
 "name":"Xocumentary",
@@ -49,19 +49,19 @@
 "per_page": 10,
 "separator":"|","css_js_url":"https://css.com"
 }
-%}
+-%}
 
-{% set global = namespace(data = {}, pg_data={}) %}
+{%- set global = namespace(data = {}, pg_data={}) -%}
 
 {# Merge sequentially using the update dictionary method wrapped in a dummy set execution #}
-{% set _ = global.data.update(header) %}
-{% set _ = global.data.update(footer) %}
-{% set _ = global.data.update(org_website_schema) %}
+{%- set _ = global.data.update(header) -%}
+{%- set _ = global.data.update(footer) -%}
+{%- set _ = global.data.update(org_website_schema) -%}
 
 
 
 
-{% set pae_data = {
+{%- set pae_data = {
     'ishome':'true',
     'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
     'desc': "Leading resource for enterprise-grade Flask architectures.",
@@ -71,20 +71,20 @@
       'dateModified': "2026-07-20",
     'about': { "@id": site_config.home_url ~ '/#organization'  ,"@type": "Organization"}
     ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
-} %}
+} -%}
 
-{% set _ = global.pg_data.update(pae_data) %}
-
-
-{% set site_config = global.data  %}
-{% set page_data = global.pg_data  %}
-
-{% set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" %}
-{% set js_base = "{{ site_config.css,_js_url }}js/mgr/0.1/" %}
+{%- set _ = global.pg_data.update(pae_data) %}
 
 
-{% extends "_base.html" %}
-{% block page_schema %}
+{%- set site_config = global.data  -%}
+{%- set page_data = global.pg_data  -%}
+
+{%- set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" -%}
+{%- set js_base = "{{ site_config.css,_js_url }}js/mgr/0.1/" -%}
+
+
+{%- extends "_base.html" -%}
+{%- block page_schema -%}
 {{ PageSchema(site_config.home_url,'WebPage', page_data, site_config) }}
-{% endblock %}
-{% block content %} Welcome Home{% endblock %}
+{%- endblock -%}
+{%- block content -%} Welcome Home{% endblock -%}
