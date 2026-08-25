@@ -58,7 +58,7 @@
 {%- set _ = global.data.update(footer) -%}
 {%- set _ = global.data.update(org_website_schema) -%}
 
-
+{%- set site_config = global.data  -%}
 
 
 {%- set pae_data = {
@@ -76,7 +76,7 @@
 {%- set _ = global.pg_data.update(pae_data) %}
 
 
-{%- set site_config = global.data  -%}
+
 {%- set page_data = global.pg_data  -%}
 
 {%- set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" -%}
