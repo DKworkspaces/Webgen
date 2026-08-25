@@ -1,6 +1,6 @@
 {% import 'macro/_nav.html' as comp with context %}
-{% from 'macro/minor/base.html' import _m_url %}
-
+{% from 'macro/minor/base.html' import m_url %}
+{% set _m_url = m_url %}
 <header class="sh">{{ comp.r_svg() }}<nav class="nc" aria-label="Main Navigation"><div class="nl"><a href="/" class="ll">{{ site_config.logo }}</a></div>
 <!-- Hidden Master Hamburger Toggle State Box -->
 <input type="checkbox" id="h-mts" class="v-h h-mt" aria-hidden="true"><!-- Label wrapper element acting as the visible interactive hamburger button --><label for="h-mts" class="mt" id="h-mtb" aria-label="Toggle navigation menu"><span class="hb"><span class="hi"></span></span></label>
