@@ -1,14 +1,7 @@
 {#
 _header_seo.html
 
-
-no input json 
-macro r_page_res_hints(type=None)
-
-
-macro r_page_id(page_data,site_config)
-macro r_can(page_data,site_config)
-macro r_g_icons(site_config)
+ 
 
 
 #page specific data
@@ -37,6 +30,28 @@ macro r_g_icons(site_config)
 
 
 }
+
+{
+ "site_config": {
+"home_url":"https://example.com",
+"image_base_url":"https://mysite.com",
+"name":"Acme Platform Portal",
+"org_name":"Acme Global Solutions",
+"org_desc":" description about company",
+"desc": "Leading global provider of innovative logistics and cloud services.",
+"img": {"url":"/ass/med/brnd/logo.png" ,"width": 1200,"height": 630, "desc":"explain image"},
+"social_links": ["https://facebook.com", "https://linkedin.com", "https://x.com"],
+"contact": {
+    "availableLanguage": "English","areaServed": "Worldwide",
+    "support_email": "support@example.com","phone": "+1-555-0199"},
+"address": {
+    "street": "1600 Amphitheatre Parkway","city": "Mountain View",
+    "region": "CA","zip": "94043","country": "USA"},
+"per_page": 10
+}
+}
+
+
 
 
 
@@ -69,6 +84,8 @@ common json data
   "page_data": {
     "title": "Welcome to Our Homepage",
     "desc": "The primary hub for our digital products and services.",
+  "media": "image",
+  "og": {"img": "/assets/hero-banner.jpg","alt": "A sleek modern office workspace layout"},
     "pin": {
       "img": "/assets/pinterest-graphic.jpg",
       "alt": "Infographic summarizing our digital product features"
@@ -76,14 +93,7 @@ common json data
   }
 }
 
-uncommon json data
 
-pagetype website 
-{"page_data": {
-
-  "media": "image",
-  "og": {"img": "/assets/hero-banner.jpg","alt": "A sleek modern office workspace layout"},
-}
 
 
 
@@ -177,24 +187,6 @@ schema.html
 "ContactPage" for about us lage
 
 
-{
- "site_config": {
-"home_url":"https://example.com",
-"image_base_url":"https://mysite.com",
-"name":"Acme Platform Portal",
-"org_name":"Acme Global Solutions",
-"desc": "Leading global provider of innovative logistics and cloud services.",
-"img": {"url":"/ass/med/brnd/logo.png" ,"width": 1200,"height": 630},
-"social_links": ["https://facebook.com", "https://linkedin.com", "https://x.com"],
-"contact": {
-    "availableLanguage": "English","areaServed": "Worldwide",
-    "support_email": "support@example.com","phone": "+1-555-0199"},
-"address": {
-    "street": "1600 Amphitheatre Parkway","city": "Mountain View",
-    "region": "CA","zip": "94043","country": "USA"},
-"per_page": 12
-}
-}
 
 
 
@@ -347,39 +339,7 @@ reset password page
 
 
 
-macro listItem_microschema(page_data, site_config) 
 
-{"page_data": {"page": 3,"items": [
-    {"name": "Jinja Architecture Deep Dive","url": "/blog/jinja-architecture"},
-    {"name": "JSON Context Modeling","url": "/blog/json-modeling"}
- ]}
-}
-
-macro image_microschema(img, site_config)
-
-"img": {"url":"/ass/med/brnd/logo.png" ,"width": 1200,"height": 630},
-
-
-
-macro listBreadcrumbItem_microschema(breadcrumb, site_config)
-
-{
- "breadcrumb": [
-  {"name": "Home","url": "/"},
-  {"name": "Books","url": "/books"},
-  {"name": "Science Fiction","url": "/books/sci-fi"}
-]}
-
-macro itemList_MicroSchema(page_data, site_config) 
-
-{
-  "page_data": {"page": 3,
-    "items": [
-      {"id": "prod-021","name": "Wireless Mechanical Keyboard","url": "/products/wireless-mechanical-keyboard"},
-      {"id": "prod-022","name": "Ergonomic Vertical Mouse","url": "/products/ergonomic-vertical-mouse"},
-      {"id": "prod-023","name": "Ultra-Wide 4K Monitor","url": "/products/ultra-wide-4k-monitor"}
-  ]}
-}
 
 macro video_MicroSchema(video, site_config)
 ##video with clip
