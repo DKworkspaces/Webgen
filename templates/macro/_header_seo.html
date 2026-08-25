@@ -59,7 +59,7 @@
 
 
 
-{#
+{# 6. Global Schema Component #}
   {% macro schema_graph() -%}
   <script type="application/ld+json">{"@context": "https://schema.org","@graph": [{{- caller() -}}]}</script>
   {%- endmacro %}
@@ -73,22 +73,3 @@
   {%- if page_data.author_list -%},{{- Person_S(page_data, site_config) | trim -}}{%- endif -%}
   {%- for entity in extra_entities -%}{%- if entity -%},{{- entity | tojson -}}{%- endif -%}{%- endfor -%}
   {%- endcall -%}{%- endmacro %}
-
-#}
-
-  {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
-
-{% if site_config is defined %}
-  <pre>{{ site_config }}</pre>
-{% else %}
-  <p style="color: red;">Error: site_config variable itself is completely undefined!</p>
-{% endif %}
-
-{% if page_data is defined %}
-  <pre>{{ page_data }}</pre>
-{% else %}
-  <p style="color: red;">Error: page_data variable itself is completely undefined!</p>
-{% endif %}
-
-
-{%- endmacro %}
