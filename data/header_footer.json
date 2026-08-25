@@ -1,0 +1,24 @@
+{
+  "logo": "Xocumentary", "year": "2026",
+  "menus":[
+  {"type": "search"},
+  {"title":"Categories","type":"megamenu","categories":[
+      {"cat_title": "By Region","links": [{"title": "Indo-Pacific","url": "#"},{"title": "Eruope & Eurasia","url": "#"},{"title": "MiddleEast & Africa","url": "#"},{"title": "The Americas","url": "#"}]},
+      {"cat_title": "By Subject","links": [{"title": "Geopolitics","url": "#"},{"title": "History","url": "#"},{"title": "Science","url": "#"}]}
+  ]},
+  {"type": "select","children": [{"title": "System Mode","val": "system"},{"title": "Light Mode","val": "light"},{"title": "Dark Mode","val": "dark"}]},
+  {"title":"About Us","url":"#","type":"standard"},
+  {"title":"Contact Us","url":"#","type":"standard"}
+] ,
+  "links": [{"title": "Sitemap","url": "#"},{"title": "Privacy Policy","url": "#"},{"title": "Terms of Use","url": "#"}],
+  "columns":[
+    {"title":"Explore Content","id":"f-t1","link_id":"m1","links": [
+        {"title":"Latest Release","url":"#"},{"title":"Most Popular Archives","url":"#"},{"title":"RSS Feed","url":"#"},{"title":"Interactive Maps/Timeline","url":"#"}]},
+    {"title":"Browse","id":"f-t2","link_id":"m2","links": [
+        {"title":"All Topics Index","url":"#"},{"title":"Categories Index","url":"#"},{"title":"Indo-pacific","url":"#"},{"title":"Europe & Eurasia","url":"#"},{"title":"MiddleEast & Africa","url":"#"},{"title":"The Americas","url":"#"}]},
+    {"title":"Connect & Follow","id":"f-t3","link_id":"m3","links": [
+        {"title":"Youtube Channel","url":"#"},{"title":"Dailymotion Channel","url":"#"},{"title":"Facebook Page","url":"#"}]},
+    {"title":"Legal & Compliance","id":"f-t4","link_id":"m4","links": [
+        {"title":"Editorial Policy","url":"#"},{"title":"Affiliate & Ad Disclosure","url":"#"},{"title":"Fact Checking Policy","url":"#"}]}
+    ]
+}
