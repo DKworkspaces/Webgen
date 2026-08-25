@@ -1,9 +1,15 @@
+{% macro _m_url(base_url, path) -%}
+ {{- (base_url | trim | rstrip('/')) ~ '/' ~ (path | trim | lstrip('/')) -}}
+{%- endmacro %}
+
+
+
 {# Component: Footer Mega Menu #}
 {% macro r_fmega(site_config) %}
 {% macro r_fmega(site_config) -%}
 {%- for col in site_config.columns -%}<div class="f-mc"><input type="checkbox" id="{{ col.id }}" class="f-st" aria-hidden="true"><label for="{{ col.id }}" class="f-pt">{{- col.title -}}<svg class="f-ch" width="18" height="18" aria-hidden="true"><use href="#icon-chevron"/></svg></label>
   <ul class="ml" id="{{ col.link_id }}">
-    {%- for lk in col.links -%}<li><a href="{{ site_config.home_url }}{{ lk.url }}">{{ lk.title }}</a></li>{%- endfor -%}
+    {%- for lk in col.links -%}<li><a href="{{- _m_url(site_config.home_url, lk.url) -}}">{{ lk.title }}</a></li>{%- endfor -%}
   </ul></div>{%- endfor -%}
 {%- endmacro %}
 
