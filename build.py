@@ -76,7 +76,7 @@ def set_global():
 def gen_home():
     # Read the global cache directly from Jinja2's global dictionary
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','web','index.html', page_data=hm)
+    generate_page('home.html','web','index.html', page_da_ta=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','web','about_us.html',hm)
@@ -112,8 +112,8 @@ def gen_404():
 def main():
     """Main orchestrator running the operations in order."""
     gen_headfoot()
-    #set_global()
-    #gen_home()
+    set_global()
+    gen_home()
     gen_404()
 if __name__ == '__main__':
     main()
