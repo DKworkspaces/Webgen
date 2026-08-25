@@ -112,7 +112,7 @@ def gen_404():
 def main():
     """Main orchestrator running the operations in order."""
     gen_headfoot()
-    #set_global()
+    set_global()
     gen_home()
     gen_404()
 if __name__ == '__main__':
