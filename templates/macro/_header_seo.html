@@ -1,19 +1,29 @@
 
-{# 1. Page Identity Metadata #}
 
-{% macro r_page_id(page_data,site_config) -%}
-<title>{{ page_data.title | default(site_config.title) | e }}</title>
-<meta name="description" content="{{ page_data.desc | default(site_config.desc) | e }}">
+
+
+{% macro _m_url(base_url, path) -%}
+ {{- (base_url | trim | rstrip('/')) ~ '/' ~ (path | trim | lstrip('/')) -}}
+{%- endmacro %}
+
+
+
+
+{# 1. Page Identity Metadata #}
+{% macro r_page_id(page_data, site_config) -%}
+  <title>{{- page_data.title | default(site_config.title) | trim | e -}}</title>
+  <meta name="description" content="{{- page_data.desc | default(site_config.desc) | trim | e -}}">
 {%- endmacro %}
 
 {# 2. Robots & Canonical #}
 
-{% macro r_can(page_data,site_config) -%}
-<meta name="robots" content="{{ page_data.robots | default(site_config.robots) | e }}, noai, noimageai">
-<meta name="google-extended" content="noindex">
-<meta name="gptbot" content="noindex">
-<link rel="canonical" href="{{ site_config.home_url }}{{ page_data.path }}">
-<meta property="og:url" content="{{ site_config.home_url }}{{ page_data.path }}">
+{% macro r_can(page_data, site_config) -%}
+  {%- set canonical_url = _m_url(site_config.home_url,page_data.path) -%}
+  <meta name="robots" content="{{- page_data.robots | default(site_config.robots) | trim | e -}}, noai, noimageai">
+  <meta name="google-extended" content="noindex">
+  <meta name="gptbot" content="noindex">
+  <link rel="canonical" href="{{- canonical_url -}}">
+  <meta property="og:url" content="{{- canonical_url -}}">
 {%- endmacro %}
 
 {#
@@ -37,14 +47,10 @@
 
 {% macro r_page_res_hints(type=None) -%}
 {%- if type == 'yt' -%}
-<link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
-<link rel="preconnect" href="https://www.youtube.com" crossorigin>
-<link rel="dns-prefetch" href="https://www.youtube.com">
-<link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
-<link rel="dns-prefetch" href="https://img.youtube.com">
+<link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin><link rel="preconnect" href="https://www.youtube.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.youtube.com"><link rel="dns-prefetch" href="https://www.youtube-nocookie.com"><link rel="dns-prefetch" href="https://img.youtube.com">
 {%- elif type == 'dm' -%}
-<link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
-<link rel="dns-prefetch" href="https://www.dailymotion.com">
+<link rel="preconnect" href="https://www.dailymotion.com" crossorigin><link rel="dns-prefetch" href="https://www.dailymotion.com">
 {%- endif -%}
 {%- endmacro %}
 
@@ -82,16 +88,18 @@
 <meta name="twitter:image" content="https://www.dailymotion.com/thumbnail/video/{{ page_data.video.id }}">
 {%- endif -%}
 {%- elif page_data.media == 'image' and page_data.og -%}
-<meta property="og:image" content="{{ site_config.image_base_url }}{{ page_data.og.img }}">
+{%- set img = _m_url(site_config.image_base_url,page_data.og.img) -%}
+<meta property="og:image" content="{{ img }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="{{ site_config.image_base_url }}{{ page_data.og.img }}">
+<meta name="twitter:image" content="{{ img }}">
 <meta property="og:image:alt" content="{{ page_data.og.alt | e }}">
 <meta name="twitter:image:alt" content="{{ page_data.og.alt | e }}">
 {%- endif -%}
 {%- if page_data.pin -%}
+{%- set img = _m_url(site_config.image_base_url,page_data.pin.img) -%}
 <meta name="pinterest:rich_pins" content="true">
-<meta property="og:image" content="{{ site_config.image_base_url }}{{ page_data.pin.img }}">
+<meta property="og:image" content="{{ img }}">
 <meta property="og:image:width" content="1000">
 <meta property="og:image:height" content="1500">
 <meta property="og:image:alt" content="{{ page_data.pin.alt | e }}">
@@ -215,9 +223,9 @@ article video
 {# 5. Global Asset Icon Component #}
 
 {% macro r_g_icons(site_config) -%}
-<link rel="icon" type="image/svg+xml" href="{{ site_config.image_base_url }}{{ site_config.icon.favicon_svg }}">
-<link rel="alternate icon" type="image/x-icon" href="{{ site_config.image_base_url }}{{ site_config.icon.favicon_ico }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ site_config.image_base_url }}{{ site_config.icon.apple_touch }}">
+<link rel="icon" type="image/svg+xml" href="{{- _m_url(site_config.image_base_url, site_config.icon.favicon_svg) -}}">
+<link rel="alternate icon" type="image/x-icon" href="{{- _m_url(site_config.image_base_url, site_config.icon.favicon_ico) -}}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{- _m_url(site_config.image_base_url, site_config.icon.apple_touch) -}}">
 {%- endmacro %}
 
 
