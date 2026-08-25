@@ -79,13 +79,13 @@
   {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
 
 {% if site_config is defined %}
-  <pre>{{ site_config | tojson(indent=2) }}</pre>
+  <pre>{{ site_config }}</pre>
 {% else %}
   <p style="color: red;">Error: site_config variable itself is completely undefined!</p>
 {% endif %}
 
 {% if page_data is defined %}
-  <pre>{{ page_data | tojson(indent=2) }}</pre>
+  <pre>{{ page_data }}</pre>
 {% else %}
   <p style="color: red;">Error: page_data variable itself is completely undefined!</p>
 {% endif %}
