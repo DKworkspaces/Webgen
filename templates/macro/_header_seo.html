@@ -13,7 +13,7 @@
 {# 2. Robots & Canonical #}
   {% macro r_can(page_data, site_config) -%}
   {%- set canonical_url = _m_url(site_config.home_url,page_data.path) -%}
-  {{- meta_tag('robots', page_data.robots | default(site_config.robots) | trim | e ~ ", noai, noimageai') -}}{{- meta_tag('google-extended', 'noindex') -}}{{- meta_tag('gptbot', 'noindex') -}}
+  {{- meta_tag('robots', page_data.robots | default(site_config.robots) | trim | e ~ ', noai, noimageai') -}}{{- meta_tag('google-extended', 'noindex') -}}{{- meta_tag('gptbot', 'noindex') -}}
   <link rel="canonical" href="{{- canonical_url -}}">
   {{- metap_tag('og:url', canonical_url) -}}
   {%- endmacro %}
