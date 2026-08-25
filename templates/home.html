@@ -53,12 +53,15 @@
 
 {%- set global = namespace(data = {}, pg_data={}) -%}
 
-{# Merge sequentially using the update dictionary method wrapped in a dummy set execution #}
-{%- set _ = global.data.update(header) -%}
-{%- set _ = global.data.update(footer) -%}
-{%- set _ = global.data.update(org_website_schema) -%}
+{# Use explicit assignments to preserve semantic namespaces and avoid None assignment exceptions #}
+{%- set global.data = {
+  "header": header,
+  "footer": footer,
+  "schema": org_website_schema
+} -%}
 
-{%- set site_config = global.data  -%}
+{%- set site_config = global.data.schema -%}
+
 
 
 {%- set pae_data = {
@@ -73,9 +76,7 @@
     ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
 } -%}
 
-{%- set _ = global.pg_data.update(pae_data) %}
-
-
+{%- set global.pg_data = pae_data -%}
 
 {%- set page_data = global.pg_data  -%}
 
