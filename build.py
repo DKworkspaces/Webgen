@@ -40,7 +40,7 @@ def load_data_profiles():
 def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
     os.makedirs('templates/temp', exist_ok=True)
-    hd=none;
+    hd=None;
     with open('data/header_footer.json', 'r', encoding='utf-8') as h_f:
         hd= json.load(h_f)
     
