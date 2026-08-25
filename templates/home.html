@@ -86,6 +86,7 @@
 
 {%- extends "_base.html" -%}
 {%- block page_schema -%}
-{{ PageSchema('WebPage', page_data, site_config) }}
+{{ PageSchema(page_type='WebPage',page_data=page_data,site_config=site_config) }}
+
 {%- endblock -%}
 {%- block content -%} Welcome Home{% endblock -%}
