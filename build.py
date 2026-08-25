@@ -34,28 +34,21 @@ def load_json (json_file):
 
 def load_data_profiles():
     """Loads header n footer JSON files needed for compilation."""
-    hd= load_json ('data/global.json')
+    hd= load_json ('data/header_footer.json')
     return hd
 
 def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
-    os.makedirs('templates/temp', exist_ok=True)
-    with open('data/header_footer.json', 'r', encoding='utf-8') as h_f:
-        hd= json.load(h_f)
-    
-    h_t= env.get_template('_nav.html')
-    with open('templates/temp/nav.html', 'w', encoding='utf-8') as o_f:
-        o_f.write(h_t.render(site_config=hd))
-    print(f"Success: Isolated page generated explicitly at: {'templates/temp/nav.html'}")
-    
-    f_t= env.get_template('_footer.html')
-    with open('templates/temp/footer.html', 'w', encoding='utf-8') as o_f:
-        o_f.write(f_t.render(site_config=hd))
-    print(f"Success: Isolated page generated explicitly at: {'templates/temp/footer.html'}")
-
-    
-
-
+    md('templates/temp')
+    hd= load_data_profiles()
+    # 1. Compile and save plain header snippet
+    h_t=base_f('_nav.html')
+    generate(h_t,'templates/temp/nav.html',site_config=hd)
+    # 2. Compile and save plain footer snippet
+    f_t=base_f('_footer.html')
+    generate(f_t,'templates/temp/footer.html',site_config=hd)
+    print("Success: Standalone layout modules compiled into templates/temp/")
+        
 def generate_page(base_file,op_loc,op_file,**kwargs):
     md(op_loc)
     bt,ot=base_template(base_file,op_loc,op_file)
@@ -76,7 +69,7 @@ def set_global():
 def gen_home():
     # Read the global cache directly from Jinja2's global dictionary
     hm= load_json ('data/page/home.json')
-    generate_page('home.html','web','index.html', page_da_ta=hm)
+    generate_page('home.html','web','index.html', page_data=hm)
 def gen_about():
     hm= load_json ('data/page/about.json')
     generate_page('about.html','web','about_us.html',hm)
