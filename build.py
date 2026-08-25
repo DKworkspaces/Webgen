@@ -34,8 +34,7 @@ def load_json (json_file):
 
 def load_data_profiles():
     """Loads header n footer JSON files needed for compilation."""
-    #hd= load_json ('data/header_footer.json')
-    hd= load_json ('data/global.json')
+    hd= load_json ('data/header_footer.json')
     return hd
 
 def generate_layout_snippets():
