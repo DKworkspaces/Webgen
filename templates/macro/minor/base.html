@@ -1,0 +1,4 @@
+{% macro _m_url(base_url, path,path2=none) -%}
+ {%- if path2 -%}{{- (base_url | trim | rstrip('/')) ~ '/' ~ (path | trim | strip('/'))  ~ '/' ~ (path2 | trim | lstrip('/')) -}}
+{%- else -%}{{- (base_url | trim | rstrip('/')) ~ '/' ~ (path | trim | lstrip('/')) -}}{%- endif -%}
+{%- endmacro %}
