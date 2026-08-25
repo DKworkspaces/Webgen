@@ -40,7 +40,6 @@ def load_data_profiles():
 def generate_layout_snippets():
     """Generates raw, ready-to-use HTML blocks inside templates/temp/."""
     os.makedirs('templates/temp', exist_ok=True)
-    hd=None;
     with open('data/header_footer.json', 'r', encoding='utf-8') as h_f:
         hd= json.load(h_f)
     
@@ -49,7 +48,6 @@ def generate_layout_snippets():
         o_f.write(h_t.render(site_config=hd))
     print(f"Success: Isolated page generated explicitly at: {'templates/temp/nav.html'}")
     
-    # 2. Compile and save plain footer snippet
     f_t= env.get_template('_footer.html')
     with open('templates/temp/footer.html', 'w', encoding='utf-8') as o_f:
         o_f.write(f_t.render(site_config=hd))
