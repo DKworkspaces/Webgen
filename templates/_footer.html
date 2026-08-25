@@ -1,6 +1,6 @@
 {% import 'macro/_footer.html' as comp with context %}
-{% from 'macro/minor/base.html' import _m_url %}
-
+{% from 'macro/minor/base.html' import m_url %}
+{% set _m_url = m_url %}
 
 <footer id="sf-i" class="f-sf"<div class="fc"><div class="fb"><div class="f-brand-card"><h3 class="ft">{{ site_config.name }}</h3><p class="fd">{{ site_config.desc }}</p><address class="fr">{{ site_config.address.street }}<br>{{ site_config.address.city }},{{ site_config.address.region }},{{ site_config.address.zip }}</address><div class="f-ct"><a href="tel:{{ site_config.contact.phone }}" class="fl-a">{{ site_config.contact.phone }}</a><a href="mailto:{{ site_config.contact.support_email }}" class="fl-a">{{ site_config.contact.support_email }}</a></div>
 <div class="fs">{% for li in site_config.social %}<a href="{{ li.url }}" aria-label="{{ li.type}}" class="si">{{ li.sym}}</a>{% endfor %}</div>
