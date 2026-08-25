@@ -1,5 +1,5 @@
 
-{% macro _m_url(base_url, path, path2=none) -%}
+{% macro m_url(base_url, path, path2=none) -%}
   {%- if path2 -%}{{- (base_url.strip().rstrip('/')) ~ '/' ~ (path.strip().strip('/')) ~ '/' ~ (path2.strip().lstrip('/')) -}}
   {%- else -%}{{- (base_url.strip().rstrip('/')) ~ '/' ~ (path.strip().lstrip('/')) -}}
 {%- endif -%}
