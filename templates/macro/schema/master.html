@@ -184,7 +184,7 @@ standard page
 
 #}
 {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}   
-{{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}{{- kv('url', site_config.home_url) -}}{{- kv('name', site_config.name) -}}{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}, is_json=true) -}}
+{{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}{{- kv('url', site_config.home_url) -}}{{- kv('name', site_config.name) -}}{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
     {%- if page_data.ishome -%}{{- kv('potentialAction', search_action_microschema(site_config), is_json=true) -}}{%- endif -%}
 {%- endcall -%}{%- endmacro %}
 
