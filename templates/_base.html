@@ -1,31 +1,28 @@
 {# Json Data #}
-{% from "data/nav.html" import header as h %}
-{% from "data/footer.html" import footer as f %}
-{% from "data/schema.html" import schema as s %}
-
+{%- from "data/nav.html" import header as h -%}
+{%- from "data/footer.html" import footer as f -%}
+{%- from "data/schema.html" import schema as s -%}
 {%- set glb_nav_footer = {"data": {"header": h,"footer": f}} -%}
 {%- set site_config = s -%}
 
-{% from 'macro/_header_seo.html' import r_page_id,r_can,r_page_s_meta,r_page_res_hints,r_g_icons with context %}
+{%- from 'macro/_header_seo.html' import r_page_id,r_can,r_page_s_meta,r_page_res_hints,r_g_icons with context -%}
 <!-- css n js code domain urls  -->
 
-{% set css_base = "{{ site_config.base_url }}css/mgr/0.1/" %}
-{% set js_base = "{{ site_config.base_url }}js/mgr/0.1/" %}
+{%- set css_base = "{{ site_config.base_url }}css/mgr/0.1/" -%}
+{%- set js_base = "{{ site_config.base_url }}js/mgr/0.1/" -%}
 
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge">
 {%- block head_metadata %}
 {# 1. Security Framework #}
-    {%- block page_security %}
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
+    {%- block page_security %}<meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
     {%- endblock page_security %}
 {# 2. Title, Description, Canonical & Robots (SEO Protection) #}
-    {%- block page_identity %}{{ r_page_id(page_data,site_config) }}{%- endblock page_identity %}
-    {%- block canonical %}{{ r_can(page_data,site_config) }}{%- endblock canonical %}
+    {%- block page_identity %}{{- r_page_id(page_data,site_config) -}}{%- endblock page_identity %}
+    {%- block canonical %}{{- r_can(page_data,site_config) -}}{%- endblock canonical %}
 {# 3. Social media Meta Tags #}
-    {%- block page_social_meta %}{{ r_page_s_meta(page_data.social,site_config) }}{%- endblock page_social_meta %}
+    {%- block page_social_meta %}{{- r_page_s_meta(page_data.social,site_config) -}}{%- endblock page_social_meta %}
 {# 4. Resource Hints #}
-    {%- block page_resource_hints %}{{ r_page_res_hints(type=None) }}{%- endblock page_resource_hints %}
+    {%- block page_resource_hints %}{{- r_page_res_hints(type=None) -}}{%- endblock page_resource_hints %}
 {%- endblock head_metadata %}
 {%- block page_styles %}
 {# 5. Critical CSS #}
@@ -40,7 +37,7 @@
 {%- endblock page_styles %}
 {%- block page_syndication %}
 {# 9. Icons #}
-    {%- block global_icons %}{{ r_g_icons(site_config) }}{%- endblock global_icons %}
+    {%- block global_icons %}{{- r_g_icons(site_config) -}}{%- endblock global_icons %}
 {# 10 . Verification tokens #}
     {%- block global_verification %}{%- endblock global_verification %}
 {# 11. RSS n Sitemap #}
@@ -55,10 +52,10 @@
 <!-- 13. Head Close Hook (For any final cleanup) -->
 {%- block head_close %}{%- endblock head_close %}
 </head><body>
-{% include 'temp/nav.html' %}
-{%- block layout_container %}
-{%- endblock layout_container %}
-{% include 'temp/footer.html' %}
+{%- include 'temp/nav.html' -%}
+{%- block layout_container -%}
+{%- endblock layout_container -%}
+{%- include 'temp/footer.html' -%}
 {%- block page_scripts %}
 {# 14. Core JS #}
     {%- block global_js %}{%- endblock global_js %}
