@@ -1,8 +1,11 @@
-{% from "data/_nav.html" import header %}
-{% from "data/_footer.html" import footer %}
-{% from "data/_schema.html" import schema %}
+{# Json Data #}
+{% from "data/nav.html" import header as h %}
+{% from "data/footer.html" import footer as f %}
+{% from "data/schema.html" import schema as s %}
 
+{%- set glb = namespace(data = {}, pg_data={}) -%}
 
+{%- set glb.data = {"header": h,"footer": f,"schema": s } -%}
 
 {% from 'macro/_header_seo.html' import PageSchema with context %}
 
