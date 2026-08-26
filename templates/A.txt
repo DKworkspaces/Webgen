@@ -228,7 +228,7 @@ home page
 "dateModified": "2026-01-10T15:45:00Z",
 "ishome": true,"path": "/"}
 "breadcrumb": [
-    {"name": "Home","url": "/"}
+    {"name": "Home","path": "/"}
 ]}
 
 about us page
@@ -248,8 +248,8 @@ about us page
 }
 
 "breadcrumb": [
-    {"name": "Home","url": "/"},
-    {"name": "About Us","url": "/about"}
+    {"name": "Home","path": "/"},
+    {"name": "About Us","path": "/about"}
 ]}
 
 
@@ -272,8 +272,8 @@ contact us page
 }
 
 "breadcrumb": [
-    {"name": "Home","url": "/"},
-    {"name": "Contact Us","url": "/contact"}
+    {"name": "Home","path": "/"},
+    {"name": "Contact Us","path": "/contact"}
 ]}
 
 
@@ -290,8 +290,8 @@ editorial policy page ,privacy policy page , terms of service page ,factcheck po
 }
 
 "breadcrumb": [
-    {"name": "Home","url": "/"},
-    {"name": " ","url": "/.."}
+    {"name": "Home","path": "/"},
+    {"name": " ","path": "/.."}
 ]}
 
 
