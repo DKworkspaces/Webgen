@@ -1,3 +1,11 @@
+{# Json Data #}
+{% from "data/nav.html" import header as h %}
+{% from "data/footer.html" import footer as f %}
+{% from "data/schema.html" import schema as s %}
+
+{%- set glb_nav_footer = {"data": {"header": h,"footer": f}} -%}
+{%- set site_config = s -%}
+
 {% from 'macro/_header_seo.html' import r_page_id,r_can,r_page_s_meta,r_page_res_hints,r_g_icons with context %}
 {% if page_type != 'CollectionPage' %}
 {% set _ = page_data.social.update({
