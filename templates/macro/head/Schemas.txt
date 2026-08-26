@@ -1,0 +1,366 @@
+Standard Core Pages
+
+Homepage: WebSite or Organization
+About Us: AboutPage
+Contact Us: ContactPage
+Privacy Policy: WebPage with specialty as PrivacyPolicy
+Terms of Service: WebPage
+
+Blog Post / News Article: BlogPosting or NewsArticle
+Resource Hub / Blog Roll: CollectionPage
+FAQ Page: FAQPage
+Author Profile: ProfilePage
+Video Landing Page: ItemPage with nested VideoObject
+
+
+
+
+Core Structural Pages
+Homepage: WebSite — Establishes your overall brand identity and site-wide search capabilities.
+About / Editorial Policy: AboutPage — Crucial for demonstrating expertise, author credentials, and fact-checking policies.
+Contact Page: ContactPage — Provides direct pathways for media inquiries or academic outreach.
+Category / Topic Hubs: CollectionPage — Groups your deep-dives into structured lists like "Geopolitical Shifts" or "QuantumPhysics".
+Standard Blog Analysis: BlogPosting — Best for casual commentary, quick historical anecdotes, or opinion pieces.
+
+Interactive Time-lines & Maps: ItemPage — Combines interactive maps or historical timelines with descriptive datasets.
+Fact-Checking Hubs: ClaimReview — Critical for geopolitics to debunk propaganda, rate political claims, and link to verified evidence.
+Science Data & Chart Pages: Dataset — Tells search engines that your page contains raw scientific data, data tables, or downloadable research charts.
+Explainer & Common Questions: FAQPage — Maximises real estate on search engine results pages (SERPs) for queries like "What caused the Bronze AgeCollapse?"
+
+
+
+WebSite
+     What it is: Identifies the site as a whole and enables sitelink search boxes in search results.
+     Where to use it: Only on your Homepage.
+AboutPage
+     What it is: Tells search engines who you are, your editorial standards, and your mission.
+     Where to use it: Your About Us or Editorial Policy page.
+ContactPage
+     What it is: Highlights your contact forms, emails, and social media handles.
+     Where to use it: Your Contact Us page.
+CollectionPage
+     What it is: Identifies a page that lists multiple items or articles rather than a single post.
+     Where to use it: Your Category pages (e.g., your main /history/ or /geopolitics/ hub pages).ProfilePageWhat it is: Focuses on a single person or organization who created the content.Where to use it: Your Author Bio pages or profiles of historical figures/scientists.
+BlogPosting
+     What it is: Standard, casual informational content.
+     Where to use it: Quick historical anecdotes, opinion pieces, or casual science explanations.
+FAQPage
+     What it is: Creates clickable question-and-answer accordions directly under your Google search link.
+     Where to use it: Any explainer page. For example: "What caused the Bronze Age Collapse?" or "How do tectonic plates move?"
+VideoObject
+     What it is: Helps your videos rank in Google Video Search and adds timelines/key moments to your search result.
+     Where to use it: Any blog post that features an embedded video or documentary explaining a historical or scientific event.
+
+
+
+{% macro global_schema(page_url, page_title, page_description="") %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ request.url_root }}#website",
+      
+    {
+      "@type": "Organization",
+      "@id": "{{ request.url_root }}#organization",
+      
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_url }}#webpage",
+
+{% endmacro %}
+
+
+
+{% macro render_seo_schema(page_type, page_url, page_title, page_description="", article_data=None, items_list=None) %}
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ request.url_root }}#website",
+
+    {
+      "@type": "Organization",
+      "@id": "{{ request.url_root }}#organization",
+    {
+      {% if page_type == 'homepage' %}
+        "@type": "WebPage",
+      {% elif page_type == 'about' %}
+        "@type": "AboutPage",
+      {% elif page_type == 'contact' %}
+        "@type": "ContactPage",
+      {% elif page_type in ['archive_hub', 'category', 'tag'] %}
+        "@type": "CollectionPage",
+      {% elif page_type == 'policy' %}
+        "@type": "WebPage",
+        "specialty": "PrivacyPolicy",
+      {% else %}
+        "@type": "WebPage",
+      {% endif %}
+      "@id": "{{ page_url }}#webpage",
+
+    
+    {# Handle Deep Individual Blog Posts / Scientific Analyses #}
+    {% if page_type == 'post' and article_data %},
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ page_url }}#article",
+
+</script>
+{% endmacro %}
+
+
+
+
+
+The Golden Rule of Schema Efficiency
+   On the Homepage: Define the full WebSite and Organization schemas (with logos, search actions, and social profiles).
+   On Inner Pages (About, Contact, Blog Posts): Only reference the homepage schemas using their unique @id URLs. 
+Do not rewrite the whole object.
+
+
+on homepage 
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://yourdomain.com",
+      "url": "https://yourdomain.com",
+      "name": "Chronos & Cosmos",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {"@type": "EntryPoint", "urlTemplate": "https://yourdomain.comsearch?q={search_term_string}"},
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://yourdomain.com#organization",
+      "name": "Chronos & Cosmos",
+      "url": "https://yourdomain.com",
+      "logo": "https://yourdomain.comassets/logo.png",
+      "sameAs": [
+        "https://x.com",
+        "https://youtube.com"
+      ]
+    }
+  ]
+}
+
+
+
+other pages
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://yourdomain.com",
+      "headline": "The Geopolitics of Lithium",
+      "datePublished": "2026-08-26T12:00:00+00:00",
+      
+      "isPartOf": { 
+        "@id": "https://yourdomain.com" 
+      },
+      "publisher": { 
+        "@id": "https://yourdomain.com" 
+      }
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% macro render_seo_schema(page_type, page_url, page_title, page_description="", article_data=None) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# CONDITION 1: Full Definition for Homepage vs Lightweight Link for Inner Pages #}
+    {% if page_type == 'homepage' %}
+    {
+      "@type": "WebSite",
+      "@id": "{{ request.url_root }}#website",
+      "url": "{{ request.url_root }}",
+      "name": "Chronos & Cosmos",
+      "publisher": { "@id": "{{ request.url_root }}#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "{{ request.url_root }}search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ request.url_root }}#organization",
+      "name": "Chronos & Cosmos",
+      "url": "{{ request.url_root }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ request.url_root }}assets/logo.png"
+      },
+      "sameAs": [
+        "https://x.com",
+        "https://youtube.com"
+      ]
+    },
+    {% endif %}
+
+    {# CONDITION 2: Map the Page-Specific Entity #}
+    {
+      {% if page_type == 'homepage' %}
+        "@type": "WebPage",
+      {% elif page_type == 'about' %}
+        "@type": "AboutPage",
+      {% elif page_type == 'contact' %}
+        "@type": "ContactPage",
+      {% elif page_type in ['category', 'tag', 'archive'] %}
+        "@type": "CollectionPage",
+      {% elif page_type == 'policy' %}
+        "@type": "WebPage",
+        "specialty": "PrivacyPolicy",
+      {% else %}
+        "@type": "WebPage",
+      {% endif %}
+      "@id": "{{ page_url }}#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title | e }}",
+      "description": "{{ page_description | e }}",
+      {# These two lines create the contextual link back to the homepage properties #}
+      "isPartOf": { "@id": "{{ request.url_root }}#website" },
+      "about": { "@id": "{{ request.url_root }}#organization" }
+    }
+
+    {# CONDITION 3: Inject Deep Article Data if viewing a Blog Post #}
+    {% if page_type == 'post' and article_data %},
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ page_url }}#article",
+      "isPartOf": { "@id": "{{ page_url }}#webpage" },
+      "headline": "{{ page_title | e }}",
+      "description": "{{ page_description | e }}",
+      "datePublished": "{{ article_data.date_published }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ article_data.author_name }}"
+      },
+      "publisher": { "@id": "{{ request.url_root }}#organization" }
+    }
+    {% endif %}
+  ]
+}
+</script>
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for only homepage
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://yourdomain.com",
+      "url": "https://yourdomain.com",
+      "name": "Chronos & Cosmos",
+      "publisher": { "@id": "https://yourdomain.com#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://yourdomain.com#organization",
+      "name": "Chronos & Cosmos",
+      "url": "https://yourdomain.com",
+      "logo": "https://yourdomain.comassets/logo.png"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://yourdomain.com#webpage",
+      "url": "https://yourdomain.com",
+      "name": "Chronos & Cosmos | Science, Geopolitics & History Journal",
+      "description": "Deep-dives into global analytics, hard sciences, and world history.",
+      "isPartOf": { "@id": "https://yourdomain.com" },
+      "about": { "@id": "https://yourdomain.com#organization" }
+    }
+  ]
+}
+
+
+about page
+
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      "@id": "https://yourdomain.com",
+      "url": "https://yourdomain.com",
+      "name": "About Chronos & Cosmos Journal",
+      "description": "Our editorial board, fact-checking methodologies, and research mission across science and history.",
+      "isPartOf": { "@id": "https://yourdomain.com" },
+      "about": { "@id": "https://yourdomain.com" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://yourdomain.com#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://yourdomain.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "About",
+          "item": "https://yourdomain.com"
+        }
+      ]
+    }
+  ]
+}
+
+
+
+
+
+
+
