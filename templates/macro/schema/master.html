@@ -27,16 +27,25 @@ to be tested
 #}
 
 {# 1. Micro Component Entity Base element #}
-  {% macro entity_base(type) %}{"@type":"{{ type }}"{{ caller() }}}{% endmacro %}
+  {% macro entity_base(type) %}
+  {
+    "@type":"{{ type }}"
+    {{ caller() }}
+  }{% endmacro %}
 
 {# 2. Micro Component KeyValue element #}
   {% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
 
 {# 3. Micro Component Common List element #}
-  {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}{%- for item in items -%}
+  {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
+  {%- for item in items -%}
   {%- call entity_base('ListItem') -%}
-    {{- kv('position', loop.index + offset) -}}{{- kv('name', item.name) -}}
-    {%- if type == 'breadcrumb' -%}{{- kv('item', _m_url(site_config.home_url, item.path)) -}}{%- else -%}{{- kv('url', _m_url(site_config.home_url, item.path)) -}}{%- endif -%}
+    {{- kv('position', loop.index + offset) -}}
+    {{- kv('name', item.name) -}}
+    {%- if type == 'breadcrumb' -%}
+    {{- kv('item', _m_url(site_config.home_url, item.path)) -}}
+    {%- else -%}
+    {{- kv('url', _m_url(site_config.home_url, item.path)) -}}{%- endif -%}
   {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
   {%- endfor -%}{%- endmacro %}
 
@@ -57,51 +66,84 @@ to be tested
 
 {# 3. SubComponent Image element #}
   {% macro image_microschema(img, site_config) -%}{% if img -%}
-  {%- call entity_base("ImageObject") -%}{{- kv("url", _m_url(site_config.home_url, img.url)) -}}{{- kv("width", img.width, is_json=true) -}}{{- kv("height", img.height, is_json=true) -}}{{- kv('caption', img.desc) -}}
+  {%- call entity_base("ImageObject") -%}
+  {{- kv("url", _m_url(site_config.home_url, img.url)) -}}
+  {{- kv("width", img.width, is_json=true) -}}
+  {{- kv("height", img.height, is_json=true) -}}
+  {{- kv('caption', img.desc) -}}
   {%- endcall -%}{%- endif %}{%- endmacro %}
 
 {# 4. SubComponent Contact element #}
-  {% macro contact_point_microschema(contact) -%}{%- call entity_base("ContactPoint") -%}
+  {% macro contact_point_microschema(contact) -%}
+  {%- call entity_base("ContactPoint") -%}
   {{- kv("contactType", "customer service") -}}
-  {%- if contact.availableLanguage -%}{{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
-  {%- if contact.areaServed -%}{{- kv("areaServed", contact.areaServed) -}}{%- endif -%}
-  {%- if contact.support_email -%}{{- kv("email", contact.support_email) -}}{%- endif -%}
-  {%- if contact.phone -%}{{- kv("telephone", contact.phone) -}}{%- endif -%}
+  {%- if contact.availableLanguage -%}
+  {{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
+  {%- if contact.areaServed -%}
+  {{- kv("areaServed", contact.areaServed) -}}{%- endif -%}
+  {%- if contact.support_email -%}
+  {{- kv("email", contact.support_email) -}}{%- endif -%}
+  {%- if contact.phone -%}
+  {{- kv("telephone", contact.phone) -}}{%- endif -%}
   {%- endcall -%}{%- endmacro %}
 
 {# 5. SubComponent Address element #}
-  {% macro postal_address_microschema(address) -%}{%- call entity_base("PostalAddress") -%}
-  {%- if address.street -%}{{- kv("streetAddress", address.street) -}}{%- endif -%}
-  {%- if address.city -%}{{- kv("addressLocality", address.city) -}}{%- endif -%}
-  {%- if address.region -%}{{- kv("addressRegion", address.region) -}}{%- endif -%}
-  {%- if address.zip -%}{{- kv("postalCode", address.zip) -}}{%- endif -%}
-  {%- if address.country -%}{{- kv("addressCountry", address.country) -}}{%- endif -%}
+  {% macro postal_address_microschema(address) -%}
+  {%- call entity_base("PostalAddress") -%}
+  {%- if address.street -%}
+  {{- kv("streetAddress", address.street) -}}{%- endif -%}
+  {%- if address.city -%}
+  {{- kv("addressLocality", address.city) -}}{%- endif -%}
+  {%- if address.region -%}
+  {{- kv("addressRegion", address.region) -}}{%- endif -%}
+  {%- if address.zip -%}
+  {{- kv("postalCode", address.zip) -}}{%- endif -%}
+  {%- if address.country -%}
+  {{- kv("addressCountry", address.country) -}}{%- endif -%}
   {%- endcall -%}{%- endmacro %}
 
 {# 6. SubComponent Search element #}
   {% macro search_action_microschema(site_config) -%}{%- call entity_base("SearchAction") -%}
-  {%- set target_entry -%}{%- call entity_base("EntryPoint") -%}{{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}{%- endset -%}{{- kv("target", target_entry, is_json=true) -}}{{- kv("query-input", "required name=search_term_string") -}}
+  {%- set target_entry -%}
+  {%- call entity_base("EntryPoint") -%}
+  {{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}{%- endset -%}
+  {{- kv("target", target_entry, is_json=true) -}}
+  {{- kv("query-input", "required name=search_term_string") -}}
   {%- endcall -%}{%- endmacro %}
 
 {# 7. SubComponent listBreadcrumbItems element #}
   {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-  {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}{{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}{%- endmacro %}
+  {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}
+  {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}{%- endmacro %}
 
 {# 8. SubComponent Itemlist element #}
   {% macro itemList_MicroSchema(page_data, site_config) -%}{%- set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
-  {%- call entity_base("ItemList") -%}{{- kv("numberOfItems", page_data.items | length, is_json=true) -}}{{- kv("itemListOrder", "ItemListOrderUnordered") -}}{%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}{{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
+  {%- call entity_base("ItemList") -%}
+  {{- kv("numberOfItems", page_data.items | length, is_json=true) -}}
+  {{- kv("itemListOrder", "ItemListOrderUnordered") -}}
+  {%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}
+  {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
   {%- endcall -%}{%- endmacro %}
 
 {# 9. SubComponent Video element #}
-  {% macro video_MicroSchema(video, site_config) -%}{%- call entity_base("VideoObject") -%}
-    {{- kv("name", video.title) -}}{{- kv("description", video.description) -}}{{- kv("thumbnailUrl", video.thumbnail_url) -}}{{- kv("uploadDate", video.uploadDate) -}}
-    {%- if video.duration -%}{{- kv("duration", video.duration) -}}{%- endif -%}
-    {%- if video.embedUrl -%}{{- kv("embedUrl", video.embedUrl) -}}{%- endif -%}
+  {% macro video_MicroSchema(video, site_config) -%}
+    {%- call entity_base("VideoObject") -%}
+    {{- kv("name", video.title) -}}
+    {{- kv("description", video.description) -}}
+    {{- kv("thumbnailUrl", video.thumbnail_url) -}}
+    {{- kv("uploadDate", video.uploadDate) -}}
+    {%- if video.duration -%}
+    {{- kv("duration", video.duration) -}}{%- endif -%}
+    {%- if video.embedUrl -%}
+    {{- kv("embedUrl", video.embedUrl) -}}{%- endif -%}
     {%- if video.clips -%}
       {%- set clips_array -%}{%- for clip in video.clips -%}
       {%- call entity_base("Clip") -%}
-        {{- kv("name", clip.name) -}}{{- kv("startOffset", clip.start, is_json=true) -}}{{- kv("endOffset", clip.end, is_json=true) -}}
-        {%- set time_token = '?start=' if video.provider in ['youtube', 'dailymotion'] else '?t=' -%}{{- kv("url", video.embedUrl ~ time_token ~ clip.start) -}}
+      {{- kv("name", clip.name) -}}
+      {{- kv("startOffset", clip.start, is_json=true) -}}
+      {{- kv("endOffset", clip.end, is_json=true) -}}
+        {%- set time_token = '?start=' if video.provider in ['youtube', 'dailymotion'] else '?t=' -%}
+      {{- kv("url", video.embedUrl ~ time_token ~ clip.start) -}}
       {%- endcall -%}{%- if not loop.last -%},{%- endif -%}{%- endfor -%}{%- endset -%}
       {{- kv("hasPart", "[" ~ clips_array ~ "]", is_json=true) -}}
     {%- endif -%}
@@ -111,21 +153,35 @@ to be tested
 
 
 {# 1. Component Organization Schema #}
-  {% macro Organization_S(page_type, site_config) -%}{%- call entity_base('Organization') -%}
-    {{- kv('@id', _m_url(site_config.home_url, '/#organization')) -}}{{- kv('name', site_config.org_name) -}}{{- kv('url', site_config.home_url) -}}{{- kv('description', site_config.org_desc) -}}{{- kv('logo', image_microschema(site_config.img | default(none), site_config), is_json=true) -}}{{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
-    {%- if page_type == 'ContactPage' -%}{{- kv('contactPoint', contact_point_microschema(site_config.contact), is_json=true) -}}{{- kv('address', postal_address_microschema(site_config.address), is_json=true) -}}{%- endif -%}
+  {% macro Organization_S(page_type, site_config) -%}
+    {%- call entity_base('Organization') -%}
+    {{- kv('@id', _m_url(site_config.home_url, '/#organization')) -}}
+    {{- kv('name', site_config.org_name) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('description', site_config.org_desc) -}}
+    {{- kv('logo', image_microschema(site_config.img | default(none), site_config), is_json=true) -}}
+    {{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
+    {%- if page_type == 'ContactPage' -%}
+    {{- kv('contactPoint', contact_point_microschema(site_config.contact), is_json=true) -}}
+    {{- kv('address', postal_address_microschema(site_config.address), is_json=true) -}}{%- endif -%}
   {%- endcall -%}{%- endmacro %}
 
 {# 2. Component Website Schema #}
   {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}   
-  {{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}{{- kv('url', site_config.home_url) -}}{{- kv('name', site_config.name) -}}{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
-    {%- if page_data.ishome -%}{{- kv('potentialAction', search_action_microschema(site_config), is_json=true) -}}{%- endif -%}
+  {{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}
+  {{- kv('url', site_config.home_url) -}}
+  {{- kv('name', site_config.name) -}}
+{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    {%- if page_data.ishome -%}
+  {{- kv('potentialAction', search_action_microschema(site_config), is_json=true) -}}{%- endif -%}
   {%- endcall -%}{%- endmacro %}
 
 {# 3. Component Breadcrumb Schema #}
   {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
-  {%- if breadcrumb -%}{%- call entity_base('BreadcrumbList') -%}
-  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}{{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
   {%- endcall -%}{%- endif -%}
   {%- endmacro %}
 
@@ -133,27 +189,52 @@ to be tested
   {% macro Person_S(page_data, site_config) -%}
   {%- for person in page_data.author_list -%}{%- if person.id -%}
       {%- call entity_base('Person') -%}
-        {{- kv('@id',_m_url(site_config.home_url, '/#person/' ,person.id)) -}}{{- kv('name', person.name) -}}
-        {%- if person.url -%}{{- kv('url', person.url) -}}{%- endif -%}
-        {%- if person.job_title -%}{{- kv('jobTitle', person.job_title) -}}{%- endif -%}
-        {%- if person.image -%}{{- kv('image', _m_url(site_config.image_base_url,person.image)) -}}{%- endif -%}{{- kv('worksFor', '{"@id":"' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
-        {%- if person.knowsAbout -%}{{- kv('knowsAbout', person.knowsAbout | tojson, is_json=true) -}}{%- endif -%}
-        {%- if person.social_links -%}{{- kv('sameAs', person.social_links | tojson, is_json=true) -}}{%- endif -%}
+        {{- kv('@id',_m_url(site_config.home_url, '/#person/' ,person.id)) -}}
+        {{- kv('name', person.name) -}}
+        {%- if person.url -%}
+        {{- kv('url', person.url) -}}{%- endif -%}
+        {%- if person.job_title -%}
+        {{- kv('jobTitle', person.job_title) -}}{%- endif -%}
+        {%- if person.image -%}
+        {{- kv('image', _m_url(site_config.image_base_url,person.image)) -}}
+        {%- endif -%}
+{{- kv('worksFor', '{"@id":"' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+        {%- if person.knowsAbout -%}
+        {{- kv('knowsAbout', person.knowsAbout | tojson, is_json=true) -}}{%- endif -%}
+        {%- if person.social_links -%}
+        {{- kv('sameAs', person.social_links | tojson, is_json=true) -}}{%- endif -%}
       {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
   {%- endif -%}{%- endfor -%}{%- endmacro %}
 
 {# 5. Component WebPage Schema#}
   {% macro Webpage_S(page_type, page_data, site_config, breadcrumb=None) -%}
-  {%- call entity_base(page_type) -%}{{- kv('@id', site_config.home_url ~ page_data.path ~ '/#webpage') -}}{{- kv('url', site_config.home_url ~ page_data.path) -}}{{- kv('name', page_data.title) -}}{{- kv('isPartOf', {"@id": site_config.home_url ~ "/#website"} | tojson, is_json=true) -}}
-    {%- if breadcrumb -%}{{- kv('breadcrumb', {"@id": _m_url(site_config.home_url, page_data.path, "/#breadcrumb")} | tojson, is_json=true) -}}{%- endif -%}
-    {%- if page_data.about -%}{{- kv('about', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
-    {%- if page_data.desc -%}{{- kv('description', page_data.desc) -}}{%- endif -%}
-    {%- if page_data.img -%}{{- kv('primaryImageOfPage', image_microschema(page_data.img, site_config), is_json=true) -}}{%- endif -%}
-    {%- if page_data.datePublished -%}{{- kv('datePublished', page_data.datePublished) -}}{%- endif -%}
-    {%- if page_data.dateModified -%}{{- kv('dateModified', page_data.dateModified) -}}{%- endif -%}
-    {%- if page_type == 'CollectionPage' and page_data.items -%}{{- kv('mainEntity', itemList_MicroSchema(page_data, site_config), is_json=true) -}}{%- elif page_data.main_entity -%}{{- kv('mainEntity', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
+  {%- call entity_base(page_type) -%}
+    {{- kv('@id', site_config.home_url ~ page_data.path ~ '/#webpage') -}}
+    {{- kv('url', site_config.home_url ~ page_data.path) -}}
+    {{- kv('name', page_data.title) -}}
+{{- kv('isPartOf', {"@id": site_config.home_url ~ "/#website"} | tojson, is_json=true) -}}
+    {%- if breadcrumb -%}
+{{- kv('breadcrumb', {"@id": _m_url(site_config.home_url, page_data.path, "/#breadcrumb")} | tojson, is_json=true) -}}{%- endif -%}
+    {%- if page_data.about -%}
+    {{- kv('about', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
+    {%- if page_data.desc -%}
+    {{- kv('description', page_data.desc) -}}{%- endif -%}
+    {%- if page_data.img -%}
+    {{- kv('primaryImageOfPage', image_microschema(page_data.img, site_config), is_json=true) -}}{%- endif -%}
+    {%- if page_data.datePublished -%}
+    {{- kv('datePublished', page_data.datePublished) -}}{%- endif -%}
+    {%- if page_data.dateModified -%}
+    {{- kv('dateModified', page_data.dateModified) -}}{%- endif -%}
+    {%- if page_type == 'CollectionPage' and page_data.items -%}
+    {{- kv('mainEntity', itemList_MicroSchema(page_data, site_config), is_json=true) -}}
+     {%- elif page_data.main_entity -%}
+    {{- kv('mainEntity', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
     {{- kv('inLanguage', 'en-US') -}}
-    {%- if page_type == 'BlogPosting' and page_data.author -%}{{- kv('author', { "@type": "Person", "@id": _m_url(site_config.home_url, "/#person/", page_data.author.id), "name": page_data.author.name } | tojson, is_json=true) -}}{{- kv('publisher', {"@id": _m_url(site_config.home_url, "#organization")} | tojson, is_json=true) -}}{{- kv('mainEntityOfPage', {"@type": "WebPage", "@id": _m_url(site_config.home_url, page_data.path, "/#webpage")} | tojson, is_json=true) -}}{%- endif -%}
-    {%- if page_data.video -%}{{- kv('video', video_MicroSchema(page_data.video, site_config), is_json=true) -}}{%- endif -%}
+    {%- if page_type == 'BlogPosting' and page_data.author -%}
+{{- kv('author', { "@type": "Person", "@id": _m_url(site_config.home_url, "/#person/", page_data.author.id), "name": page_data.author.name } | tojson, is_json=true) -}}
+{{- kv('publisher', {"@id": _m_url(site_config.home_url, "#organization")} | tojson, is_json=true) -}}
+{{- kv('mainEntityOfPage', {"@type": "WebPage", "@id": _m_url(site_config.home_url, page_data.path, "/#webpage")} | tojson, is_json=true) -}}{%- endif -%}
+    {%- if page_data.video -%}
+    {{- kv('video', video_MicroSchema(page_data.video, site_config), is_json=true) -}}{%- endif -%}
   {%- endcall -%}{%- endmacro %}
 
