@@ -1,0 +1,14 @@
+{%- set header = 
+{
+  "logo": "Xocumentary",
+  "menus":[
+  {"type": "search"},
+  {"title":"Categories","type":"megamenu","categories":[
+      {"cat_title": "By Region","links": [{"title": "Indo-Pacific","url": "#"},{"title": "Eruope & Eurasia","url": "#"},{"title": "MiddleEast & Africa","url": "#"},{"title": "The Americas","url": "#"}]},
+      {"cat_title": "By Subject","links": [{"title": "Geopolitics","url": "#"},{"title": "History","url": "#"},{"title": "Science","url": "#"}]}
+  ]},
+  {"type": "select","children": [{"title": "System Mode","val": "system"},{"title": "Light Mode","val": "light"},{"title": "Dark Mode","val": "dark"}]},
+  {"title":"About Us","url":"#","type":"standard"},
+  {"title":"Contact Us","url":"#","type":"standard"}
+] 
+} -%}
