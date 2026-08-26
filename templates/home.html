@@ -14,6 +14,6 @@
 
 
 {%- block page_schema -%}
-{{ PageSchema(page_type='WebPage',page_data=global.pg_data,site_config=global.data.schema) }}
+{{ PageSchema(page_type='WebPage',page_data=page_data,site_config=site_config) }}
 {%- endblock -%}
 {%- block content -%} Welcome Home{% endblock -%}
