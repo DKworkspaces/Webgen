@@ -11,10 +11,17 @@
 {%- set css_base = "{{ site_config.base_url }}css/mgr/0.1/" -%}
 {%- set js_base = "{{ site_config.base_url }}js/mgr/0.1/" -%}
 
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 {%- block head_metadata %}
 {# 1. Security Framework #}
-    {%- block page_security %}<meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
+    {%- block page_security %}
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self' https://www.youtube.com https://www.dailymotion.com;style-src 'self' 'unsafe-inline';frame-src 'self' https://www.youtube-nocookie.com https://www.dailymotion.com;img-src 'self' data: https://img.youtube.com https://www.dailymotion.com https://i.ytimg.com;">
     {%- endblock page_security %}
 {# 2. Title, Description, Canonical & Robots (SEO Protection) #}
     {%- block page_identity %}{{- r_page_id(page_data,site_config) -}}{%- endblock page_identity %}
@@ -28,9 +35,9 @@
 {# 5. Critical CSS #}
     {%- block critical_css %}{# cricitical css #}{%- endblock critical_css %}
 {# 6. Core CSS #}
-    <link rel="stylesheet" href="{{ css_base }}base.css">
-    <link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
+<link rel="stylesheet" href="{{ css_base }}base.css">
+<link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
     <script src="{{ js_base }}common.js" defer></script>
 {# 7. Page Specific CSS #}
     {%- block page_css %} {# page sepecific css #} {%- endblock page_css %}
@@ -42,16 +49,17 @@
     {%- block global_verification %}{%- endblock global_verification %}
 {# 11. RSS n Sitemap #}
     {%- block global_rss %}
-    <link rel="alternate" type="application/rss+xml" title="{{ site_config.name }} {{ site_config.separator }} RSS 2.0" href="{{ site_config.home_url }}/feed.xml">
-    <link rel="alternate" type="application/atom+xml" title="{{ site_config.name }} {{ site_config.separator }} Atom" href="{{ site_config.home_url }}/atom.xml">
-    <link rel="sitemap" type="application/xml" title="{{ site_config.name }} {{ site_config.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
+<link rel="alternate" type="application/rss+xml" title="{{ site_config.name }} {{ site_config.separator }} RSS 2.0" href="{{ site_config.home_url }}/feed.xml">
+<link rel="alternate" type="application/atom+xml" title="{{ site_config.name }} {{ site_config.separator }} Atom" href="{{ site_config.home_url }}/atom.xml">
+<link rel="sitemap" type="application/xml" title="{{ site_config.name }} {{ site_config.separator }} Sitemap" href="{{ site_config.home_url }}/sitemap.xml">
     {%- endblock global_rss %}
 {# 12. JSON-LD Schema #}
     {%- block page_schema %}{%- endblock page_schema %}
 {%- endblock page_syndication %}
 <!-- 13. Head Close Hook (For any final cleanup) -->
 {%- block head_close %}{%- endblock head_close %}
-</head><body>
+</head>
+<body>
 {%- include 'temp/nav.html' -%}
 {%- block layout_container -%}
 {%- endblock layout_container -%}
@@ -64,4 +72,5 @@
 {# 15. Global Analytics #}
     {%- block global_analytics %}{%- endblock global_analytics %}
 {%- endblock page_scripts %}
-</body></html>
+</body>
+</html>
