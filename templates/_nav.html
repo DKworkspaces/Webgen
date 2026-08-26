@@ -1,3 +1,6 @@
+{%- from "data/schema.html" import schema as s -%}
+{%- set site_config = s -%}
+
 {% import 'macro/_nav_footer.html' as comp with context %}
 {% from 'macro/minor/base.html' import m_url %}
 {% set _m_url = m_url %}
