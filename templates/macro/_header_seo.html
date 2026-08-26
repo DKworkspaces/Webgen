@@ -7,47 +7,82 @@
   {% macro metap_tag(name, content) -%}<meta property="{{- name -}}" content="{{- content -}}">{%- endmacro %}
 
 {# 1. Page Identity Metadata #}
-  {% macro r_page_id(page_data, site_config) -%}<title>{{- page_data.title | default(site_config.title) | trim | e -}}</title>{{- meta_tag('description', page_data.desc | default(site_config.desc) | trim | e) -}}
+  {% macro r_page_id(page_data, site_config) -%}
+  <title>{{- page_data.title | default(site_config.title) | trim | e -}}</title>
+  {{- meta_tag('description', page_data.desc | default(site_config.desc) | trim | e) -}}
   {%- endmacro %}
 {# 2. Robots & Canonical #}
   {% macro r_can(page_data, site_config) -%}
   {%- set canonical_url = _m_url(site_config.home_url,page_data.path) -%}
-  {{- meta_tag('robots', page_data.robots | default(site_config.robots) | trim | e ~ ', noai, noimageai') -}}{{- meta_tag('google-extended', 'noindex') -}}{{- meta_tag('gptbot', 'noindex') -}}
+  {{- meta_tag('robots', page_data.robots | default(site_config.robots) | trim | e ~ ', noai, noimageai') -}}
+  {{- meta_tag('google-extended', 'noindex') -}}{{- meta_tag('gptbot', 'noindex') -}}
   <link rel="canonical" href="{{- canonical_url -}}">
   {{- metap_tag('og:url', canonical_url) -}}
   {%- endmacro %}
 {# 3. Resource Hints #}
   {% macro r_page_res_hints(type=None) -%}
-  {%- if type == 'yt' -%}<link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin><link rel="preconnect" href="https://www.youtube.com" crossorigin><link rel="dns-prefetch" href="https://www.youtube.com"><link rel="dns-prefetch" href="https://www.youtube-nocookie.com"><link rel="dns-prefetch" href="https://img.youtube.com">
-  {%- elif type == 'dm' -%}<link rel="preconnect" href="https://www.dailymotion.com" crossorigin><link rel="dns-prefetch" href="https://www.dailymotion.com">
+  {%- if type == 'yt' -%}
+  <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
+  <link rel="preconnect" href="https://www.youtube.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.youtube.com">
+  <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
+  <link rel="dns-prefetch" href="https://img.youtube.com">
+  {%- elif type == 'dm' -%}
+  <link rel="preconnect" href="https://www.dailymotion.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.dailymotion.com">
   {%- endif -%}{%- endmacro %}
 {# 4. OG & Twitter Player Component, OG Article Publisher Metadata Engine #}
   {% macro r_page_s_meta(page_data,site_config, type='website', card='summary_large_image') -%}
-  {{- metap_tag('og:title', page_data.title | default(site_config.title) | e) -}}{{- metap_tag('og:description', page_data.desc | default(site_config.desc) | e ) -}}{{- metap_tag('og:type', type | e) -}}{{- meta_tag('twitter:site', site_config.twitter_site | e ) -}}{{- meta_tag('twitter:card', 'player' if page_data.media == 'video' else card | e) -}}
+  {{- metap_tag('og:title', page_data.title | default(site_config.title) | e) -}}
+  {{- metap_tag('og:description', page_data.desc | default(site_config.desc) | e ) -}}
+  {{- metap_tag('og:type', type | e) -}}{{- meta_tag('twitter:site', site_config.twitter_site | e ) -}}
+  {{- meta_tag('twitter:card', 'player' if page_data.media == 'video' else card | e) -}}
   {%- if page_data.media == 'video' and page_data.video -%}
   {%- if page_data.video.type == 'youtube' -%}
   {% set base_video_url = "https://www.youtube-nocookie.com/embed/"~ page_data.video.id %}{% set base_image_url = "https://img.youtube.com/vi/" ~ video_id ~ "/hqdefault.jpg" %}
-  {{- metap_tag('og:video', base_video_url) -}}{{- meta_tag('twitter:player', base_video_url) -}}{{- metap_tag('og:image', base_image_url) -}}{{- meta_tag('twitter:image', base_image_url) -}}
+  {{- metap_tag('og:video', base_video_url) -}}
+  {{- meta_tag('twitter:player', base_video_url) -}}
+  {{- metap_tag('og:image', base_image_url) -}}
+  {{- meta_tag('twitter:image', base_image_url) -}}
   {%- elif page_data.video.type == 'dailymotion' -%}
   {% set base_video_url = "https://www.dailymotion.com/embed/video/"~ page_data.video.id %}{% set base_image_url = "https://www.dailymotion.com/thumbnail/video/" ~ page_data.video.id %}
-  {{- metap_tag('og:video',base_video_url ) -}}{{- meta_tag('twitter:player',base_video_url ) -}}{{- metap_tag('og:image',base_image_url ) -}}{{- meta_tag('twitter:image', base_image_url) -}}
+  {{- metap_tag('og:video',base_video_url ) -}}
+  {{- meta_tag('twitter:player',base_video_url ) -}}
+  {{- metap_tag('og:image',base_image_url ) -}}
+  {{- meta_tag('twitter:image', base_image_url) -}}
   {%- endif -%}
   {%- elif page_data.media == 'image' and page_data.og -%}
   {%- set img = _m_url(site_config.image_base_url,page_data.og.img) -%}
-  {{- metap_tag('og:image', img) -}}{{- metap_tag('og:image:width', '1200' ) -}}{{- metap_tag('og:image:height', '630' ) -}}{{- meta_tag('twitter:image', img) -}}{{- metap_tag('og:image:alt', page_data.og.alt | e) -}}{{- meta_tag('twitter:image:alt', page_data.og.alt | e) -}}
+  {{- metap_tag('og:image', img) -}}
+  {{- metap_tag('og:image:width', '1200' ) -}}
+  {{- metap_tag('og:image:height', '630' ) -}}
+  {{- meta_tag('twitter:image', img) -}}
+  {{- metap_tag('og:image:alt', page_data.og.alt | e) -}}
+  {{- meta_tag('twitter:image:alt', page_data.og.alt | e) -}}
   {%- endif -%}
   {%- if page_data.pin -%}
   {%- set img = _m_url(site_config.image_base_url,page_data.pin.img) -%}
-  {{- meta_tag('pinterest:rich_pins', 'true') -}}{{- metap_tag('og:image', img) -}}{{- metap_tag('og:image:width', '1000') -}}{{- metap_tag('og:image:height', '1500') -}}{{- metap_tag('og:image:alt', page_data.pin.alt | e) -}}
+  {{- meta_tag('pinterest:rich_pins', 'true') -}}
+  {{- metap_tag('og:image', img) -}}
+  {{- metap_tag('og:image:width', '1000') -}}
+  {{- metap_tag('og:image:height', '1500') -}}
+  {{- metap_tag('og:image:alt', page_data.pin.alt | e) -}}
   {%- endif -%}
   {%- if page_data.type == 'article' and page_data.post -%}
-  {%- if page_data.post.published_time -%}{{- metap_tag('article:published_time', page_data.post.published_time) -}}{%- endif -%}
-  {%- if page_data.post.modified_time -%}{{- metap_tag('article:modified_time', page_data.post.modified_time) -}}{%- endif -%}
-  {%- if page_data.post.author_url -%}{{- metap_tag('article:author',page_data.post.author_url | e ) -}}{%- endif -%}
-  {%- if page_data.post.publisher -%}{{- metap_tag('article:publisher', page_data.post.publisher | e) -}}{%- endif -%}
-  {%- if page_data.post.section -%}{{- metap_tag('article:section', page_data.post.section | e) -}}{%- endif -%}
-  {%- for tag in page_data.post.tags | default([]) -%}{%- if tag -%}{{- metap_tag('article:tag', tag | e) -}}{%- endif -%}{%- endfor -%}
-  {%- if page_data.post.twitter_creator_Handler -%}{{- metap_tag('twitter:creator', page_data.post.twitter_creator_Handler | e) -}}{%- endif -%}
+  {%- if page_data.post.published_time -%}
+  {{- metap_tag('article:published_time', page_data.post.published_time) -}}{%- endif -%}
+  {%- if page_data.post.modified_time -%}
+  {{- metap_tag('article:modified_time', page_data.post.modified_time) -}}{%- endif -%}
+  {%- if page_data.post.author_url -%}
+  {{- metap_tag('article:author',page_data.post.author_url | e ) -}}{%- endif -%}
+  {%- if page_data.post.publisher -%}
+  {{- metap_tag('article:publisher', page_data.post.publisher | e) -}}{%- endif -%}
+  {%- if page_data.post.section -%}
+  {{- metap_tag('article:section', page_data.post.section | e) -}}{%- endif -%}
+  {%- for tag in page_data.post.tags | default([]) -%}{%- if tag -%}
+  {{- metap_tag('article:tag', tag | e) -}}{%- endif -%}{%- endfor -%}
+  {%- if page_data.post.twitter_creator_Handler -%}
+  {{- metap_tag('twitter:creator', page_data.post.twitter_creator_Handler | e) -}}{%- endif -%}
   {%- endif -%}{%- endmacro %}
 {# 5. Global Asset Icon Component #}
   {% macro r_g_icons(site_config) -%}
@@ -60,15 +95,23 @@
 
 {# 6. Global Schema Component #}
   {% macro schema_graph() -%}
-  <script type="application/ld+json">{"@context": "https://schema.org","@graph": [{{- caller() -}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org","@graph": [
+    {{- caller() -}}
+    ]}
+  </script>
   {%- endmacro %}
 
   {% macro PageSchema(page_type, page_data, site_config, extra_entities=[], breadcrumb=None) -%}
   {% from 'macro/schema/master.html' import Organization_S, Website_S, Breadcrumb_S, Person_S, Webpage_S with context %}
   {%- call schema_graph() -%}
   {{- Organization_S(page_type, site_config) | trim -}},{{- Website_S(page_data, site_config) | trim -}}
-  {%- if breadcrumb -%},{{- Breadcrumb_S(page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
-  {%- if page_data and not page_data.is_home -%}{{- Webpage_S(page_type, page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
-  {%- if page_data.author_list -%},{{- Person_S(page_data, site_config) | trim -}}{%- endif -%}
-  {%- for entity in extra_entities -%}{%- if entity -%},{{- entity | tojson -}}{%- endif -%}{%- endfor -%}
+  {%- if breadcrumb -%},
+  {{- Breadcrumb_S(page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
+  {%- if page_data and not page_data.is_home -%},
+  {{- Webpage_S(page_type, page_data, site_config, breadcrumb) | trim -}}{%- endif -%}
+  {%- if page_data.author_list -%},
+  {{- Person_S(page_data, site_config) | trim -}}{%- endif -%}
+  {%- for entity in extra_entities -%}{%- if entity -%}
+  ,{{- entity | tojson -}}{%- endif -%}
+  {%- endfor -%}
   {%- endcall -%}{%- endmacro %}
