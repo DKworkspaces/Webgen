@@ -1,9 +1,14 @@
-{# Bring the global variables into this file's scope #}
-{% import "data/schema.html" as s %}
+{% from "data/schema.html" import schema as site_config %}
 
-{# Construct your page-specific variables using global fields #}
-{% set home_data = {
-  "title": "Welcome to " + s.org_name,
-  "canonical_url": s.home_url + "/",
-  "api_endpoint": s.home_url + "/api/v1"
-} %}
+
+{%- set data = {
+    'ishome':'true',
+    'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
+    'desc': "Leading resource for enterprise-grade Flask architectures.",
+    'robots': "index, follow, max-image-preview:large",
+    'path': "/",
+      'datePublished': site_config.launch_date,
+      'dateModified': "2026-07-20",
+    'about': { "@id": site_config.home_url ~ '/#organization'  ,"@type": "Organization"}
+    ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
+} -%}
