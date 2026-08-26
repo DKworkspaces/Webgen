@@ -1,16 +1,9 @@
 {%- extends "_base.html" -%}
 
-{%- set page_data = {
-    'ishome':'true',
-    'title': site_config.name ~ " " ~ site_config.separator ~ " Home",
-    'desc': "Leading resource for enterprise-grade Flask architectures.",
-    'robots': "index, follow, max-image-preview:large",
-    'path': "/",
-      'datePublished': site_config.launch_date,
-      'dateModified': "2026-07-20",
-    'about': { "@id": site_config.home_url ~ '/#organization'  ,"@type": "Organization"}
-    ,'social': {'title': site_config.name ~ " " ~ site_config.separator ~ " Home"}
-} -%}
+{% from "data/page/home.html" import data as s %}
+{%- set page_data = s -%}
+
+
 
 
 {%- block page_schema -%}
