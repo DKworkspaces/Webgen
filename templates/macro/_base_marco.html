@@ -5,12 +5,25 @@
 
 {# Component : Breadcrumbs #}
   {%- macro r_breadcrumbs(segs) -%}
-  <nav class="app-breadcrumbs" aria-label="Breadcrumb"><div class="breadcrumbs-container"><ol><li><a href="/">Home</a></li>
+  <nav class="app-breadcrumbs" aria-label="Breadcrumb">
+    <div class="breadcrumbs-container">
+      <ol>
+        <li>
+          <a href="/">Home</a>
+        </li>
   {% set ns = namespace(path="") %}
   {%- for seg in segs -%}
   {% set cl_se = seg | trim | replace('/', '') %}{% set ns.path = ns.path + '/' + cl_se %}{% set f_n = cl_se | replace('-', ' ') | replace('_', ' ') | title %}
-  <li>{%- if loop.last -%}<span aria-current="page">{{- f_n -}}</span>{%- else -%}<a href="{{ ns.path }}/">{{- f_n -}}</a>{%- endif -%}</li>
-  {%- endfor -%}</ol></div></nav>
+        <li>{%- if loop.last -%}
+          <span aria-current="page">{{- f_n -}}</span>
+          {%- else -%}
+          <a href="{{ ns.path }}/">{{- f_n -}}</a>
+          {%- endif -%}
+        </li>
+  {%- endfor -%}
+      </ol>
+    </div>
+  </nav>
   {%- endmacro -%}
 
 
@@ -18,17 +31,30 @@
   {%- macro r_social(cls,label,link) -%}<a href="{{ share_endpoints.get(cls, '#') }}" class="btn-share {{ cls}}" target="_blank" rel="noopener noreferrer" aria-label="Share on {{ label }}">{{- label -}}</a>{%- endmacro -%}
 
 {# Component : Social Sharing #}
-  {%- macro r_widget(page_url, page_title='') -%}<div class="widget-deck"><section class="widget"><h3>Actions</h3>
+  {%- macro r_widget(page_url, page_title='') -%}
+  <div class="widget-deck">
+    <section class="widget">
+      <h3>Actions</h3>
     {{- r_social('btn-twitter', 'X', page_url, page_title) -}}
     {{- r_social('btn-facebook', 'Facebook', page_url, page_title) -}}
     {{- r_social('btn-linkedin', 'LinkedIn', page_url, page_title) -}}
     {{- r_social('btn-reddit', 'Reddit', page_url, page_title) -}}
     {{- r_social('btn-whatsapp', 'WhatsApp', page_url, page_title) -}}
-   </section></div>{%- endmacro %}
+    </section>
+  </div>{%- endmacro %}
 
 
 {# Component : Banner Hero #}
   {%- macro r_hero_banner(title, img_src="", read_time="", watch_time="") -%}
-  <div class="article-hero"><div class="hero-image-wrapper"><img src="{{ img_src }}" alt="{{ title | escape }}" loading="eager" fetchpriority="high"></div>
-  <div class="hero-meta-heading"><div class="article-performance-metrics"><span class="metric-item">{{ read_time }} read time</span><span class="metric-item">{{ watch_time }} watch time</span></div></div></div>
+  <div class="article-hero">
+    <div class="hero-image-wrapper">
+      <img src="{{ img_src }}" alt="{{ title | escape }}" loading="eager" fetchpriority="high">
+    </div>
+    <div class="hero-meta-heading">
+      <div class="article-performance-metrics">
+        <span class="metric-item">{{ read_time }} read time</span>
+        <span class="metric-item">{{ watch_time }} watch time</span>
+      </div>
+    </div>
+  </div>
   {%- endmacro -%}
