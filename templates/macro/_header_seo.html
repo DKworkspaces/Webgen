@@ -7,8 +7,7 @@
   {% macro metap_tag(name, content) -%}<meta property="{{- name -}}" content="{{- content -}}">{%- endmacro %}
 
 {# 1. Page Identity Metadata #}
-  {% macro r_page_id(page_data, site_config) -%}
-  <title>{{- page_data.title | default(site_config.title) | trim | e -}}</title>{{- meta_tag('description', page_data.desc | default(site_config.desc) | trim | e) -}}
+  {% macro r_page_id(page_data, site_config) -%}<title>{{- page_data.title | default(site_config.title) | trim | e -}}</title>{{- meta_tag('description', page_data.desc | default(site_config.desc) | trim | e) -}}
   {%- endmacro %}
 {# 2. Robots & Canonical #}
   {% macro r_can(page_data, site_config) -%}
