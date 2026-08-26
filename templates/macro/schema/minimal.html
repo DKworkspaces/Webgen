@@ -1,0 +1,910 @@
+{% from 'macro/minor/base.html' import m_url %}
+{% set _m_url = m_url %}
+
+
+{# 1. Micro Component Entity Base element #}
+  {% macro entity_base(type) %}
+  {"@type":"{{ type }}"{{ caller() }}}{% endmacro %}
+
+{# 2. Micro Component KeyValue element #}
+  {% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
+
+
+
+
+
+
+{# 1. SubComponent Image element #}
+  {% macro image_ms(img, site_config) -%}{% if img -%}
+  {%- call entity_base("ImageObject") -%}
+{{- kv("url", _m_url(site_config.home_url, img.url)) -}}
+  {{- kv("width", img.width, is_json=true) -}}
+  {{- kv("height", img.height, is_json=true) -}}
+  {{- kv('caption', img.desc) -}}
+  {%- endcall -%}{%- endif %}{%- endmacro %}
+
+{# 4. SubComponent Contact element #}
+  {% macro contact_ms(contact) -%}
+  {%- call entity_base("ContactPoint") -%}
+  {{- kv("contactType", "customer service") -}}
+  {%- if contact.availableLanguage -%}{{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
+  {%- if contact.areaServed -%}{{- kv("areaServed", contact.areaServed) -}}{%- endif -%}
+  {%- if contact.support_email -%}{{- kv("email", contact.support_email) -}}{%- endif -%}
+  {%- if contact.phone -%}{{- kv("telephone", contact.phone) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 5. SubComponent Address element #}
+  {% macro postal_ms(address) -%}
+  {%- call entity_base("PostalAddress") -%}
+  {%- if address.street -%}{{- kv("streetAddress", address.street) -}}{%- endif -%}
+  {%- if address.city -%}{{- kv("addressLocality", address.city) -}}{%- endif -%}
+  {%- if address.region -%}{{- kv("addressRegion", address.region) -}}{%- endif -%}
+  {%- if address.zip -%}{{- kv("postalCode", address.zip) -}}{%- endif -%}
+  {%- if address.country -%}{{- kv("addressCountry", address.country) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 6. SubComponent Search element #}
+  {% macro search_ms(site_config) -%}{%- call entity_base("SearchAction") -%}
+  {%- set target_entry -%}
+  {%- call entity_base("EntryPoint") -%}
+  {{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}{%- endset -%}
+  {{- kv("target", target_entry, is_json=true) -}}
+  {{- kv("query-input", "required name=search_term_string") -}}
+  {%- endcall -%}{%- endmacro %}
+
+
+
+
+for homepage
+{# 1. Component Organization Schema #}
+  {% macro Organization_S(site_config) -%}
+    {%- call entity_base('Organization') -%}
+    {{- kv('@id',_m_url(site_config.home_url, '/#organization)) -}} 
+    {{- kv('name', site_config.org_name) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('description', site_config.org_desc) -}}
+    {{- kv('logo', image_ms(site_config.img | default(none), site_config), is_json=true) -}}
+    {{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
+  {%- endcall -%}{%- endmacro %}
+
+{# 2. Component Website Schema #}
+  {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#website')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    {{- kv('potentialAction', search_ms(site_config), is_json=true) -}}
+  {%- endcall -%}{%- endmacro %}
+
+
+
+for about page
+{# 1. Define the AboutPage container #}
+  {% macro AboutPage_S(page_data, site_config) -%}
+  {%- call entity_base('AboutPage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+for contact page
+{# 1. Define the ContactPage container #}
+  {% macro ContactPage_S(page_data, site_config) -%}
+  {%- call entity_base('ContactPage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    , "mainEntity": 
+      {%- call entity_base("Organization") -%}
+        {{ kv("name", "Chronos & Cosmos Editorial Office") }}
+        {{- kv('contactPoint', contact_point_microschema(site_config.contact), is_json=true) -}}
+        {{- kv('address', postal_address_microschema(site_config.address), is_json=true) -}}{%- endif -%}
+      {%- endcall -%}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+
+for privacy policy page 
+
+
+{# 1. Define the Privacy Policy Page container #}
+  {% macro PrivacyPage_S(page_data, site_config) -%}
+  {%- call entity_base('Webpage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('specialty', 'PrivacyPolicy') -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+
+  for editorial policy 
+
+{# 1. Define the Editorial Policy Page container #}
+  {% macro EditorialPage_S(page_data, site_config) -%}
+  {%- call entity_base('Webpage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('specialty', 'EditorialPolicy') -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+
+
+fact check policy
+
+{# 1. Define the FactCheck Policy Page container #}
+  {% macro FactCheckPage_S(page_data, site_config) -%}
+  {%- call entity_base('Webpage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('specialty', 'FactCheckingPolicy') -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+terms of service page
+
+{# 1. Define the terms of service Page container #}
+  {% macro TermsPage_S(page_data, site_config) -%}
+  {%- call entity_base('Webpage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+  {%- endcall -%}
+{%- endmacro %}
+
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+
+categories list/tag list/archive list
+
+
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the core CollectionPage container #}
+    {%- call component.entity_base("CollectionPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", "Browse Articles by Topic Hub") }}
+      {{ component.kv("description", "Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.") }}
+      
+      {# Structural references back to your homepage anchors #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+      
+      {# 2. Loop through your list of categories/tags inside an ItemList element #}
+      , "mainEntity": 
+      {%- call component.entity_base("ItemList") -%}
+        {{ component.kv("name", "Available Topic Directories") }}
+        , "itemListElement": [
+          {% for dynamic_item in terms_list %}
+          {%- call component.entity_base("ListItem") -%}
+            {{ component.kv("position", loop.index | string, is_json=true) }}
+            {{ component.kv("name", dynamic_item.name) }}
+            {{ component.kv("url", dynamic_item.absolute_url, is_json=true) }}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      {%- endcall -%}
+    {%- endcall -%}
+
+    {# 3. Append the BreadcrumbList path #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", "Topics") }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+individual category/tag/archive 
+
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the active Stream CollectionPage container #}
+    {%- call component.entity_base("CollectionPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", active_term.name ~ " Journal Archive") }}
+      {{ component.kv("description", active_term.description | default("Deep analysis and research updates exploring " ~ active_term.name)) }}
+      
+      {# Structural link references back to the homepage properties #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+      
+      {# 2. Loop your actual post feed row cards #}
+      , "mainEntity": 
+      {%- call component.entity_base("ItemList") -%}
+        {{ component.kv("name", "Articles in " ~ active_term.name) }}
+        , "itemListElement": [
+          {% for post in posts_list %}
+          {%- call component.entity_base("ListItem") -%}
+            {{ component.kv("position", loop.index | string, is_json=true) }}
+            {{ component.kv("name", post.title) }}
+            {{ component.kv("url", post.absolute_url, is_json=true) }}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      {%- endcall -%}
+    {%- endcall -%}
+
+    {# 3. Append the multi-step BreadcrumbList #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", "Categories") }}
+          {{ component.kv("item", site_config.home_url ~ "categories/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", active_term.name) }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+
+pillar page
+
+
+
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the main Pillar WebPage entity #}
+    {%- call component.entity_base("WebPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", "The Complete History of the Bronze Age Collapse: A Foundational Guide") }}
+      {{ component.kv("description", "An exhaustive pillar resource mapping the systemic, environmental, and geopolitical breakdowns that brought down ancient Mediterranean empires.") }}
+      
+      {# Contextual references mapping back to the global homepage frames #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+      
+      {# 2. Explicitly map your smaller 'cluster' sub-articles using their precise IDs #}
+      , "hasPart": [
+        { "@id": "{{ site_config.home_url }}history/bronze-age-collapse/sea-peoples/#article" },
+        { "@id": "{{ site_config.home_url }}history/bronze-age-collapse/climate-droughts/#article" }
+      ]
+      
+      {# 3. Build an ItemList directory to list the cluster links natively within the hub page #}
+      , "mainEntity": 
+      {%- call component.entity_base("ItemList") -%}
+        {{ component.kv("name", "Bronze Age Collapse Research Chapters") }}
+        , "itemListElement": [
+          {% for cluster_post in cluster_posts %}
+          {%- call component.entity_base("ListItem") -%}
+            {{ component.kv("position", loop.index | string, is_json=true) }}
+            {{ component.kv("name", cluster_post.title) }}
+            {{ component.kv("url", cluster_post.absolute_url, is_json=true) }}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      {%- endcall -%}
+    {%- endcall -%}
+
+    {# 4. Append the BreadcrumbList path #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", "History Pillar") }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+sub cluster page
+
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the intermediate Sub-Pillar WebPage entity #}
+    {%- call component.entity_base("WebPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", "The Geopolitics of the Cold War: An Intermediate Guide") }}
+      {{ component.kv("description", "A tactical sub-pillar exploration breaking down the systemic proxy conflicts, nuclear arms races, and intelligence operations between 1947 and 1991.") }}
+      
+      {# LINK UPWARD: Connects this sub-pillar straight back to the Parent Macro Pillar Page #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}geopolitics-hub/#webpage" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+      
+      {# LINK DOWNWARD: Explicitly map your deep micro-cluster articles using their precise IDs #}
+      , "hasPart": [
+        { "@id": "{{ site_config.home_url }}geopolitics/cold-war/berlin-airlift/#article" },
+        { "@id": "{{ site_config.home_url }}geopolitics/cold-war/cuban-missile-crisis/#article" }
+      ]
+      
+      {# 2. Build an ItemList directory to display the child links cleanly within this hub #}
+      , "mainEntity": 
+      {%- call component.entity_base("ItemList") -%}
+        {{ component.kv("name", "Cold War Deep-Dive Focus Chapters") }}
+        , "itemListElement": [
+          {% for child_post in sub_cluster_posts %}
+          {%- call component.entity_base("ListItem") -%}
+            {{ component.kv("position", loop.index | string, is_json=true) }}
+            {{ component.kv("name", child_post.title) }}
+            {{ component.kv("url", child_post.absolute_url, is_json=true) }}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      {%- endcall -%}
+    {%- endcall -%}
+
+    {# 3. Append the multi-tier BreadcrumbList path #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", "Geopolitics Master Hub") }}
+          {{ component.kv("item", site_config.home_url ~ "geopolitics-hub/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", "Cold War Era") }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+
+blogpost
+
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the Article WebPage Container Node #}
+    {%- call component.entity_base("WebPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      
+      {# LINK UPWARD: If part of a Sub-Pillar or Pillar Hub, pass its ID. Default to WebSite #}
+      {% if post.parent_hub_url %}
+        , "isPartOf": { "@id": "{{ post.parent_hub_url }}#webpage" }
+      {% else %}
+        , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      {% endif %}
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+    {%- endcall -%}
+
+    {# 2. Define the Core Authoritative Writing Node #},
+    {% if post.category == 'geopolitics' %}
+      {% set article_type = "AnalysisNewsArticle" %}
+    {% elif post.category == 'science' %}
+      {% set article_type = "ScholarlyArticle" %}
+    {% else %}
+      {% set article_type = "BlogPosting" %}
+    {% endif %}
+
+    {%- call component.entity_base(article_type) -%}
+      {{ component.id(request.url, "#article") }}
+      , "isPartOf": { "@id": "{{ request.url }}#webpage" }
+      {{ component.kv("headline", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      {{ component.kv("datePublished", post.date_published_iso) }}
+      {{ component.kv("dateModified", post.date_modified_iso) }}
+      {{ component.kv("mainEntityOfPage", request.url, is_json=true) }}
+      
+      {# Set dynamic reading dimensions #}
+      {{ component.kv("wordCount", post.content | wordcount | string, is_json=true) }}
+      {{ component.kv("inLanguage", "en-US") }}
+
+      {# INLINE PERSONNEL: Map writer directly without dedicated profile URLs #}
+      , "author": 
+      {%- call component.entity_base("Person") -%}
+        {{ component.kv("name", post.author_name) }}
+        {% if post.author_external_url %}
+          {{ component.kv("sameAs", post.author_external_url, is_json=true) }}
+        {% endif %}
+      {%- endcall -%}
+
+      {# GLOBAL SOURCE LINK: Reference the core brand profile via homepage ID token #}
+      , "publisher": { "@id": "{{ site_config.home_url }}#organization" }
+
+      {# IMAGE BLOCK: Add the required primary post image node #}
+      {% if post.featured_image %}
+      , "image": 
+      {%- call component.entity_base("ImageObject") -%}
+        {{ component.url(post.featured_image) }}
+        {{ component.kv("caption", post.title ~ " Featured Graphic") }}
+      {%- endcall -%}
+      {% endif %}
+    {%- endcall -%}
+
+    {# 3. Append the multi-step navigation BreadcrumbList #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", post.category | capitalize) }}
+          {{ component.kv("item", site_config.home_url ~ "category/" ~ post.category ~ "/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", post.title) }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+standalone blogpost Page 
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the Article WebPage Container Node #}
+    {%- call component.entity_base("WebPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      
+      {# LINK DIRECTLY TO WEBSITE: Since there is no pillar hub, link directly to the homepage root #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+    {%- endcall -%}
+
+    {# 2. Define the Core Authoritative Writing Node #},
+    {% if post.category == 'geopolitics' %}
+      {% set article_type = "AnalysisNewsArticle" %}
+    {% elif post.category == 'science' %}
+      {% set article_type = "ScholarlyArticle" %}
+    {% else %}
+      {% set article_type = "BlogPosting" %}
+    {% endif %}
+
+    {%- call component.entity_base(article_type) -%}
+      {{ component.id(request.url, "#article") }}
+      , "isPartOf": { "@id": "{{ request.url }}#webpage" }
+      {{ component.kv("headline", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      {{ component.kv("datePublished", post.date_published_iso) }}
+      {{ component.kv("dateModified", post.date_modified_iso) }}
+      {{ component.kv("mainEntityOfPage", request.url, is_json=true) }}
+      
+      {# Set reading dimensions #}
+      {{ component.kv("wordCount", post.content | wordcount | string, is_json=true) }}
+      {{ component.kv("inLanguage", "en-US") }}
+
+      {# INLINE PERSONNEL: Map your writer directly without profile page paths #}
+      , "author": 
+      {%- call component.entity_base("Person") -%}
+        {{ component.kv("name", post.author_name) }}
+      {%- endcall -%}
+
+      {# GLOBAL BRAND LINK: Connect publisher back to homepage organization profile #}
+      , "publisher": { "@id": "{{ site_config.home_url }}#organization" }
+
+      {# IMAGE BLOCK: Add the required primary post image node #}
+      {% if post.featured_image %}
+      , "image": 
+      {%- call component.entity_base("ImageObject") -%}
+        {{ component.url(post.featured_image) }}
+        {{ component.kv("caption", post.title ~ " Featured Graphic") }}
+      {%- endcall -%}
+      {% endif %}
+    {%- endcall -%}
+
+    {# 3. Append the simple multi-step BreadcrumbList path #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", post.category | capitalize) }}
+          {{ component.kv("item", site_config.home_url ~ "category/" ~ post.category ~ "/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", post.title) }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{# 3. Micro Component Common List element #}
+  {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
+  {%- for item in items -%}
+  {%- call entity_base('ListItem') -%}
+    {{- kv('position', loop.index + offset) -}}
+    {{- kv('name', item.name) -}}
+    {%- if type == 'breadcrumb' -%}
+    {{- kv('item', _m_url(site_config.home_url, item.path)) -}}
+    {%- else -%}
+    {{- kv('url', _m_url(site_config.home_url, item.path)) -}}{%- endif -%}
+  {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
+  {%- endfor -%}{%- endmacro %}
+
+
+
+
+{# 1. SubComponent Org-Id element #}
+  {% macro idOrg_microschema(site_config) -%}{%- call entity_base('Organization') -%}
+  {{- kv('@id', _m_url(site_config.home_url, '#organization')) -}}
+  {%- endcall -%}{%- endmacro %}
+
+{# 2. SubComponent listItem element #}
+  {% macro listItem_microschema(page_data, site_config) -%}
+  {%- set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
+  {%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}
+  {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
+  {%- endmacro %}
+
+{# 3. SubComponent Image element #}
+  {% macro image_microschema(img, site_config) -%}{% if img -%}
+  {%- call entity_base("ImageObject") -%}
+  {{- kv("url", _m_url(site_config.home_url, img.url)) -}}
+  {{- kv("width", img.width, is_json=true) -}}
+  {{- kv("height", img.height, is_json=true) -}}
+  {{- kv('caption', img.desc) -}}
+  {%- endcall -%}{%- endif %}{%- endmacro %}
+
+{# 4. SubComponent Contact element #}
+  {% macro contact_point_microschema(contact) -%}
+  {%- call entity_base("ContactPoint") -%}
+  {{- kv("contactType", "customer service") -}}
+  {%- if contact.availableLanguage -%}
+  {{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
+  {%- if contact.areaServed -%}
+  {{- kv("areaServed", contact.areaServed) -}}{%- endif -%}
+  {%- if contact.support_email -%}
+  {{- kv("email", contact.support_email) -}}{%- endif -%}
+  {%- if contact.phone -%}
+  {{- kv("telephone", contact.phone) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 5. SubComponent Address element #}
+  {% macro postal_address_microschema(address) -%}
+  {%- call entity_base("PostalAddress") -%}
+  {%- if address.street -%}
+  {{- kv("streetAddress", address.street) -}}{%- endif -%}
+  {%- if address.city -%}
+  {{- kv("addressLocality", address.city) -}}{%- endif -%}
+  {%- if address.region -%}
+  {{- kv("addressRegion", address.region) -}}{%- endif -%}
+  {%- if address.zip -%}
+  {{- kv("postalCode", address.zip) -}}{%- endif -%}
+  {%- if address.country -%}
+  {{- kv("addressCountry", address.country) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 6. SubComponent Search element #}
+  {% macro search_action_microschema(site_config) -%}{%- call entity_base("SearchAction") -%}
+  {%- set target_entry -%}
+  {%- call entity_base("EntryPoint") -%}
+  {{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}{%- endset -%}
+  {{- kv("target", target_entry, is_json=true) -}}
+  {{- kv("query-input", "required name=search_term_string") -}}
+  {%- endcall -%}{%- endmacro %}
+
+{# 7. SubComponent listBreadcrumbItems element #}
+  {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
+  {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}
+  {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}{%- endmacro %}
+
+{# 8. SubComponent Itemlist element #}
+  {% macro itemList_MicroSchema(page_data, site_config) -%}{%- set offset = (page_data.page | default(1) - 1) * site_config.per_page -%}
+  {%- call entity_base("ItemList") -%}
+  {{- kv("numberOfItems", page_data.items | length, is_json=true) -}}
+  {{- kv("itemListOrder", "ItemListOrderUnordered") -}}
+  {%- set elements = _render_list_elements(page_data.items, site_config, type='item', offset=offset) -%}
+  {{- kv("itemListElement", "[" ~ elements ~ "]", is_json=true) -}}
+  {%- endcall -%}{%- endmacro %}
+
+{# 9. SubComponent Video element #}
+  {% macro video_MicroSchema(video, site_config) -%}
+    {%- call entity_base("VideoObject") -%}
+    {{- kv("name", video.title) -}}
+    {{- kv("description", video.description) -}}
+    {{- kv("thumbnailUrl", video.thumbnail_url) -}}
+    {{- kv("uploadDate", video.uploadDate) -}}
+    {%- if video.duration -%}
+    {{- kv("duration", video.duration) -}}{%- endif -%}
+    {%- if video.embedUrl -%}
+    {{- kv("embedUrl", video.embedUrl) -}}{%- endif -%}
+    {%- if video.clips -%}
+      {%- set clips_array -%}{%- for clip in video.clips -%}
+      {%- call entity_base("Clip") -%}
+      {{- kv("name", clip.name) -}}
+      {{- kv("startOffset", clip.start, is_json=true) -}}
+      {{- kv("endOffset", clip.end, is_json=true) -}}
+        {%- set time_token = '?start=' if video.provider in ['youtube', 'dailymotion'] else '?t=' -%}
+      {{- kv("url", video.embedUrl ~ time_token ~ clip.start) -}}
+      {%- endcall -%}{%- if not loop.last -%},{%- endif -%}{%- endfor -%}{%- endset -%}
+      {{- kv("hasPart", "[" ~ clips_array ~ "]", is_json=true) -}}
+    {%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+
+
+
+{# 1. Component Organization Schema #}
+  {% macro Organization_S(page_type, site_config) -%}
+    {%- call entity_base('Organization') -%}
+    {{- kv('@id', _m_url(site_config.home_url, '/#organization')) -}}
+    {{- kv('name', site_config.org_name) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('description', site_config.org_desc) -}}
+    {{- kv('logo', image_microschema(site_config.img | default(none), site_config), is_json=true) -}}
+    {{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
+    {%- if page_type == 'ContactPage' -%}
+    {{- kv('contactPoint', contact_point_microschema(site_config.contact), is_json=true) -}}
+    {{- kv('address', postal_address_microschema(site_config.address), is_json=true) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 2. Component Website Schema #}
+  {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}   
+  {{- kv('@id', _m_url(site_config.home_url, '/#website')) -}}
+  {{- kv('url', site_config.home_url) -}}
+  {{- kv('name', site_config.name) -}}
+{{- kv('publisher', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    {%- if page_data.ishome -%}
+  {{- kv('potentialAction', search_action_microschema(site_config), is_json=true) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+
+{# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  {{- kv('itemListElement', listBreadcrumbItem_microschema(breadcrumb, site_config), is_json=true) -}}
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+{# 4. Component Person Schema #}
+  {% macro Person_S(page_data, site_config) -%}
+  {%- for person in page_data.author_list -%}{%- if person.id -%}
+      {%- call entity_base('Person') -%}
+        {{- kv('@id',_m_url(site_config.home_url, '/#person/' ,person.id)) -}}
+        {{- kv('name', person.name) -}}
+        {%- if person.url -%}
+        {{- kv('url', person.url) -}}{%- endif -%}
+        {%- if person.job_title -%}
+        {{- kv('jobTitle', person.job_title) -}}{%- endif -%}
+        {%- if person.image -%}
+        {{- kv('image', _m_url(site_config.image_base_url,person.image)) -}}
+        {%- endif -%}
+{{- kv('worksFor', '{"@id":"' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+        {%- if person.knowsAbout -%}
+        {{- kv('knowsAbout', person.knowsAbout | tojson, is_json=true) -}}{%- endif -%}
+        {%- if person.social_links -%}
+        {{- kv('sameAs', person.social_links | tojson, is_json=true) -}}{%- endif -%}
+      {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
+  {%- endif -%}{%- endfor -%}{%- endmacro %}
+
+{# 5. Component WebPage Schema#}
+  {% macro Webpage_S(page_type, page_data, site_config, breadcrumb=None) -%}
+  {%- call entity_base(page_type) -%}
+    {{- kv('@id', site_config.home_url ~ page_data.path ~ '/#webpage') -}}
+    {{- kv('url', site_config.home_url ~ page_data.path) -}}
+    {{- kv('name', page_data.title) -}}
+{{- kv('isPartOf', {"@id": site_config.home_url ~ "/#website"} | tojson, is_json=true) -}}
+    {%- if breadcrumb -%}
+{{- kv('breadcrumb', {"@id": _m_url(site_config.home_url, page_data.path, "/#breadcrumb")} | tojson, is_json=true) -}}{%- endif -%}
+    {%- if page_data.about -%}
+    {{- kv('about', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
+    {%- if page_data.desc -%}
+    {{- kv('description', page_data.desc) -}}{%- endif -%}
+    {%- if page_data.img -%}
+    {{- kv('primaryImageOfPage', image_microschema(page_data.img, site_config), is_json=true) -}}{%- endif -%}
+    {%- if page_data.datePublished -%}
+    {{- kv('datePublished', page_data.datePublished) -}}{%- endif -%}
+    {%- if page_data.dateModified -%}
+    {{- kv('dateModified', page_data.dateModified) -}}{%- endif -%}
+    {%- if page_type == 'CollectionPage' and page_data.items -%}
+    {{- kv('mainEntity', itemList_MicroSchema(page_data, site_config), is_json=true) -}}
+     {%- elif page_data.main_entity -%}
+    {{- kv('mainEntity', idOrg_microschema(site_config), is_json=true) -}}{%- endif -%}
+    {{- kv('inLanguage', 'en-US') -}}
+    {%- if page_type == 'BlogPosting' and page_data.author -%}
+{{- kv('author', { "@type": "Person", "@id": _m_url(site_config.home_url, "/#person/", page_data.author.id), "name": page_data.author.name } | tojson, is_json=true) -}}
+{{- kv('publisher', {"@id": _m_url(site_config.home_url, "#organization")} | tojson, is_json=true) -}}
+{{- kv('mainEntityOfPage', {"@type": "WebPage", "@id": _m_url(site_config.home_url, page_data.path, "/#webpage")} | tojson, is_json=true) -}}{%- endif -%}
+    {%- if page_data.video -%}
+    {{- kv('video', video_MicroSchema(page_data.video, site_config), is_json=true) -}}{%- endif -%}
+  {%- endcall -%}{%- endmacro %}
+  
