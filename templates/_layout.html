@@ -5,23 +5,23 @@
 {% block prelayout_content %}
 {% endblock %}
 <!-- LEFT TRACK COLUMN: Universal Sticky Table of Contents Component Block -->
-<aside class="col-toc">
+  <aside class="col-toc">
 {% block l_sidebar %}
 {% endblock %}
-</aside>
+  </aside>
 <!-- CENTER TRACK STREAM: Main Article Prose Component Container Area Slot -->
-<main class="col-content">
-<article class="prose">
+  <main class="col-content">
+    <article class="prose">
 {% block main_content %}
 {% endblock %}
-</article>
-</main>
+    </article>
+  </main>
 <!-- RIGHT TRACK COLUMN: Auxiliary Widget Sidebar Element Block Component Modules -->
 {% if not no_sidebar %}
-<aside class="col-widgets">
+  <aside class="col-widgets">
 {% block r_sidebar %}
 {% endblock %}
-</aside>
+  </aside>
 {% endif %}
 </div>
 {% endblock %}
