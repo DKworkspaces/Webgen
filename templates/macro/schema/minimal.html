@@ -10,6 +10,24 @@
   {% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
 
 
+{# 3.trial. Micro Component Core Properties element #}
+  {% macro core_props(url, id) %}
+    {{- kv('@id', id) -}} 
+    {{- kv('url', url) -}}
+    {{- caller() if caller -}}
+  {% endmacro %}
+{# 4.trial. Micro Component Core Properties element #}
+  {% macro core_props(name, desc) %}
+    {{- kv('name', name) -}}
+    {{- kv('description', desc) -}}
+    {{- caller() if caller -}}
+  {% endmacro %}
+{# 5.trial. Micro Component Page Relations element #}
+  {% macro page_relations(home_url) %}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(home_url, '#organization') ~ '"}', is_json=true) -}}
+  {% endmacro %}
+
 
 
 
