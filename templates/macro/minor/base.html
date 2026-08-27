@@ -6,24 +6,15 @@
 
 
 {% macro _url(home_url, path=none, segment_id=none) -%}
-  {# 1. Clean the Home URL and Path #}
-  {% set home = (home_url | string | trim).rstrip('/') %}
-  {% set p_path = (path | string | trim).strip('/') if path is not none and (path | string | trim) != '' else none %}
+  {%- set home = (home_url | string | trim).rstrip('/') -%}
+  {%- set p_path = (path | string | trim).strip('/') if path is not none and (path | string | trim) != '' else none -%}
   
-  {# 2. Clean the Schema ID and guarantee it has a leading '#' #}
-  {% set s_id = (segment_id | string | trim) if segment_id is not none and (segment_id | string | trim) != '' else none %}
-  {% if s_id and not s_id.startswith('#') %}
-    {% set s_id = '#' ~ s_id %}
-  {% endif %}
-
-  {# 3. Build the Schema URL #}
-  {%- if p_path and s_id -%}
-    {{- home ~ '/' ~ p_path ~ s_id -}}
-  {%- elif p_path -%}
-    {{- home ~ '/' ~ p_path -}}
-  {%- elif s_id -%}
-    {{- home ~ s_id -}}
-  {%- else -%}
-    {{- home -}}
+  {%- set s_id = (segment_id | string | trim) if segment_id is not none and (segment_id | string | trim) != '' else none -%}
+  {%- if s_id and not s_id.startswith('#') -%}{%- set s_id = '#' ~ s_id -%}
+  {%- endif -%}
+  {%- if p_path and s_id -%}{{- home ~ '/' ~ p_path ~ s_id -}}
+  {%- elif p_path -%}{{- home ~ '/' ~ p_path -}}
+  {%- elif s_id -%}{{- home ~ s_id -}}
+  {%- else -%}{{- home -}}
   {%- endif -%}
 {%- endmacro %}
