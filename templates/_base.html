@@ -8,8 +8,7 @@
 {%- from 'macro/_header_seo.html' import r_page_id,r_can,r_page_s_meta,r_page_res_hints,r_g_icons with context -%}
 <!-- css n js code domain urls  -->
 
-{%- set css_base = "{{ site_config.css_js_url }}css/mgr/0.1/" -%}
-{%- set js_base = "{{ site_config.css_js_url }}js/mgr/0.1/" %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +34,8 @@
 {# 5. Critical CSS #}
     {%- block critical_css %}{# cricitical css #}{%- endblock critical_css %}
 {# 6. Core CSS #}
+{%- set css_base = {{ site_config.css_js_url }}~"css/mgr/0.1/" -%}
+{%- set js_base = {{ site_config.css_js_url }}~"js/mgr/0.1/" %}
 <link rel="stylesheet" href="{{ css_base }}base.css">
 <link rel="stylesheet" href="{{ css_base }}footer.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="{{ css_base }}footer.css"></noscript>
