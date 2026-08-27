@@ -1,0 +1,263 @@
+{# Core Sub-Modules #}
+{% macro meta_tag(name, content) -%}<meta name="{{- name -}}" content="{{- content -}}">{%- endmacro %}
+{% macro metap_tag(name, content) -%}<meta property="{{- name -}}" content="{{- content -}}">{%- endmacro %}
+
+{# 1. BASE CARD: Incorporates distinct structural width/height values per layout type #}
+{% macro base_social_card(type, url, title, description, horizontal_image, image_alt, h_width='1200', h_height='630', vertical_image=none, v_width='1000', v_height='1500', pinterest_code=none) -%}
+  {{ metap_tag('og:type', type) }}
+  {{ metap_tag('og:url', url) }}
+  {{ metap_tag('og:title', title) }}
+  {{ metap_tag('og:description', description) }}
+  
+  {# Fallback to standard landscape asset properties if no specific vertical asset is defined #}
+  {% set pin_img = vertical_image | default(horizontal_image) %}
+  {% set pin_w = v_width if vertical_image else h_width %}
+  {% set pin_h = v_height if vertical_image else h_height %}
+  
+  {# Open Graph Meta Dimensions #}
+  {{ metap_tag('og:image', horizontal_image) }}
+  {{ metap_tag('og:image:alt', image_alt) }}
+  {{ metap_tag('og:image:width', h_width) }}
+  {{ metap_tag('og:image:height', h_height) }}
+  
+  {# X (Twitter) Engine — It automatically reads og:image dimensions, but we declare the base image #}
+  {{ meta_tag('twitter:image', horizontal_image) }}
+  {{ meta_tag('twitter:image:alt', image_alt) }}
+
+  {# Pinterest Explicit Formats #}
+  {{ meta_tag('pinterest:image', pin_img) }}
+  {{ meta_tag('pinterest:image:width', pin_w) }}
+  {{ meta_tag('pinterest:image:height', pin_h) }}
+  
+  {{ meta_tag('twitter:url', url) }}
+  {{ meta_tag('twitter:title', title) }}
+  {{ meta_tag('twitter:description', description) }}
+
+  {# Pinterest Site Domain Verification Tag #}
+  {% if pinterest_code -%}
+    {{ meta_tag('p:domain_verify', pinterest_code) }}
+  {%- endif %}
+
+  {# The 'caller()' function injects custom structural fields downstream #}
+  {{ caller() -}}
+{%- endmacro %}
+
+{# 2. STANDARD / IMAGE CARD #}
+{% macro image_social_card(type, url, title, description, horizontal_image, image_alt, h_width='1200', h_height='630', vertical_image=none, v_width='1000', v_height='1500', pinterest_code=none) -%}
+  {% call base_social_card(type, url, title, description, horizontal_image, image_alt, h_width, h_height, vertical_image, v_width, v_height, pinterest_code) -%}
+    {{ meta_tag('twitter:card', 'summary_large_image') }}
+  {%- endcall %}
+{%- endmacro %}
+
+{# 3. VIDEO CARD #}
+{% macro video_social_card(url, title, description, horizontal_image, image_alt, video_url, embed_url, h_width='1200', h_height='630', vertical_image=none, v_width='1000', v_height='1500', mime_type='video/mp4', width='1280', height='720', pinterest_code=none) -%}
+  {% call base_social_card('video.other', url, title, description, horizontal_image, image_alt, h_width, h_height, vertical_image, v_width, v_height, pinterest_code) -%}
+    {{ meta_tag('twitter:card', 'player') }}
+    {{ meta_tag('twitter:player', embed_url) }}
+    {{ meta_tag('twitter:player:width', width) }}
+    {{ meta_tag('twitter:player:height', height) }}
+    
+    {{ metap_tag('og:video', video_url) }}
+    {{ metap_tag('og:video:secure_url', video_url) }}
+    {{ metap_tag('og:video:type', mime_type) }}
+    {{ metap_tag('og:video:width', width) }}
+    {{ metap_tag('og:video:height', height) }}
+  {%- endcall %}
+{%- endmacro %}
+
+
+
+Final Clean Page Call (article.html)
+{% import "macros/social_meta.html" as social with context %}
+
+{% set desc = article.description | default('') | truncate(150) %}
+{% set alt_text = article.image_alt_text | default('Cover photo for ' ~ article.title) %}
+
+{{ social.image_social_card(
+    type='article', 
+    url=article.url, 
+    title=article.title, 
+    description=desc, 
+    horizontal_image=article.og_banner_url,
+    image_alt=alt_text,
+    h_width='1200',
+    h_height='630',
+    vertical_image=article.pinterest_pin_url,
+    v_width='1000',
+    v_height='1500',
+    pinterest_code=site_config.pinterest_verify
+) }}
+
+
+
+
+
+
+
+base html
+
+
+  {# Import social media macro library natively #}
+  {% import "macros/social_meta.html" as social with context %}
+  
+  {# Social Media Metadata Injector Engine #}
+  {% block seo_meta %}{% endblock %}
+
+
+Homepage (templates/home.html)
+
+{% extends "base.html" %}
+
+{% block seo_meta %}
+  {{ social.image_social_card(
+      type='website',
+      url=site_config.base_url,
+      title=site_config.homepage_title,
+      description=site_config.homepage_desc | truncate(150),
+      horizontal_image=site_config.default_og_image,
+      image_alt=site_config.name ~ ' Homepage Preview'
+  ) }}
+{% endblock %}
+
+About Us (templates/about.html)
+
+{% extends "base.html" %}
+
+{% block title %}About Us - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card(
+      type='website',
+      url=site_config.base_url ~ '/about',
+      title='About Us - ' ~ site_config.name,
+      description='Learn more about our team, vision, mission, and tracking metrics.',
+      horizontal_image=site_config.default_og_image,
+      image_alt='About the team behind ' ~ site_config.name
+  ) }}
+{% endblock %}
+
+Contact Us (templates/contact.html)
+
+
+{% extends "base.html" %}
+{% block title %}Contact Us - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card('website', site_config.base_url ~ '/contact', 'Contact Us', 'Get in touch with our support and news desks.', site_config.default_og_image, 'Contact portal banner') }}
+{% endblock %}
+
+
+Policies (editorial_policy.html, fact_check_policy.html, terms.html, privacy.html)
+(Tip: You can use this unified structure for all four policy templates—just swap content blocks!)
+
+{% extends "base.html" %}
+{% block title %}{{ policy.title }} - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card('website', policy.url, policy.title, policy.summary, site_config.default_og_image, policy.title ~ ' Documentation') }}
+{% endblock %}
+
+Categories / Tags / Archive Index Lists (templates/taxonomy_list.html)(Used to list all existing categories/tags/months globally)
+
+{% extends "base.html" %}
+{% block title %}Browse Topics - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card('website', taxonomy.index_url, 'Browse Topics by ' ~ taxonomy.type, 'Explore comprehensive index lists across our collections.', site_config.default_og_image, 'Taxonomy Directory Image') }}
+{% endblock %}
+
+
+Individual Category / Tag / Archive Listing Page (templates/taxonomy_single.html)
+
+{% extends "base.html" %}
+{% block title %}{{ term.name }} Archive - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card('website', term.url, term.name ~ ' Articles', term.description, term.og_image | default(site_config.default_og_image), term.name ~ ' Collection preview') }}
+{% endblock %}
+
+Standard BlogPost (Without Video) (templates/post_standard.html)
+
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {% call social.base_social_card(
+      type='article',
+      url=post.url,
+      title=post.title,
+      description=post.description | truncate(150),
+      horizontal_image=post.og_banner_url,
+      image_alt=post.image_alt_text | default(post.title),
+      vertical_image=post.pinterest_pin_url,
+      pinterest_code=site_config.pinterest_verify
+  ) -%}
+    {{ social.meta_tag('twitter:card', 'summary_large_image') }}
+    {{ social.metap_tag('article:published_time', post.published_at.strftime('%Y-%m-%dT%H:%M:%SZ')) }}
+    {{ social.metap_tag('article:author', post.author_name) }}
+    {% for tag in post.tags -%}
+      {{ social.metap_tag('article:tag', tag) }}
+    {%- endfor %}
+  {%- endcall %}
+{% endblock %}
+
+BlogPost with Inline Video Player (templates/post_video.html)
+
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.video_social_card(
+      url=post.url,
+      title=post.title,
+      description=post.description | truncate(150),
+      horizontal_image=post.og_banner_url,
+      image_alt=post.image_alt_text,
+      video_url=post.video.file_url,
+      embed_url=post.video.embed_url,
+      vertical_image=post.pinterest_pin_url,
+      width=post.video.width | default('1280'),
+      height=post.video.height | default('720'),
+      pinterest_code=site_config.pinterest_verify
+  ) }}
+{% endblock %}
+
+5.1 The Master Pillar Page (templates/pillar_page.html)
+The high-level semantic hub mapping a core topic strategy out comprehensively.
+
+{% extends "base.html" %}
+{% block title %}{{ pillar.title }} Hub - {{ site_config.name }}{% endblock %}
+
+{% block seo_meta %}
+  {{ social.image_social_card('article', pillar.url, pillar.title, pillar.summary, pillar.og_banner_url, pillar.title ~ ' Hub Layout') }}
+{% endblock %}
+
+5.2 Standard Cluster / Category Sub-Hub (templates/cluster_page.html)
+NA
+
+5.3 Blog Post Inside a Specific Pillar/Cluster Page (templates/post_within_silo.html)
+
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - {{ cluster.name }} Strategy{% endblock %}
+
+{% block seo_meta %}
+  {% call social.base_social_card('article', post.url, post.title, post.description | truncate(150), post.og_banner_url, post.image_alt_text) -%}
+    {{ social.meta_tag('twitter:card', 'summary_large_image') }}
+    {{ social.metap_tag('article:section', cluster.name) }}
+  {%- endcall %}
+{% endblock %}
+
+5.4 Sub-Pillar / Sub-Cluster Intermediate Page (templates/sub_pillar_cluster.html)
+Handles layered parent-child thematic patterns (e.g., Pillar [Fitness] → Sub-Pillar [Weightlifting] → Cluster [Squat Technique]).
+
+NA
+
+
+
+
+
+
+
+
+
+  
