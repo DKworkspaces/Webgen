@@ -237,125 +237,97 @@ terms of service page
 
 categories list/tag list/archive list
 
-
-
-{%- import "macros/components.html" as component -%}
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# 1. Define the core CollectionPage container #}
-    {%- call component.entity_base("CollectionPage") -%}
-      {{ component.id(request.url, "#webpage") }}
-      {{ component.url(request.url) }}
-      {{ component.kv("name", "Browse Articles by Topic Hub") }}
-      {{ component.kv("description", "Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.") }}
-      
-      {# Structural references back to your homepage anchors #}
-      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
-      , "about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      {# 2. Loop through your list of categories/tags inside an ItemList element #}
-      , "mainEntity": 
-      {%- call component.entity_base("ItemList") -%}
-        {{ component.kv("name", "Available Topic Directories") }}
-        , "itemListElement": [
+{# 1. Define the categories list Page container #}
+  {% macro Cats_Page_S(page_data, site_config) -%}
+  {%- call entity_base('CollectionPage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    , "mainEntity": 
+      {%- call entity_base("ItemList") -%}
+            {{- kv('name', site_config.mainEntity.name) -}}
+       , "itemListElement": [
           {% for dynamic_item in terms_list %}
           {%- call component.entity_base("ListItem") -%}
-            {{ component.kv("position", loop.index | string, is_json=true) }}
-            {{ component.kv("name", dynamic_item.name) }}
-            {{ component.kv("url", dynamic_item.absolute_url, is_json=true) }}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('url', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
           {%- endcall -%}{% if not loop.last %},{% endif %}
           {% endfor %}
         ]
       {%- endcall -%}
-    {%- endcall -%}
+  {%- endcall -%}
+{%- endmacro %}
 
-    {# 3. Append the BreadcrumbList path #},
-    {%- call component.entity_base("BreadcrumbList") -%}
-      {{ component.id(request.url, "#breadcrumb") }}
-      , "itemListElement": [
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "1", is_json=true) }}
-          {{ component.kv("name", "Home") }}
-          {{ component.kv("item", site_config.home_url, is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "2", is_json=true) }}
-          {{ component.kv("name", "Topics") }}
-          {{ component.kv("item", request.url, is_json=true) }}
-        {%- endcall -%}
-      ]
-    {%- endcall -%}
-  ]
-}
-</script>
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  , "itemListElement": [
+          {% for dynamic_item in terms_list %}
+          {%- call component.entity_base("ListItem") -%}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('item', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
+
+
 
 
 
 individual category/tag/archive 
 
 
-{%- import "macros/components.html" as component -%}
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# 1. Define the active Stream CollectionPage container #}
-    {%- call component.entity_base("CollectionPage") -%}
-      {{ component.id(request.url, "#webpage") }}
-      {{ component.url(request.url) }}
-      {{ component.kv("name", active_term.name ~ " Journal Archive") }}
-      {{ component.kv("description", active_term.description | default("Deep analysis and research updates exploring " ~ active_term.name)) }}
-      
-      {# Structural link references back to the homepage properties #}
-      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
-      , "about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      {# 2. Loop your actual post feed row cards #}
-      , "mainEntity": 
-      {%- call component.entity_base("ItemList") -%}
-        {{ component.kv("name", "Articles in " ~ active_term.name) }}
-        , "itemListElement": [
-          {% for post in posts_list %}
+{# 1. Define the category list Page container #}
+  {% macro Cat_Page_S(page_data, site_config) -%}
+  {%- call entity_base('CollectionPage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+    , "mainEntity": 
+      {%- call entity_base("ItemList") -%}
+            {{- kv('name', site_config.mainEntity.name) -}}
+       , "itemListElement": [
+          {% for dynamic_item in terms_list %}
           {%- call component.entity_base("ListItem") -%}
-            {{ component.kv("position", loop.index | string, is_json=true) }}
-            {{ component.kv("name", post.title) }}
-            {{ component.kv("url", post.absolute_url, is_json=true) }}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('url', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
           {%- endcall -%}{% if not loop.last %},{% endif %}
           {% endfor %}
         ]
       {%- endcall -%}
-    {%- endcall -%}
+  {%- endcall -%}
+{%- endmacro %}
 
-    {# 3. Append the multi-step BreadcrumbList #},
-    {%- call component.entity_base("BreadcrumbList") -%}
-      {{ component.id(request.url, "#breadcrumb") }}
-      , "itemListElement": [
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "1", is_json=true) }}
-          {{ component.kv("name", "Home") }}
-          {{ component.kv("item", site_config.home_url, is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "2", is_json=true) }}
-          {{ component.kv("name", "Categories") }}
-          {{ component.kv("item", site_config.home_url ~ "categories/", is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "3", is_json=true) }}
-          {{ component.kv("name", active_term.name) }}
-          {{ component.kv("item", request.url, is_json=true) }}
-        {%- endcall -%}
-      ]
-    {%- endcall -%}
-  ]
-}
-</script>
-
-
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  , "itemListElement": [
+          {% for dynamic_item in terms_list %}
+          {%- call component.entity_base("ListItem") -%}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('item', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
 
 
 pillar page
