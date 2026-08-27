@@ -282,9 +282,920 @@ Page 7: Editorial Policy Page (editorial-policy.html)
 
 
 
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "NewsMediaOrganization",
+      "@id": "{{ site_url }}/#organization",
+      "publishingPrinciples": "{{ page_url }}",
+      "correctionsPolicy": "{{ page_url }}"
+    }
+
+Page 8: Categories/Tags/Archive Index List Page (archive-index.html)
+
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ page_url }}/#itemlist",
+        "name": "Content Categories Directory",
+        "description": "List of all editorial content categories on the website.",
+        "numberOfItems": {{ taxonomies | length }},
+        "itemListElement": [
+          {% for term in taxonomies %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ term.name }}",
+            "url": "{{ term.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    }
+
+
+Page 9: Individual Category/Tag/Archive Page (taxonomy-single.html)
+
+
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ taxonomy_url }}/#webpage",
+      "url": "{{ taxonomy_url }}",
+      "name": "{{ taxonomy_name }} Articles & Resources",
+      "description": "{{ taxonomy_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ taxonomy_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ taxonomy_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Categories",
+          "item": "{{ site_url }}/categories"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ taxonomy_name }}"
+        }
+      ]
+    }
+
+Page 10: Pillar Page Template (pillar.html)
+
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ pillar_url }}/#webpage",
+      "url": "{{ pillar_url }}",
+      "name": "{{ pillar_title }}",
+      "description": "{{ pillar_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ pillar_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ pillar_url }}/#cluster-list",
+        "name": "{{ pillar_title }} Supporting Topic Cluster",
+        "description": "Deep-dive supporting guides and cluster content branches connected to this master topic.",
+        "numberOfItems": {{ cluster_pages | length }},
+        "itemListElement": [
+          {% for sub_page in cluster_pages %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ sub_page.title }}",
+            "url": "{{ sub_page.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ pillar_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_title }}"
+        }
+      ]
+    }
+
+Page 11: Cluster Page Template (cluster.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ cluster_url }}/#webpage",
+      "url": "{{ cluster_url }}",
+      "name": "{{ cluster_title }}",
+      "description": "{{ cluster_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ cluster_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ pillar_parent_url }}/#webpage",
+        "name": "{{ pillar_parent_title }}"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ cluster_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_parent_title }}",
+          "item": "{{ pillar_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ cluster_title }}"
+        }
+      ]
+    }
+
+    
+
+Page 12: Sub-Cluster Page Template (sub-cluster.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ sub_cluster_url }}/#webpage",
+      "url": "{{ sub_cluster_url }}",
+      "name": "{{ sub_cluster_title }}",
+      "description": "{{ sub_cluster_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ sub_cluster_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ cluster_parent_url }}/#webpage",
+        "name": "{{ cluster_parent_title }}"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ sub_cluster_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_root_title }}",
+          "item": "{{ pillar_root_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ cluster_parent_title }}",
+          "item": "{{ cluster_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ sub_cluster_title }}"
+        }
+      ]
+    }
+
+
+Page 13: BlogPosting Inside Category Page Template (blog-category-single.html)
+
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ post_url }}/#article",
+      "isPartOf": {
+        "@type": "WebPage",
+        "@id": "{{ category_url }}/#webpage"
+      },
+      "headline": "{{ post_title }}",
+      "description": "{{ post_meta_description }}",
+      "url": "{{ post_url }}",
+      "datePublished": "{{ post_date_published }}",
+      "dateModified": "{{ post_date_modified | default(post_date_published) }}",
+      "mainEntityOfPage": "{{ post_url }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post_author_name }}",
+        "url": "{{ post_author_profile_url | default(site_url ~ '/about') }}"
+      },
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{ post_featured_image }}",
+        "width": "1200",
+        "height": "630"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ post_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ category_name }}",
+          "item": "{{ category_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ post_title }}"
+        }
+      ]
+    }
 
 
 
+Page 14: BlogPosting Inside Cluster Page Template (blog-cluster-single.html)
+
+
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ post_url }}/#article",
+      "isPartOf": {
+        "@type": "WebPage",
+        "@id": "{{ cluster_url }}/#webpage"
+      },
+      "headline": "{{ post_title }}",
+      "description": "{{ post_meta_description }}",
+      "url": "{{ post_url }}",
+      "datePublished": "{{ post_date_published }}",
+      "dateModified": "{{ post_date_modified | default(post_date_published) }}",
+      "mainEntityOfPage": "{{ post_url }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post_author_name }}",
+        "url": "{{ post_author_profile_url | default(site_url ~ '/about') }}"
+      },
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{ post_featured_image }}",
+        "width": "1200",
+        "height": "630"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ post_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_title }}",
+          "item": "{{ pillar_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ cluster_title }}",
+          "item": "{{ cluster_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ post_title }}"
+        }
+      ]
+    }
+
+
+Page 15: BlogPosting with Embedded Video Template (blog-video.html)
+
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ post_url }}/#article",
+      "isPartOf": {
+        "@type": "WebPage",
+        "@id": "{{ page_url }}/#webpage"
+      },
+      "headline": "{{ post_title }}",
+      "description": "{{ post_meta_description }}",
+      "url": "{{ post_url }}",
+      "datePublished": "{{ post_date_published }}",
+      "dateModified": "{{ post_date_modified | default(post_date_published) }}",
+      "mainEntityOfPage": "{{ post_url }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post_author_name }}",
+        "url": "{{ post_author_profile_url | default(site_url ~ '/about') }}"
+      },
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{ post_featured_image }}",
+        "width": "1200",
+        "height": "630"
+      },
+      "hasPart": {
+        "@id": "{{ post_url }}/#video"
+      }
+    },
+    {
+      "@type": "VideoObject",
+      "@id": "{{ post_url }}/#video",
+      "name": "{{ video_title }}",
+      "description": "{{ video_description }}",
+      "thumbnailUrl": [
+        "{{ video_thumbnail_url }}"
+      ],
+      "uploadDate": "{{ video_upload_date }}",
+      "contentUrl": "{{ video_source_url }}",
+      "embedUrl": "{{ video_embed_url }}",
+      "potentialAction": {
+        "@type": "SeekToAction",
+        "target": "{{ post_url }}?t={seek_to_second_number}",
+        "startOffset-input": "required name=seek_to_second_number"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ post_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ post_title }}"
+        }
+      ]
+    }
+
+
+
+Page 16: Sub-Pillar Page Template (sub-pillar.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ sub_pillar_url }}/#webpage",
+      "url": "{{ sub_pillar_url }}",
+      "name": "{{ sub_pillar_title }}",
+      "description": "{{ sub_pillar_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ sub_pillar_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ pillar_parent_url }}/#webpage",
+        "name": "{{ pillar_parent_title }}"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ sub_pillar_url }}/#sub-cluster-list",
+        "name": "{{ sub_pillar_title }} Deep Supporting Cluster",
+        "description": "Granular supporting child guides and sub-cluster segments managed under this sub-pillar.",
+        "numberOfItems": {{ sub_cluster_pages | length }},
+        "itemListElement": [
+          {% for sub_page in sub_cluster_pages %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ sub_page.title }}",
+            "url": "{{ sub_page.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ sub_pillar_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_parent_title }}",
+          "item": "{{ pillar_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ sub_pillar_title }}"
+        }
+      ]
+    }
+
+
+Page 17: BlogPosting Inside Pillar Page Template (blog-pillar-single.html)
+
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ post_url }}/#article",
+      "isPartOf": {
+        "@type": "WebPage",
+        "@id": "{{ pillar_url }}/#webpage"
+      },
+      "headline": "{{ post_title }}",
+      "description": "{{ post_meta_description }}",
+      "url": "{{ post_url }}",
+      "datePublished": "{{ post_date_published }}",
+      "dateModified": "{{ post_date_modified | default(post_date_published) }}",
+      "mainEntityOfPage": "{{ post_url }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ post_author_name }}",
+        "url": "{{ post_author_profile_url | default(site_url ~ '/about') }}"
+      },
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{ post_featured_image }}",
+        "width": "1200",
+        "height": "630"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ post_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_title }}",
+          "item": "{{ pillar_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ post_title }}"
+        }
+      ]
+    }
+
+Page 18: Profile Page Template (author-profile.html)
+
+    {
+      "@type": "ProfilePage",
+      "@id": "{{ author_profile_url }}/#webpage",
+      "url": "{{ author_profile_url }}",
+      "name": "About {{ author_name }} - {{ site_name }}",
+      "description": "{{ author_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ author_profile_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@type": "Person",
+        "@id": "{{ author_profile_url }}/#person",
+        "name": "{{ author_name }}",
+        "jobTitle": "{{ author_job_title }}",
+        "worksFor": {
+          "@id": "{{ site_url }}/#organization"
+        },
+        "description": "{{ author_bio_text }}",
+        "image": "{{ author_avatar_url }}",
+        "sameAs": [
+          "https://twitter.com",
+          "https://linkedin.com",
+          "https://wikidata.org"
+        ],
+        "knowsAbout": {{ author_expertise_topics | tojson }},
+        "alumniOf": {
+          "@type": "EducationalOrganization",
+          "name": "{{ author_university_name }}"
+        }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ author_profile_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Authors",
+          "item": "{{ site_url }}/authors"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ author_name }}"
+        }
+      ]
+    }
+
+Page 1 (Updated): The Homepage Master Schema (index.html)
+
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site_name }}",
+      "url": "{{ site_url }}",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "{{ site_url }}/#logo",
+        "url": "{{ logo_url }}",
+        "caption": "{{ site_name }} Logo",
+        "width": "512",
+        "height": "512"
+      },
+      "image": {
+        "@id": "{{ site_url }}/#logo"
+      },
+      "sameAs": [
+        "https://facebook.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "https://instagram.com"
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "{{ company_phone }}",
+          "contactType": "customer service",
+          "email": "{{ company_email }}",
+          "availableLanguage": ["en", "es"],
+          "contactOption": "TollFree"
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Business Innovation Way, Suite 500",
+        "addressLocality": "San Francisco",
+        "addressRegion": "CA",
+        "postalCode": "94107",
+        "addressCountry": "US"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "{{ site_url }}/#website",
+      "url": "{{ site_url }}",
+      "name": "{{ site_name }}",
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "{{ site_url }}/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "{{ site_url }}/#webpage",
+      "url": "{{ site_url }}",
+      "name": "{{ home_title }}",
+      "description": "{{ home_meta_desc }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "about": {
+        "@id": "{{ site_url }}/#organization"
+      }
+    }
+
+
+
+
+Page 2 (Updated): About Us Page with Nested Person Schema
+
+    {
+      "@type": "AboutPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site_name }}",
+      "url": "{{ site_url }}",
+      "knowsAbout": [
+        "Digital Marketing",
+        "Search Engine Optimization",
+        "Web Development"
+      ],
+      "employee": [
+        {% for member in team_members %}
+        {
+          "@type": "Person",
+          "@id": "{{ site_url }}/authors/{{ member.slug }}/#person",
+          "name": "{{ member.name }}",
+          "jobTitle": "{{ member.job_title }}",
+          "description": "{{ member.short_bio }}",
+          "image": "{{ member.avatar_url }}",
+          "url": "{{ site_url }}/authors/{{ member.slug }}/",
+          "sameAs": {{ member.social_profiles | tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+
+Page 2: About Us Page with Standalone Person Graph Nodes
+
+[
+    {
+      "@type": "AboutPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site_name }}",
+      "url": "{{ site_url }}"
+    },
+    {# Standalone Person Loop #}
+    {% for member in team_members %}
+    {
+      "@type": "Person",
+      "@id": "{{ site_url }}/authors/{{ member.slug }}/#person",
+      "name": "{{ member.name }}",
+      "jobTitle": "{{ member.job_title }}",
+      "description": "{{ member.short_bio }}",
+      "image": "{{ member.avatar_url }}",
+      "url": "{{ site_url }}/authors/{{ member.slug }}/",
+      "sameAs": {{ member.social_profiles | tojson }},
+      "worksFor": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "affiliation": {
+        "@id": "{{ site_url }}/#organization"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+
+
+
+
+
+
+Page 3 (Updated): Contact Us Page Template (contact.html)
+
+    {
+      "@type": "ContactPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@id": "{{ site_url }}/#organization"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    }
+
+
+
+
+
+
+
+
+
+
+
+Structural Page Identifiers (WebPage & Breadcrumb Nodes)
+Every page on your site should use its own URL paired with a fragment to define the page itself and its breadcrumb chain.
+
+Page Type.              WebPage ID Template (@id).         Breadcrumb ID Template (@id)
+Homepage.               {{ site_url }}/#webpage.           N/A (Root page)
+About Us.               {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Contact Us.             {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Terms of Service.       {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Privacy Policy.         {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Fact Check Policy.      {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Editorial Policy.       {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Categories Index.       {{ page_url }}/#webpage.           {{ page_url }}/#breadcrumb
+Individual Category.    {{ taxonomy_url }}/#webpage.       {{ taxonomy_url }}/#breadcrumb
+Pillar Page.            {{ pillar_url }}/#webpage.         {{ pillar_url }}/#breadcrumb
+Sub-Pillar Page.        {{ sub_pillar_url }}/#webpage.     {{ sub_pillar_url }}/#breadcrumb
+Cluster Page.           {{ cluster_url }}/#webpage.        {{ cluster_url }}/#breadcrumb
+Sub-Cluster Page.       {{ sub_cluster_url }}/#webpage.    {{ sub_cluster_url }}/#breadcrumb
+Author Profile Page.    {{ author_profile_url }}/#webpage. {{ author_profile_url }}/#breadcrumb
+
+
+
+Content Type.             Primary Entity ID Template (@id).      Secondary Node ID Template (If applicable)
+BlogPosting (Category).   {{ post_url }}/#article.               N/A
+BlogPosting (Cluster).    {{ post_url }}/#article.               N/A
+BlogPosting + Video.      {{ post_url }}/#article.               {{ post_url }}/#video (For the VideoObject)
+Person Profile.           {{ author_profile_url }}/#person.      {{ site_url }}/#organization (via worksFor)
 
 
 
