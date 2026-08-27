@@ -1,0 +1,654 @@
+{# Clean absolute URL generator helper function #}
+{% macro get_id(url, anchor) %}{{ url.rstrip('/') }}/#{{ anchor }}{% endmacro %}
+
+{# Global Script & Graph Array Wrapper #}
+{% macro graph_wrapper() %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {{ caller() }}
+  ]
+}
+</script>
+{% endmacro %}
+
+{# Micro Component Entity Base element #}
+{% macro entity_base(type, id="", name="", description="", url="") %}
+{
+  "@type": "{{ type }}"
+  {% if id %}, "@id": {{ id | tojson }}{% endif %}
+  {% if name %}, "name": {{ name | tojson }}{% endif %}
+  {% if description %}, "description": {{ description | tojson }}{% endif %}
+  {% if url %}, "url": {{ url | tojson }}{% endif %}
+  {{ caller() }}
+}{% endmacro %}
+
+{# Micro Component KeyValue element #}
+{% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
+
+{# --- NEW SUB-COMPONENT MACROS --- #}
+
+{# 1. isPartOf Function #}
+{% macro is_part_of(type, id) %}, "isPartOf": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+
+{# 2. about Function #}
+{% macro about(type, id) %}, "about": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+
+{# 3. publisher Function #}
+{% macro publisher(type, id) %}, "publisher": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+
+{# 4. mainEntityOfPage Function #}
+{% macro main_entity_of_page(type, id) %}, "mainEntityOfPage": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+
+{# 5. address Function #}
+{% macro address(street, locality, region, postal_code, country) %}
+, "address": {
+  "@type": "PostalAddress",
+  "streetAddress": {{ street | tojson }},
+  "addressLocality": {{ locality | tojson }},
+  "addressRegion": {{ region | tojson }},
+  "postalCode": {{ postal_code | tojson }},
+  "addressCountry": {{ country | tojson }}
+}
+{% endmacro %}
+
+{# 6. contactPoint Function #}
+{% macro contact_point(phone, type, email, lang=["en"]) %}
+, "contactPoint": [{
+  "@type": "ContactPoint",
+  "telephone": {{ phone | tojson }},
+  "contactType": {{ type | tojson }},
+  "email": {{ email | tojson }},
+  "availableLanguage": {{ lang | tojson }}
+}]
+{% endmacro %}
+
+{# 7. imageObject Function #}
+{% macro image_object(url, caption="", id="") %}
+, "image": {
+  "@type": "ImageObject"
+  {% if id %}, "@id": {{ id | tojson }}{% endif %},
+  "url": {{ url | tojson }}
+  {% if caption %}, "caption": {{ caption | tojson }}{% endif %}
+}
+{% endmacro %}
+
+{# 8. listItem Function #}
+{% macro list_item(position, name, url="") %}
+{
+  "@type": "ListItem",
+  "position": {{ position }},
+  "name": {{ name | tojson }}
+  {% if url %}, "item": {{ url | tojson }}{% endif %}
+}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 2. Homepage Master Template (index.html)
+
+ {% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Organization Block #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization'), name=site_name, url=site_url) %}
+    {{ core.image_object(logo_url, caption=site_name ~ " Logo", id=core.get_id(site_url, 'logo')) }}
+    {{ core.kv("sameAs", social_links, is_json=true) }}
+    {{ core.contact_point(company_phone, "customer service", company_email) }}
+    {{ core.address("123 Innovation Way, Suite 500", "San Francisco", "CA", "94107", "US") }}
+  {% endcall %},
+
+  {# 2. WebSite Block #}
+  {% call core.entity_base("WebSite", id=core.get_id(site_url, 'website'), name=site_name, url=site_url) %}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    , "potentialAction": [{
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ site_url }}/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }]
+  {% endcall %},
+
+  {# 3. WebPage Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(site_url, 'webpage'), name=home_title, description=home_meta_desc, url=site_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.about("Organization", core.get_id(site_url, 'organization')) }}
+  {% endcall %}
+
+  {# 4. Team Members Loop #}
+  {% for member in team_members %}
+  ,{% call core.entity_base("Person", id=core.get_id(site_url ~ "/authors/" ~ member.slug, 'person'), name=member.name, description=member.short_bio, url=site_url ~ "/authors/" ~ member.slug ~ "/") %}
+    {{ core.kv("jobTitle", member.job_title) }}
+    {{ core.image_object(member.avatar_url) }}
+    {{ core.kv("sameAs", member.social_profiles, is_json=true) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+  {% endcall %}
+  {% endfor %}
+{% endcall %}
+
+
+ 3. About Us Page Template (about.html)
+
+ {% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# WebPage Content Block #}
+  {% call core.entity_base("AboutPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# Breadcrumb Path Tracking Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# Root Organization Hook Connection #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.main_entity_of_page("AboutPage", core.get_id(page_url, 'webpage')) }}
+  {% endcall %}
+{% endcall %}
+
+
+4. BlogPosting Template (blog-category-single.html)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# Dynamic Blog Node #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(category_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+  {% endcall %},
+
+  {# Article Breadcrumb Path Tracking #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, category_name, category_url) }},
+      {{ core.list_item(3, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 4: Terms of Service Template (terms.html)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. Brand Node Connection #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.kv("publishingPrinciples", page_url) }}
+  {% endcall %}
+{% endcall %}
+
+
+Page 5: Privacy Policy Template (privacy.html)
+
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. Brand Node Connection #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.kv("publishingPrinciples", page_url) }}
+  {% endcall %}
+{% endcall %}
+
+Page 6: Fact-Checking Policy Template (fact-check-policy.html)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. News Media Organization Upgrade #}
+  {% call core.entity_base("NewsMediaOrganization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.kv("factCheckingPolicy", page_url) }}
+  {% endcall %}
+{% endcall %}
+
+Page 7: Editorial Policy Template (editorial-policy.html)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. News Media Organization Operational Connection #}
+  {% call core.entity_base("NewsMediaOrganization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.kv("publishingPrinciples", page_url) }}
+    {{ core.kv("correctionsPolicy", page_url) }}
+  {% endcall %}
+{% endcall %}
+
+
+Page 8 (Categories/Tags/Archive Index List Dashboard)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core Collection Directory Block #}
+  {% call core.entity_base("CollectionPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Dashboard Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. The Taxonomy Directory ItemList #}
+  {% call core.entity_base("ItemList", id=core.get_id(page_url, 'itemlist'), name="Taxonomy Index Directory", description="Master collection directory of website content taxonomies.") %}
+    {{ core.kv("numberOfItems", taxonomies | length) }}
+    , "itemListElement": [
+      {% for term in taxonomies %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "name": {{ term.name | tojson }},
+        "item": {{ term.url | tojson }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 9 (Individual Category/Tag Archive Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Standalone Category Archive Page Block #}
+  {% call core.entity_base("CollectionPage", id=core.get_id(taxonomy_url, 'webpage'), name=taxonomy_name ~ " Resource Archive", description=taxonomy_description, url=taxonomy_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(taxonomy_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. 3-Step Taxonomy Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(taxonomy_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, "Categories", site_url ~ "/categories") }},
+      {{ core.list_item(3, taxonomy_name) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 10 (Pillar Page Hub)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Master Pillar Page Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(pillar_url, 'webpage'), name=pillar_title, description=pillar_meta_description, url=pillar_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(pillar_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Core Pillar Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(pillar_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. Supporting Topic Cluster ItemList Registry #}
+  {% call core.entity_base("ItemList", id=core.get_id(pillar_url, 'cluster-list'), name=pillar_title ~ " Semantic Topic Hub Cluster", description="Direct supporting resources linked to this core cornerstone topic hub.") %}
+    {{ core.kv("numberOfItems", cluster_pages | length) }}
+    , "itemListElement": [
+      {% for sub_page in cluster_pages %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "name": {{ sub_page.title | tojson }},
+        "item": {{ sub_page.url | tojson }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 11 (Sub-Pillar Page Hub)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Content Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(sub_pillar_url, 'webpage'), name=sub_pillar_title, description=sub_pillar_meta_description, url=sub_pillar_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(sub_pillar_url, 'breadcrumb')}, is_json=true) }}
+    {{ core.main_entity_of_page("WebPage", core.get_id(pillar_parent_url, 'webpage')) }}
+  {% endcall %},
+
+  {# 2. Sub-Pillar 3-Step Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(sub_pillar_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_parent_title, pillar_parent_url) }},
+      {{ core.list_item(3, sub_pillar_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. Deep Supporting Sub-Cluster ItemList Registry #}
+  {% call core.entity_base("ItemList", id=core.get_id(sub_pillar_url, 'sub-cluster-list'), name=sub_pillar_title ~ " Deep Supporting Silo Cluster", description="Granular child guides managed under this specialized sub-pillar.") %}
+    {{ core.kv("numberOfItems", sub_cluster_pages | length) }}
+    , "itemListElement": [
+      {% for sub_page in sub_cluster_pages %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "name": {{ sub_page.title | tojson }},
+        "item": {{ sub_page.url | tojson }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 12 (Cluster Page Supporting Guide)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(cluster_url, 'webpage'), name=cluster_title, description=cluster_meta_description, url=cluster_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(cluster_url, 'breadcrumb')}, is_json=true) }}
+    {{ core.main_entity_of_page("WebPage", core.get_id(pillar_parent_url, 'webpage')) }}
+  {% endcall %},
+
+  {# 2. Cluster Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(cluster_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_parent_title, pillar_parent_url) }},
+      {{ core.list_item(3, cluster_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 13 (Sub-Cluster Page)
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(sub_cluster_url, 'webpage'), name=sub_cluster_title, description=sub_cluster_meta_description, url=sub_cluster_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(sub_cluster_url, 'breadcrumb')}, is_json=true) }}
+    {{ core.main_entity_of_page("WebPage", core.get_id(cluster_parent_url, 'webpage')) }}
+  {% endcall %},
+
+  {# 2. 4-Step Structural Breadcrumb Chain #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(sub_cluster_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_root_title, pillar_root_url) }},
+      {{ core.list_item(3, cluster_parent_title, cluster_parent_url) }},
+      {{ core.list_item(4, sub_cluster_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 14 (BlogPosting Inside a Category Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core BlogPosting Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(category_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+  {% endcall %},
+
+  {# 2. 3-Step Category Article Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, category_name, category_url) }},
+      {{ core.list_item(3, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 15 (BlogPosting Inside a Cluster Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core BlogPosting Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(cluster_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+  {% endcall %},
+
+  {# 2. 4-Step Siloed Article Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_title, pillar_url) }},
+      {{ core.list_item(3, cluster_title, cluster_url) }},
+      {{ core.list_item(4, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 16 (BlogPosting with Embedded Video)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. BlogPosting Core Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(page_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+    , "hasPart": { "@id": "{{ core.get_id(post_url, 'video') }}" }
+  {% endcall %},
+
+  {# 2. The VideoObject Structural Node #}
+  {% call core.entity_base("VideoObject", id=core.get_id(post_url, 'video'), name=video_title, description=video_description) %}
+    , "thumbnailUrl": [ {{ video_thumbnail_url | tojson }} ]
+    {{ core.kv("uploadDate", video_upload_date) }}
+    {{ core.kv("contentUrl", video_source_url) }}
+    {{ core.kv("embedUrl", video_embed_url) }}
+    , "potentialAction": {
+      "@type": "SeekToAction",
+      "target": "{{ post_url }}?t={seek_to_second_number}",
+      "startOffset-input": "required name=seek_to_second_number"
+    }
+  {% endcall %},
+
+  {# 3. Standard Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+
+Page 3 (Contact Us) 
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. ContactPage Core WebPage Block #}
+  {% call core.entity_base("ContactPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+    , "mainEntity": { "@id": "{{ core.get_id(site_url, 'organization') }}" }
+  {% endcall %},
+
+  {# 2. Integrated Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 4 (Terms of Service)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. WebPage Core Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Integrated Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. Corporate Connection Block #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
+    {{ core.kv("publishingPrinciples", page_url) }}
+  {% endcall %}
+{% endcall %}
+
+
+
+
+
+
+
