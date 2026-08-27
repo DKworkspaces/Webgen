@@ -9,24 +9,38 @@
 {# 2. Micro Component KeyValue element #}
   {% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
 
+{# 3. Micro Component Common List element #}
+  {% macro _render_list_elements(items, site_config, type='item', offset=0) -%}
+  {%- for item in items -%}
+  {%- call entity_base('ListItem') -%}
+    {{- kv('position', loop.index + offset) -}}
+    {{- kv('name', item.name) -}}
+    {%- if type == 'breadcrumb' -%}
+    {{- kv('item', _m_url(site_config.home_url, item.path)) -}}
+    {%- else -%}
+    {{- kv('url', _m_url(site_config.home_url, item.path)) -}}{%- endif -%}
+  {%- endcall -%}{%- if not loop.last -%},{%- endif -%}
+  {%- endfor -%}{%- endmacro %}
+
+
 
 {# 3.trial. Micro Component Core Properties element #}
-  {% macro core_props(url, id) %}
-    {{- kv('@id', id) -}} 
-    {{- kv('url', url) -}}
-    {{- caller() if caller -}}
-  {% endmacro %}
-{# 4.trial. Micro Component Core Properties element #}
-  {% macro core_props(name, desc) %}
-    {{- kv('name', name) -}}
-    {{- kv('description', desc) -}}
-    {{- caller() if caller -}}
-  {% endmacro %}
+{% macro core_props(id=none, url=none, name=none, desc=none) %}
+  {{- kv('@id', id) if id -}} 
+  {{- kv('url', url) if url -}}
+  {{- kv('name', name) if name -}}
+  {{- kv('description', desc) if desc -}}
+  {{- caller() | default('') -}}
+{% endmacro %}
+
 {# 5.trial. Micro Component Page Relations element #}
-  {% macro page_relations(home_url) %}
-    {{- kv('isPartOf', '{"@id": "' ~ _m_url(home_url, '#website') ~ '"}', is_json=true) -}}
-    {{- kv('about', '{"@id": "' ~ _m_url(home_url, '#organization') ~ '"}', is_json=true) -}}
-  {% endmacro %}
+{% macro page_relations(home_url) %}
+  {% set is_part_of = {"@id": _m_url(home_url, '#website')} %}
+  {% set about = {"@id": _m_url(home_url, '#organization')} %}
+  {{- kv('isPartOf', is_part_of | tojson, is_json=true) -}}
+  {{- kv('about', about | tojson, is_json=true) -}}
+{% endmacro %}
+
 
 
 
@@ -69,6 +83,10 @@
   {{- kv("target", target_entry, is_json=true) -}}
   {{- kv("query-input", "required name=search_term_string") -}}
   {%- endcall -%}{%- endmacro %}
+{# 7. SubComponent listBreadcrumbItems element #}
+  {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
+  {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}
+  [{{ elements }}] {%- endmacro %}
 
 
 
@@ -77,16 +95,19 @@ for homepage
 {# 1. Component Organization Schema #}
   {% macro Organization_S(site_config) -%}
     {%- call entity_base('Organization') -%}
-    {{- kv('@id',_m_url(site_config.home_url, '/#organization)) -}} 
+    {{- kv('@id',_m_url(site_config.home_url, '/#organization')) -}} 
     {{- kv('name', site_config.org_name) -}}
     {{- kv('url', site_config.home_url) -}}
     {{- kv('description', site_config.org_desc) -}}
-    {{- kv('logo', image_ms(site_config.img | default(none), site_config), is_json=true) -}}
+    {%- if site_config.img -%}
+    {{- kv('logo', image_ms(site_config.img, site_config), is_json=true) -}}
+    {%- endif -%}
     {{- kv('sameAs', site_config.social_links | default([]) | tojson, is_json=true) -}}
   {%- endcall -%}{%- endmacro %}
 
 {# 2. Component Website Schema #}
-  {% macro Website_S(page_data, site_config) -%}{%- call entity_base('WebSite') -%}   
+  {% macro Website_S(page_data, site_config) -%}
+    {%- call entity_base('WebSite') -%}   
     {{- kv('@id',_m_url(site_config.home_url, '/#website')) -}}
     {{- kv('url', site_config.home_url) -}}
     {{- kv('name', site_config.name) -}}
@@ -109,7 +130,7 @@ for about page
   {%- endcall -%}
 {%- endmacro %}
 
-# 3. Component Breadcrumb Schema #}
+{# 3. Component Breadcrumb Schema #}
   {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
   {%- if breadcrumb -%}
   {%- call entity_base('BreadcrumbList') -%}
