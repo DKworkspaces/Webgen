@@ -5,11 +5,12 @@
 
 
 
+
 {% macro _url(home_url, path=none, segment_id=none) -%}
-  {%- set home = (home_url | string | trim).rstrip('/') -%}
-  {%- set p_path = (path | string | trim).strip('/') if path is not none and (path | string | trim) != '' else none -%}
+  {%- set home = (home_url.strip().rstrip('/')) -%}
+  {%- set p_path = (path.strip().strip('/')) if path is not none and (path.strip()) != '' else none -%}
   
-  {%- set s_id = (segment_id | string | trim) if segment_id is not none and (segment_id | string | trim) != '' else none -%}
+  {%- set s_id = (segment_id.strip()) if segment_id is not none and (segment_id.strip()) != '' else none -%}
   {%- if s_id and not s_id.startswith('#') -%}{%- set s_id = '#' ~ s_id -%}
   {%- endif -%}
   {%- if p_path and s_id -%}{{- home ~ '/' ~ p_path ~ s_id -}}
