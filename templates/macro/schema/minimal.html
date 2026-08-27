@@ -4,6 +4,16 @@ exanple for  url+ fragment id
   "@type": "Organization",
   "@id": "{{ site_url }}/#organization"
 }
+
+
+example of function
+
+{% macro get_id(url, anchor) %}{{ url.rstrip('/') }}/#{{ anchor }}{% endmacro %}
+
+"@id": "{{ get_id(page_url, 'webpage') }}",
+"url": "{{ page_url }}",
+
+
 #}
 
 
