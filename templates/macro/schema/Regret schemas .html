@@ -1,0 +1,290 @@
+Page 1: The Homepage Schema (index.html)
+
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site_name }}",
+      "url": "{{ site_url }}",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "{{ site_url }}/#logo",
+        "url": "{{ logo_url }}",
+        "caption": "{{ site_name }} Logo",
+        "width": "512",
+        "height": "512"
+      },
+      "sameAs": [
+        "https://facebook.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "https://instagram.com"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "{{ site_url }}/#website",
+      "url": "{{ site_url }}",
+      "name": "{{ site_name }}",
+      "publisher": {
+        "@id": "{{ site_url }}/#organization"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "{{ site_url }}/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "{{ site_url }}/#webpage",
+      "url": "{{ site_url }}",
+      "name": "{{ home_title }}",
+      "description": "{{ home_meta_desc }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "about": {
+        "@id": "{{ site_url }}/#organization"
+      }
+    }
+
+
+
+
+Page 2: The About Us Page (about.html)
+
+
+    {
+      "@type": "AboutPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "knowsAbout": [
+        "Digital Marketing",
+        "Search Engine Optimization",
+        "Web Development"
+      ]
+    }
+
+
+
+
+
+
+
+Page 3: The Contact Us Page (contact.html)
+
+
+    {
+      "@type": "ContactPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "{{ company_phone }}",
+          "contactType": "customer service",
+          "email": "{{ company_email }}",
+          "availableLanguage": ["en", "es"]
+        }
+      ]
+    }
+
+
+
+
+
+Page 4: Terms of Service Page (terms.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "publishingPrinciples": "{{ page_url }}"
+    }
+
+
+
+Page 5: Privacy Policy Page (privacy.html)
+
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "{{ site_url }}/#organization",
+      "publishingPrinciples": "{{ page_url }}"
+    }
+
+
+Page 6: Fact-Checking Policy Page (fact-check-policy.html)
+
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    },
+    {
+      "@type": "NewsMediaOrganization",
+      "@id": "{{ site_url }}/#organization",
+      "name": "{{ site_name }}",
+      "url": "{{ site_url }}",
+      "factCheckingPolicy": "{{ page_url }}"
+    }
+
+
+Page 7: Editorial Policy Page (editorial-policy.html)
+
+
+
+
+
+
+
+
+
