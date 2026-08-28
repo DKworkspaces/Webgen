@@ -113,7 +113,13 @@ to test it
 
 
 
-
+{% macro list_item(position, name, url="") %}
+{{ object_base([
+    kv("name", name),
+    kv("position", position, is_json=true),
+    kv("item", url) if url else none
+  ]) }}
+{% endmacro %}
 
 
 
