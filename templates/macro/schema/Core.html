@@ -13,81 +13,102 @@
 </script>
 {% endmacro %}
 
-{# Micro Component Entity Base element #}
-{% macro entity_base(type, id="", name="", description="", url="") %}
-{
-  "@type": "{{ type }}"
-  {% if id %}, "@id": {{ id | tojson }}{% endif %}
-  {% if name %}, "name": {{ name | tojson }}{% endif %}
-  {% if description %}, "description": {{ description | tojson }}{% endif %}
-  {% if url %}, "url": {{ url | tojson }}{% endif %}
-  {{ caller() }}
+{# Micro Component Entity Base element #}{% macro entity_base(type, id="", name="", description="", url="") %}{"@type": "{{ type }}"{% if id %}, "@id": {{ id | tojson }}{% endif %}{% if name %}, "name": {{ name | tojson }}{% endif %}{% if description %}, "description": {{ description | tojson }}{% endif %}{% if url %}, "url": {{ url | tojson }}{% endif %}{{ caller() }}}{% endmacro %}
+{# Micro Component KeyValue element #}{% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
+{# --- NEW SUB-COMPONENT MACROS --- #}
+{# 1. isPartOf Function #}{% macro is_part_of(type, id) %}, "isPartOf": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+{# 2. about Function #}{% macro about(type, id) %}, "about": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+{# 3. publisher Function #}{% macro publisher(type, id) %}, "publisher": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+{# 4. mainEntityOfPage Function #}{% macro main_entity_of_page(type, id) %}, "mainEntityOfPage": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
+{# 5. address Function #}{% macro address(street, locality, region, postal_code, country) %}, "address": {"@type": "PostalAddress","streetAddress": {{ street | tojson }},"addressLocality": {{ locality | tojson }},"addressRegion": {{ region | tojson }},"postalCode": {{ postal_code | tojson }},"addressCountry": {{ country | tojson }}}{% endmacro %}
+{# 6. contactPoint Function #}{% macro contact_point(phone, type, email, lang=["en"]) %}, "contactPoint": [{"@type": "ContactPoint","telephone": {{ phone | tojson }},"contactType": {{ type | tojson }},"email": {{ email | tojson }},"availableLanguage": {{ lang | tojson }}}]{% endmacro %}
+{# 7. imageObject Function #}{% macro image_object(url, caption="", id="") %}, "image": {"@type": "ImageObject"{% if id %}, "@id": {{ id | tojson }}{% endif %},"url": {{ url | tojson }}{% if caption %}, "caption": {{ caption | tojson }}{% endif %}}{% endmacro %}
+{# 8. listItem Function #}{% macro list_item(position, name, url="") %}{"@type": "ListItem","position": {{ position }},"name": {{ name | tojson }}{% if url %}, "item": {{ url | tojson }}{% endif %}}{% endmacro %}
+
+
+new modes not yet added to any function 
+
+
+{# Micro Component KeyValue element - Returns a raw string instead of prepending a comma #}
+{% macro kv(key, value, is_json=false) %}
+  {%- if not is_json and value is string -%}"{{ key }}": {{ value | tojson }}
+  {%- else -%}"{{ key }}": {{ value }}
+{%- endif -%}{% endmacro %}
+
+{# Base object shell without any default keys #}
+{% macro object_base(props=[]) %}
+{ {{ props | select('defined') | join(',\n  ') }} }
+{% endmacro %}
+
+{# Base entity shell with Type, ID, Name, Description, and URL #}
+{% macro entity_base(type, id="", name="", description="", url="", props=[]) %}
+{"@type": "{{ type }}"
+  {%- if id %}, "@id": {{ id | tojson }}{% endif -%}
+  {%- if name %}, "name": {{ name | tojson }}{% endif -%}
+  {%- if description %}, "description": {{ description | tojson }}{% endif -%}
+  {%- if url %}, "url": {{ url | tojson }}{% endif -%}
+  {%- if props | length > 0 %},\n  {{ props | select('defined') | join(',\n  ') }}{% endif -%}
 }{% endmacro %}
 
-{# Micro Component KeyValue element #}
-{% macro kv(key, value, is_json=false) %}{% if not is_json and value is string %}, "{{ key }}":{{ value | tojson }}{% else %}, "{{ key }}":{{ value }}{% endif %}{% endmacro %}
-
-{# --- NEW SUB-COMPONENT MACROS --- #}
-
-{# 1. isPartOf Function #}
-{% macro is_part_of(type, id) %}, "isPartOf": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
-
-{# 2. about Function #}
-{% macro about(type, id) %}, "about": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
-
-{# 3. publisher Function #}
-{% macro publisher(type, id) %}, "publisher": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
-
-{# 4. mainEntityOfPage Function #}
-{% macro main_entity_of_page(type, id) %}, "mainEntityOfPage": { "@type": "{{ type }}", "@id": {{ id | tojson }} }{% endmacro %}
-
-{# 5. address Function #}
+{# 1. address Function #}
 {% macro address(street, locality, region, postal_code, country) %}
-, "address": {
-  "@type": "PostalAddress",
-  "streetAddress": {{ street | tojson }},
-  "addressLocality": {{ locality | tojson }},
-  "addressRegion": {{ region | tojson }},
-  "postalCode": {{ postal_code | tojson }},
-  "addressCountry": {{ country | tojson }}
-}
+, "address": {{ object_base([
+    kv("streetAddress", street),
+    kv("addressLocality", locality),
+    kv("addressRegion", region),
+    kv("postalCode", postal_code),
+    kv("addressCountry", country)
+  ]) }}
 {% endmacro %}
 
-{# 6. contactPoint Function #}
+{# 2. contactPoint Function #}
 {% macro contact_point(phone, type, email, lang=["en"]) %}
-, "contactPoint": [{
-  "@type": "ContactPoint",
-  "telephone": {{ phone | tojson }},
-  "contactType": {{ type | tojson }},
-  "email": {{ email | tojson }},
-  "availableLanguage": {{ lang | tojson }}
-}]
+, "contactPoint": [
+  {{ object_base([
+    kv("telephone", phone),
+    kv("contactType", type),
+    kv("email", email),
+    kv("availableLanguage", lang, is_json=true)
+  ]) }}
+]
 {% endmacro %}
 
-{# 7. imageObject Function #}
-{% macro image_object(url, caption="", id="") %}
-, "image": {
-  "@type": "ImageObject"
-  {% if id %}, "@id": {{ id | tojson }}{% endif %},
-  "url": {{ url | tojson }}
-  {% if caption %}, "caption": {{ caption | tojson }}{% endif %}
-}
+{# 3. imageObject Function #}
+{% macro image_object(url, caption="") %}
+, "image": {{ object_base([
+    kv("url", url),
+    kv("caption", caption) if caption else none
+  ]) }}
 {% endmacro %}
 
-{# 8. listItem Function #}
+{# 4. listItem Function #}
 {% macro list_item(position, name, url="") %}
-{
-  "@type": "ListItem",
-  "position": {{ position }},
-  "name": {{ name | tojson }}
-  {% if url %}, "item": {{ url | tojson }}{% endif %}
-}
+{{ object_base([
+    kv("name", name),
+    kv("position", position, is_json=true),
+    kv("item", url) if url else none
+  ]) }}
 {% endmacro %}
 
+{# 5. isPartOf Function #}
+{% macro is_part_of(id) %}
+, "isPartOf": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
 
+{# 6. about Function #}
+{% macro about(id) %}
+, "about": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
 
+{# 7. publisher Function #}
+{% macro publisher(id) %}
+, "publisher": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
 
-
+{# 8. mainEntityOfPage Function #}
+{% macro main_entity_of_page(id) %}
+, "mainEntityOfPage": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
 
 
 
