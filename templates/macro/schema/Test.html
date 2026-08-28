@@ -1,33 +1,12 @@
 to test it
 
 
-
 {% macro full_url(home_url, path=none) -%}
   {%- set home = home_url.strip().rstrip('/') -%}
   {%- set p_path = path.strip().strip('/') if path and path.strip() else '' -%}
   {{- home ~ '/' ~ p_path if p_path else home -}}
 {%- endmacro %}
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {% macro get_id(url, anchor) %}
   {{ url.rstrip('/') }}/#{{ anchor }}
 {% endmacro %}
@@ -35,19 +14,11 @@ to test it
 {% macro graph_wrapper() %}
   <script type="application/ld+json">
     {"@context": "https://schema.org",
-    "@graph": [ 
+    "@graph": [
     {{ caller() }} 
     ]}
   </script>
 {% endmacro %}
-
-
-
-
-
-
- 
-
 
 {% macro kv(key, value, is_json=false) %}
   {%- if not is_json and value is string -%}
@@ -70,71 +41,206 @@ to test it
   {%- if props | length > 0 %},\n  {{ props | select('defined') | join(',\n  ') }}{% endif -%}
 }{% endmacro %}
 
-
-{% macro address(street, city, region, zip, country) %}
-, "address": {{ object_base([
-    kv("streetAddress", street) if street else none,
-    kv("addressLocality", city) if city else none,
-    kv("addressRegion", region) if region else none,
-    kv("postalCode", zip) if zip else none,
-    kv("addressCountry", country) if country else none
-  ]) }}
+{% macro address(address) %}
+{% if address %}
+  {{- kv("address", entity_base("PostalAddress", props=[
+    kv("streetAddress", address.street) if address.street else none,
+    kv("addressLocality", address.city) if address.city else none,
+    kv("addressRegion", address.region) if address.region else none,
+    kv("postalCode", address.zip) if address.zip else none,
+    kv("addressCountry", address.country) if address.country else none
+  ]), is_json=true) -}}
+{% endif %}
 {% endmacro %}
 
-{% macro contact_point(phone, areaServed, email, lang=["en"]) %}
-, "contactPoint": [{{ object_base([
+{% macro contact_point(contact) %}
+{% if contact %}
+  {{- kv("contactPoint", '[' ~ entity_base("ContactPoint", props=[
     kv("contactType", "customer service"),
-    kv("telephone", phone) if phone else none,
-    kv("areaServed", areaServed) if areaServed else none,
-    kv("email", email) if email else none,
-    kv("availableLanguage", lang, is_json=true)
-  ]) }}]
+    kv("telephone", contact.phone) if contact.phone else none,
+    kv("areaServed", contact.areaServed) if contact.areaServed else none,
+    kv("email", contact.support_email) if contact.support_email else none,
+    kv("availableLanguage", contact.availableLanguage | default(["en"]) | tojson, is_json=true)
+  ]) ~ ']', is_json=true) -}}
+{% endif %}
 {% endmacro %}
 
-{% macro image_object(url,width, height ,desc="") %}
-, "image": {{ object_base([
+{% macro image_object(url,img) %}
+{% if img %}
+  {{- kv("image", entity_base("ImageObject", props=[
     kv("url", url),
-    kv("width", width, is_json=true) if width else none,
-    kv("height", height, is_json=true) if height else none,
-    kv("caption", desc) if desc else none
-  ]) }}
+    kv("width", img.width, is_json=true) if img.width else none,
+    kv("height", img.height, is_json=true) if img.height else none,
+    kv("caption", img.desc) if img.desc else none
+  ]), is_json=true) -}}
+{% endif %}
 {% endmacro %}
 
 {% macro search_object(url) %}
-, "potentialAction": {{ object_base([
-    kv("type", "SearchAction"),
-    kv("target", object_base([
-      kv("type", "EntryPoint"),
+{% if url %}
+  {{- kv("potentialAction", entity_base("SearchAction", props=[
+    kv("target", entity_base("EntryPoint", props=[
       kv("urlTemplate", url ~ "/search?q={search_term_string}")
     ]), is_json=true),
     kv("query-input", "required name=search_term_string")
-  ]) }}
+  ]), is_json=true) -}}
+{% endif %}
 {% endmacro %}
 
-
-
-{% macro list_item(position, name, url="") %}
-{{ object_base([
-    kv("name", name),
-    kv("position", position, is_json=true),
-    kv("item", url) if url else none
+{% macro list_item(item) %}
+{{ entity_base("ListItem", props=[
+    kv("name", item.name),
+    kv("position", item.position, is_json=true),
+    kv("item", item.url)
   ]) }}
 {% endmacro %}
-
-
 
 {% macro is_part_of(id) %}
-, "isPartOf": {{ object_base([kv("id", id)]) }}
+  {{- kv("isPartOf", object_base([kv("@id", id)]), is_json=true) -}}
 {% endmacro %}
 
 {% macro about(id) %}
-, "about": {{ object_base([kv("id", id)]) }}
+  {{- kv("about", object_base([kv("@id", id)]), is_json=true) -}}
 {% endmacro %}
 
 {% macro publisher(id) %}
-, "publisher": {{ object_base([kv("id", id)]) }}
+  {{- kv("publisher", object_base([kv("@id", id)]), is_json=true) -}}
 {% endmacro %}
 
 {% macro main_entity_of_page(id) %}
-, "mainEntityOfPage": {{ object_base([kv("id", id)]) }}
+  {{- kv("mainEntityOfPage", object_base([kv("@id", id)]), is_json=true) -}}
 {% endmacro %}
+
+
+
+
+
+
+
+{# 1. Root Component: Organization Schema #}
+{% macro organization_schema(site_config) %}
+{% if site_config %}
+  {% set org_url = full_url(site_config.home_url) %}
+  {{ entity_base("Organization", 
+      id=get_id(org_url, "organization"),
+      name=site_config.org_name,
+      url=org_url,
+      description=site_config.org_desc,
+      props=[
+        image_object(full_url(site_config.home_url, site_config.img.url), site_config.img.width, site_config.img.height, site_config.img.desc) if site_config.img else none,
+        kv("sameAs", site_config.social_links | default([]) | tojson, is_json=true) if site_config.social_links else none
+      ]
+  ) }}
+{% endif %}
+{% endmacro %}
+
+{# 2. Root Component: WebSite Schema #}
+{% macro website_schema(site_config) %}
+{% if site_config %}
+  {% set site_url = full_url(site_config.home_url) %}
+  {{ entity_base("WebSite", 
+      id=get_id(site_url, "website"),
+      name=site_config.name,
+      url=site_url,
+      props=[
+        publisher(get_id(site_url, "organization")),
+        search_object(site_url)
+      ]
+  ) }}
+{% endif %}
+{% endmacro %}
+
+{# 3. Root Component: WebPage Schema #}
+{% macro webpage_schema(page_data, site_config) %}
+{% if page_data %}
+  {% set page_url = full_url(site_config.home_url, page_data.canonical_path) %}
+  {{ entity_base("WebPage", 
+      id=page_url,
+      name=page_data.title,
+      url=page_url,
+      description=page_data.meta_desc,
+      props=[
+        is_part_of(get_id(full_url(site_config.home_url), "website")),
+        publisher(get_id(full_url(site_config.home_url), "organization")),
+        image_object(full_url(site_config.home_url, page_data.img.url), page_data.img.width, page_data.img.height, page_data.img.desc) if page_data.img else none
+      ]
+  ) }}
+{% endif %}
+{% endmacro %}
+
+{# 4. Root Component: BreadcrumbList Schema #}
+{% macro breadcrumblist_schema(breadcrumbs, site_config) %}
+{% if breadcrumbs %}
+{{ entity_base("BreadcrumbList", 
+    props=[
+      kv("itemListElement", "[" ~ (breadcrumbs | map('defined') | join(',\n  ')) ~ "]", is_json=true)
+    ]
+) }}
+{% endif %}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+home page
+
+
+
+{% call core.graph_wrapper() %}
+  {# 1. Organization Block #}
+  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization'), name=site_name, url=site_url) %}
+    {{ core.image_object(logo_url, caption=site_name ~ " Logo", id=core.get_id(site_url, 'logo')) }}
+    {{ core.kv("sameAs", social_links, is_json=true) }}
+    {{ core.contact_point(company_phone, "customer service", company_email) }}
+    {{ core.address("123 Innovation Way, Suite 500", "San Francisco", "CA", "94107", "US") }}
+  {% endcall %},
+
+  {# 2. WebSite Block #}
+  {% call core.entity_base("WebSite", id=core.get_id(site_url, 'website'), name=site_name, url=site_url) %}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    , "potentialAction": [{
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ site_url }}/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }]
+  {% endcall %},
+
+  {# 3. WebPage Block #}
+  {% call core.entity_base("WebPage", id=core.get_id(site_url, 'webpage'), name=home_title, description=home_meta_desc, url=site_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.about("Organization", core.get_id(site_url, 'organization')) }}
+  {% endcall %}
+
+  {# 4. Team Members Loop #}
+  {% for member in team_members %}
+  ,{% call core.entity_base("Person", id=core.get_id(site_url ~ "/authors/" ~ member.slug, 'person'), name=member.name, description=member.short_bio, url=site_url ~ "/authors/" ~ member.slug ~ "/") %}
+    {{ core.kv("jobTitle", member.job_title) }}
+    {{ core.image_object(member.avatar_url) }}
+    {{ core.kv("sameAs", member.social_profiles, is_json=true) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+  {% endcall %}
+  {% endfor %}
+{% endcall %}
