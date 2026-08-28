@@ -1,0 +1,10 @@
+to test it
+
+
+
+{% macro _url(home_url, path=none) -%}
+  {%- set home = home_url.strip().rstrip('/') -%}
+  {%- set p_path = path.strip().strip('/') if path and path.strip() else '' -%}
+  {{- home ~ '/' ~ p_path if p_path else home -}}
+{%- endmacro %}
+  
