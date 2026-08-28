@@ -393,65 +393,53 @@ pillar page
 
 
 
-
-{%- import "macros/components.html" as component -%}
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# 1. Define the main Pillar WebPage entity #}
-    {%- call component.entity_base("WebPage") -%}
-      {{ component.id(request.url, "#webpage") }}
-      {{ component.url(request.url) }}
-      {{ component.kv("name", "The Complete History of the Bronze Age Collapse: A Foundational Guide") }}
-      {{ component.kv("description", "An exhaustive pillar resource mapping the systemic, environmental, and geopolitical breakdowns that brought down ancient Mediterranean empires.") }}
-      
-      {# Contextual references mapping back to the global homepage frames #}
-      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
-      , "about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      {# 2. Explicitly map your smaller 'cluster' sub-articles using their precise IDs #}
+{# 1. Define the pillar Page container #}
+  {% macro PillarPage_S(page_data, site_config) -%}
+  {%- call entity_base('WebPage') -%}   
+    {{- kv('@id',_m_url(site_config.home_url, '/#webpage')) -}}
+    {{- kv('url', site_config.home_url) -}}
+    {{- kv('name', site_config.name) -}}
+    {{- kv('description', site_config.desc) -}}
+    {{- kv('isPartOf', '{"@id": "' ~ _m_url(site_config.home_url, '#website') ~ '"}', is_json=true) -}}
+    {{- kv('about', '{"@id": "' ~ _m_url(site_config.home_url, '#organization') ~ '"}', is_json=true) -}}
+{# 2. Explicitly map your smaller 'cluster' sub-articles using their precise IDs #}
       , "hasPart": [
         { "@id": "{{ site_config.home_url }}history/bronze-age-collapse/sea-peoples/#article" },
         { "@id": "{{ site_config.home_url }}history/bronze-age-collapse/climate-droughts/#article" }
       ]
-      
-      {# 3. Build an ItemList directory to list the cluster links natively within the hub page #}
-      , "mainEntity": 
-      {%- call component.entity_base("ItemList") -%}
-        {{ component.kv("name", "Bronze Age Collapse Research Chapters") }}
-        , "itemListElement": [
-          {% for cluster_post in cluster_posts %}
+    , "mainEntity": 
+      {%- call entity_base("ItemList") -%}
+            {{- kv('name', site_config.mainEntity.name) -}}
+       , "itemListElement": [
+          {% for dynamic_item in terms_list %}
           {%- call component.entity_base("ListItem") -%}
-            {{ component.kv("position", loop.index | string, is_json=true) }}
-            {{ component.kv("name", cluster_post.title) }}
-            {{ component.kv("url", cluster_post.absolute_url, is_json=true) }}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('url', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
           {%- endcall -%}{% if not loop.last %},{% endif %}
           {% endfor %}
         ]
       {%- endcall -%}
-    {%- endcall -%}
+  {%- endcall -%}
+{%- endmacro %}
 
-    {# 4. Append the BreadcrumbList path #},
-    {%- call component.entity_base("BreadcrumbList") -%}
-      {{ component.id(request.url, "#breadcrumb") }}
-      , "itemListElement": [
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "1", is_json=true) }}
-          {{ component.kv("name", "Home") }}
-          {{ component.kv("item", site_config.home_url, is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "2", is_json=true) }}
-          {{ component.kv("name", "History Pillar") }}
-          {{ component.kv("item", request.url, is_json=true) }}
-        {%- endcall -%}
-      ]
-    {%- endcall -%}
-  ]
-}
-</script>
+# 3. Component Breadcrumb Schema #}
+  {% macro Breadcrumb_S(page_data, site_config, breadcrumb=None) -%}
+  {%- if breadcrumb -%}
+  {%- call entity_base('BreadcrumbList') -%}
+  {{- kv('@id',_m_url(site_config.home_url, page_data.path, '/#breadcrumb')) -}}
+  , "itemListElement": [
+          {% for dynamic_item in terms_list %}
+          {%- call component.entity_base("ListItem") -%}
+          {{- kv('position', loop.index | string) -}}
+          {{- kv('item', site_config.home_url) -}}
+          {{- kv('name', site_config.name) -}}
+          {%- endcall -%}{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+  {%- endcall -%}{%- endif -%}
+  {%- endmacro %}
+
 
 
 
