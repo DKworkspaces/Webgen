@@ -9,43 +9,6 @@ to test it
 {%- endmacro %}
   
 
-{% macro get_id(url, anchor) %}{{ url.rstrip('/') }}/#{{ anchor }}{% endmacro %}
-
-
-
-example of function
-
-
-"@id": "{{ get_id(page_url, 'webpage') }}",
-"url": "{{ page_url }}",
-
-
-#}
-
-
-
-
-
-{# 1. Micro Component Entity Base element #}
-  {% macro entity_base(type) %}
-  {
-    "@type":"{{ type }}"
-    {{- kv('@id', id) if id -}} 
-    {{- kv('url', url) if url -}}
-    {{- kv('name', name) if name -}}
-    {{- kv('description', desc) if desc -}}
-    {{- caller() | default('') -}}
-  }
-  {% endmacro %}
-
-{# 2. Micro Component KeyValue element #}
-  {% macro kv(key, value, is_json=false) %}
-    {% if not is_json and value is string %}
-      , "{{ key }}":{{ value | tojson }}
-    {% else %}
-      , "{{ key }}":{{ value }}
-    {% endif %}
-  {% endmacro %}
 
 
 
@@ -57,50 +20,115 @@ example of function
 
 
 
-{# 1. SubComponent Image element #}
-  {% macro image_ms(img, site_config) -%}{% if img -%}
-  {%- call entity_base("ImageObject") -%}
-{{- kv("url", _m_url(site_config.home_url, img.url)) -}}
-  {{- kv("width", img.width, is_json=true) -}}
-  {{- kv("height", img.height, is_json=true) -}}
-  {{- kv('caption', img.desc) -}}
-  {%- endcall -%}{%- endif %}{%- endmacro %}
-
-{# 4. SubComponent Contact element #}
-  {% macro contact_ms(contact) -%}
-  {%- call entity_base("ContactPoint") -%}
-  {{- kv("contactType", "customer service") -}}
-  {%- if contact.availableLanguage -%}{{- kv("availableLanguage", contact.availableLanguage) -}}{%- endif -%}
-  {%- if contact.areaServed -%}{{- kv("areaServed", contact.areaServed) -}}{%- endif -%}
-  {%- if contact.support_email -%}{{- kv("email", contact.support_email) -}}{%- endif -%}
-  {%- if contact.phone -%}{{- kv("telephone", contact.phone) -}}{%- endif -%}
-  {%- endcall -%}{%- endmacro %}
-
-{# 5. SubComponent Address element #}
-  {% macro postal_ms(address) -%}
-  {%- call entity_base("PostalAddress") -%}
-  {%- if address.street -%}{{- kv("streetAddress", address.street) -}}{%- endif -%}
-  {%- if address.city -%}{{- kv("addressLocality", address.city) -}}{%- endif -%}
-  {%- if address.region -%}{{- kv("addressRegion", address.region) -}}{%- endif -%}
-  {%- if address.zip -%}{{- kv("postalCode", address.zip) -}}{%- endif -%}
-  {%- if address.country -%}{{- kv("addressCountry", address.country) -}}{%- endif -%}
-  {%- endcall -%}{%- endmacro %}
-
-{# 6. SubComponent Search element #}
-  {% macro search_ms(site_config) -%}{%- call entity_base("SearchAction") -%}
-  {%- set target_entry -%}
-  {%- call entity_base("EntryPoint") -%}
-  {{- kv("urlTemplate", site_config.home_url ~ "/search?q={search_term_string}") -}}{%- endcall -%}{%- endset -%}
-  {{- kv("target", target_entry, is_json=true) -}}
-  {{- kv("query-input", "required name=search_term_string") -}}
-  {%- endcall -%}{%- endmacro %}
-
-{# 7. SubComponent listBreadcrumbItems element #}
-  {% macro listBreadcrumbItem_microschema(breadcrumb, site_config) -%}
-  {%- set elements = _render_list_elements(breadcrumb, site_config, type='breadcrumb') -%}
-  [{{ elements }}] {%- endmacro %}
 
 
 
 
 
+
+
+
+{% macro get_id(url, anchor) %}
+  {{ url.rstrip('/') }}/#{{ anchor }}
+{% endmacro %}
+
+{% macro graph_wrapper() %}
+  <script type="application/ld+json">
+    {"@context": "https://schema.org",
+    "@graph": [ 
+    {{ caller() }} 
+    ]}
+  </script>
+{% endmacro %}
+
+
+
+
+
+
+ 
+
+
+{% macro kv(key, value, is_json=false) %}
+  {%- if not is_json and value is string -%}
+  "{{ key }}": {{ value | tojson }}
+  {%- else -%}
+  "{{ key }}": {{ value }}
+  {%- endif -%}
+{% endmacro %}
+
+{% macro object_base(props=[]) %}
+{ {{ props | select('defined') | join(',\n  ') }} }
+{% endmacro %}
+
+{% macro entity_base(type, id="", name="", description="", url="", props=[]) %}
+{"@type": "{{ type }}"
+  {%- if id %}, "@id": {{ id | tojson }}{% endif -%}
+  {%- if name %}, "name": {{ name | tojson }}{% endif -%}
+  {%- if description %}, "description": {{ description | tojson }}{% endif -%}
+  {%- if url %}, "url": {{ url | tojson }}{% endif -%}
+  {%- if props | length > 0 %},\n  {{ props | select('defined') | join(',\n  ') }}{% endif -%}
+}{% endmacro %}
+
+
+{% macro address(street, city, region, zip, country) %}
+, "address": {{ object_base([
+    kv("streetAddress", street) if street else none,
+    kv("addressLocality", city) if city else none,
+    kv("addressRegion", region) if region else none,
+    kv("postalCode", zip) if zip else none,
+    kv("addressCountry", country) if country else none
+  ]) }}
+{% endmacro %}
+
+{% macro contact_point(phone, areaServed, email, lang=["en"]) %}
+, "contactPoint": [{{ object_base([
+    kv("contactType", "customer service"),
+    kv("telephone", phone) if phone else none,
+    kv("areaServed", areaServed) if areaServed else none,
+    kv("email", email) if email else none,
+    kv("availableLanguage", lang, is_json=true)
+  ]) }}]
+{% endmacro %}
+
+{% macro image_object(url,width, height ,desc="") %}
+, "image": {{ object_base([
+    kv("url", url),
+    kv("width", width, is_json=true) if width else none,
+    kv("height", height, is_json=true) if height else none,
+    kv("caption", desc) if desc else none
+  ]) }}
+{% endmacro %}
+
+{% macro search_object(url) %}
+, "potentialAction": {{ object_base([
+    kv("type", "SearchAction"),
+    kv("target", object_base([
+      kv("type", "EntryPoint"),
+      kv("urlTemplate", url ~ "/search?q={search_term_string}")
+    ]), is_json=true),
+    kv("query-input", "required name=search_term_string")
+  ]) }}
+{% endmacro %}
+
+
+
+
+
+
+
+{% macro is_part_of(id) %}
+, "isPartOf": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
+
+{% macro about(id) %}
+, "about": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
+
+{% macro publisher(id) %}
+, "publisher": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
+
+{% macro main_entity_of_page(id) %}
+, "mainEntityOfPage": {{ object_base([kv("id", id)]) }}
+{% endmacro %}
