@@ -28,18 +28,71 @@ to test it
   {%- endif -%}
 {% endmacro %}
 
-{% macro object_base(props=[]) %}
-{ {{ props | select('defined') | join(',\n  ') }} }
+
+
+
+
+
+{% macro blank_entity(type=none, id=none, url=none, name=none, desc=none, props=[]) %}
+{
+  {%- set fields = [] -%}
+  {%- if type -%}{% set _ = fields.append('"@type": ' ~ type | tojson) %}{% endif -%}
+  {%- if id -%}{% set _ = fields.append('"@id": ' ~ id | tojson) %}{% endif -%}
+  {%- if url -%}{% set _ = fields.append('"url": ' ~ url | tojson) %}{% endif -%}
+  {%- if name -%}{% set _ = fields.append('"name": ' ~ name | tojson) %}{% endif -%}
+  {%- if desc -%}{% set _ = fields.append('"description": ' ~ desc | tojson) %}{% endif -%}
+  
+  {%- for prop in props if prop is defined and prop is not none and prop | trim != '' -%}
+    {% set _ = fields.append(prop) %}
+  {%- endfor -%}
+  
+  {%- set inner = caller() | default('') if caller is defined else '' -%}
+  {%- if inner | trim != '' -%}
+    {% set _ = fields.append(inner | trim) %}
+  {%- endif -%}
+  {{ fields | join(',\n  ') }}
+}
+{%- endmacro %}
+
+
+eg
+
+{# 2. Pure Entity Base Shortcut #}
+{% macro entity_base(type) %}
+  {{- blank_entity(type=type) -}}
 {% endmacro %}
 
-{% macro entity_base(type, id="", name="", description="", url="", props=[]) %}
-{"@type": "{{ type }}"
-  {%- if id %}, "@id": {{ id | tojson }}{% endif -%}
-  {%- if name %}, "name": {{ name | tojson }}{% endif -%}
-  {%- if description %}, "description": {{ description | tojson }}{% endif -%}
-  {%- if url %}, "url": {{ url | tojson }}{% endif -%}
-  {%- if props | length > 0 %},\n  {{ props | select('defined') | join(',\n  ') }}{% endif -%}
-}{% endmacro %}
+{# 1. Let's declare our high-performance component macros #}
+{% macro organization_schema(site_config) %}
+{% if site_config %}
+  {% set org_url = full_url(site_config.home_url) %}
+
+  {# We invoke blank_entity using direct arguments, a props list, AND a nested caller block #}
+  {%- call blank_entity(
+    type="Organization",
+    id=get_id(org_url, "organization"),
+    url=org_url,
+    name=site_config.org_name,
+    desc=site_config.org_desc,
+    props=[
+      image_object(full_url(site_config.home_url, site_config.img.url), site_config.img.width, site_config.img.height, site_config.img.desc) if site_config.img else none,
+      kv("sameAs", site_config.social_links | default([]) | tojson, is_json=true) if site_config.social_links else none
+    ]
+  ) -%}
+    {# This is the caller() block content streamed directly into the list array #}
+    {{- publisher(get_id(org_url, "parent-brand")) -}}
+  {%- endcall -%}
+
+{% endif %}
+{% endmacro %}
+
+
+
+
+
+
+
+
 
 {% macro address(address) %}
 {% if address %}
