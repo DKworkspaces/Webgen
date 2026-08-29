@@ -3,280 +3,178 @@ to test it
 
 {# 1. Zero-allocation URL Builder #}
 {% macro full_url(home_url, path=none) -%}
-  {# Cache conditions to avoid running redundant python string methods repeatedly #}
-  {%- set h = home_url | trim -%}
-  {%- set h = h[:-1] if h.endswith('/') else h -%}
-  {%- if path -%}
-    {%- set p = path | trim -%}
-    {%- set p = p[1:] if p.startswith('/') else p -%}
-    {%- set p = p[:-1] if p.endswith('/') else p -%}
-    {{- h -}}/{{- p -}}
-  {%- else -%}
-    {{- h -}}
+  {%- if path -%}{{- home_url.strip().rstrip('/') -}}/{{- path.strip().strip('/') -}}
+  {%- else -%}{{- home_url.strip().rstrip('/') -}}
   {%- endif -%}
 {%- endmacro %}
+
   
 {# 2. Fixed Anchor ID Builder (Fixed Trailing / Bug) #}
 {% macro get_id(url, anchor) -%}
-  {%- set u = url | trim -%}
-  {{- u[:-1] if u.endswith('/') else u -}}/#{{- anchor | trim -}}
+  {{- url.strip().rstrip('/') -}}/#{{- anchor.strip() -}}
 {%- endmacro %}
 
-{# 3. Native JSON Key-Value Wrapper (Eliminates custom logic forks) #}
-{% macro kv(key, value, is_json=false) -%}
-  "{{- key -}}": {{- value if is_json else (value | tojson) -}}
-{%- endmacro %}
 
 {# 4. Call-Stack Safe Graph Wrapper #}
 {% macro graph_wrapper() -%}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
+<script type="application/ld+json">{
+"@context": "https://schema.org","@graph": [
     {{- caller() -}}
-  ]
-}
+]}
 </script>
 {%- endmacro %}
 
 
-{% macro blank_entity(type=none, id=none, url=none, name=none, desc=none, props=[]) -%}
-{
-  {%- set ns = namespace(has_prev=false) -%}
+{# --- CORE ENTITY WRAPPER (Alternative to blank_entity) --- #}
+{% macro core_entity(type=none, id=none, url=none, name=none, props=none) -%}
+  {# 1. Initialize a flat, native dictionary map #}
+  {%- set out = {} -%}
+  {%- if type is not none %}{% set _ = out.update({'@type': type}) %}{% endif -%}
+  {%- if id is not none %}{% set _ = out.update({'@id': id.strip()}) %}{% endif -%}
+  {%- if url is not none %}{% set _ = out.update({'url': url.strip().rstrip('/')}) %}{% endif -%}
+  {%- if name is not none %}{% set _ = out.update({'name': name}) %}{% endif -%}
   
-  {# --- Internal Helper to manage seamless zero-allocation dynamic comma trailing --- #}
-  {%- macro write_field(key, val, raw=false) -%}
-    {%- if val is defined and val is not none and (raw or val | string | trim != '') -%}
-      {{- ',\n  ' if ns.has_prev else '' -}}
-      "{{- key -}}": {{- val if raw else (val | tojson) -}}
-      {%- set ns.has_prev = true -%}
-    {%- endif -%}
-  {%- endmacro -%}
+  {# 2. Merge additional properties directly if passed as a dict #}
+  {%- if props is mapping %}{% set _ = out.update(props) %}{% endif -%}
 
-  {# Stream Core Structural JSON Fields #}
-  {{- write_field('@type', type) -}}
-  {{- write_field('@id', id) -}}
-  {{- write_field('url', url) -}}
-  {{- write_field('name', name) -}}
-  {{- write_field('description', desc) -}}
+  {# 3. Instantly stringify the dictionary using native serialization #}
+  {{- out | tojson -}}
+{%- endmacro %}
 
-  {# Stream Arbitrary Supplementary Parameters #}
-  {%- for prop in props if prop is defined and prop is not none and prop | trim != '' -%}
-    {{- ',\n  ' if ns.has_prev else '' -}}
-    {{- prop | trim -}}
-    {%- set ns.has_prev = true -%}
-  {%- endfor -%}
+{# --- 1. POSTAL ADDRESS MACRO (Zero-Allocation Architecture) --- #}
+{% macro postal_address(address) -%
+  {%- if address -%}
+    {# 1. Build a clean, native PostalAddress data dictionary directly #}
+    {%- set addr_data = {'@type': 'PostalAddress'} -%}
+    {%- if address.street %}{% set _ = addr_data.update({'streetAddress': address.street}) %}{% endif -%}
+    {%- if address.city %}{% set _ = addr_data.update({'addressLocality': address.city}) %}{% endif -%}
+    {%- if address.region %}{% set _ = addr_data.update({'addressRegion': address.region}) %}{% endif -%}
+    {%- if address.zip %}{% set _ = addr_data.update({'postalCode': address.zip}) %}{% endif -%}
+    {%- if address.country %}{% set _ = addr_data.update({'addressCountry': address.country}) %}{% endif -%}
 
-  {# Stream Dynamic Injected Call Content blocks #}
-  {%- if caller is defined -%}
-    {%- set inner = caller() | trim -%}
-    {%- if inner != '' -%}
-      {{- ',\n  ' if ns.has_prev else '' -}}
-      {{- inner -}}
-    {%- endif -%}
+    {# 2. Wrap it cleanly under the parent "address" property key #}
+    "address": {{- addr_data | tojson -}}
   {%- endif -%}
-}
 {%- endmacro %}
 
 
 
-
-
-
-
-
-
-
-
-
-
-eg
-
-{% from "macros.html" import blank_entity with context %}
-
-{% call blank_entity(
-    type="WebSite", 
-    id="https://example.com", 
-    url="https://example.com", 
-    name="Lazy Dev Corp"
-) %}
-  "publisher": {{ blank_entity(
-    type="Organization", 
-    id="https://example.com", 
-    name="The Lazy Syndicate"
-  ) }}
-{% endcall %}
-
-{% call blank_entity(
-    type="Organization", 
-    id="https://example.com", 
-    name="Global Logistics Hub"
-) %}
-  {{ postal_address(account.address) }},
-  {{ contact_point(account.contact) }}
-{% endcall %}
-
-
-
-
-
-
-
-
-
-{# --- 1. POSTAL ADDRESS MACRO --- #}
-{% macro postal_address(address) -%}
-{%- if address -%}
-  {%- set props = [] -%}
-  {%- if address.street -%}{% set _ = props.append(kv("streetAddress", address.street)) %}{% endif -%}
-  {%- if address.city -%}{% set _ = props.append(kv("addressLocality", address.city)) %}{% endif -%}
-  {%- if address.region -%}{% set _ = props.append(kv("addressRegion", address.region)) %}{% endif -%}
-  {%- if address.zip -%}{% set _ = props.append(kv("postalCode", address.zip)) %}{% endif -%}
-  {%- if address.country -%}{% set _ = props.append(kv("addressCountry", address.country)) %}{% endif -%}
-  
-  {{- kv("address", blank_entity(type="PostalAddress", props=props), is_json=true) -}}
-{%- endif -%}
-{%- endmacro %}
-
-
-{# --- 2. CONTACT POINT MACRO --- #}
+{# --- 2. CONTACT POINT MACRO (Zero-Allocation Architecture) --- #}
 {% macro contact_point(contact) -%}
 {%- if contact -%}
-  {%- set props = [] -%}
-  {%- set _ = props.append(kv("contactType", "customer service")) -%}
-  {%- if contact.phone -%}{% set _ = props.append(kv("telephone", contact.phone)) %}{% endif -%}
-  {%- if contact.areaServed -%}{% set _ = props.append(kv("areaServed", contact.areaServed)) %}{% endif -%}
-  {%- if contact.support_email -%}{% set _ = props.append(kv("email", contact.support_email)) %}{% endif -%}
-  {%- set _ = props.append(kv("availableLanguage", contact.availableLanguage | default(["en"]) | tojson, is_json=true)) -%}
+  {# 1. Build a clean, native ContactPoint data dictionary directly #}
+  {%- set cp_data = {'@type': 'ContactPoint', 'contactType': 'customer service'} -%}
+  {%- if contact.phone %}{% set _ = cp_data.update({'telephone': contact.phone}) %}{% endif -%}
+  {%- if contact.areaServed %}{% set _ = cp_data.update({'areaServed': contact.areaServed}) %}{% endif -%}
+  {%- if contact.support_email %}{% set _ = cp_data.update({'email': contact.support_email}) %}{% endif -%}
   
-  {{- kv("contactPoint", "[" ~ blank_entity(type="ContactPoint", props=props) ~ "]", is_json=true) -}}
+  {# 2. Handle arrays safely without intermediate string serialization #}
+  {%- set langs = contact.availableLanguage if contact.availableLanguage is iterable and contact.availableLanguage is not string else ["en"] -%}
+  {%- set _ = cp_data.update({'availableLanguage': langs}) -%}
+
+  {# 3. Wrap it inside a list bracket and stream out instantly #}
+  "contactPoint": [{{- cp_data | tojson -}}]
 {%- endif -%}
 {%- endmacro %}
 
 
-{# --- 3. IMAGE OBJECT MACRO --- #}
+
+{# --- 3. IMAGE OBJECT MACRO (Zero-Allocation Architecture) --- #}
 {% macro image_object(img, url) -%}
 {%- if img and url -%}
-  {%- set props = [] -%}
-  {%- set _ = props.append(kv("url", url)) -%}
-  {%- if img.width -%}{% set _ = props.append(kv("width", img.width, is_json=true)) %}{% endif -%}
-  {%- if img.height -%}{% set _ = props.append(kv("height", img.height, is_json=true)) %}{% endif -%}
-  {%- if img.desc -%}{% set _ = props.append(kv("caption", img.desc)) %}{% endif -%}
+  {# 1. Construct a clean native ImageObject data dictionary instantly #}
+  {%- set img_data = {'@type': 'ImageObject', 'url': url} -%}
   
-  {{- kv("image", blank_entity(type="ImageObject", props=props), is_json=true) -}}
+  {# 2. Use direct integer conversion or raw value ingestion without macro wrappers #}
+  {%- if img.width %}{% set _ = img_data.update({'width': img.width | int}) %}{% endif -%}
+  {%- if img.height %}{% set _ = img_data.update({'height': img.height | int}) %}{% endif -%}
+  {%- if img.desc %}{% set _ = img_data.update({'caption': img.desc}) %}{% endif -%}
+
+  {# 3. Directly stream out the valid key-value JSON string #}
+  "image": {{- img_data | tojson -}}
 {%- endif -%}
 {%- endmacro %}
 
 
-{# --- 4. POTENTIAL SEARCH ACTION MACRO --- #}
+
+{# --- 4. POTENTIAL SEARCH ACTION MACRO (Zero-Allocation Architecture) --- #}
 {% macro search_object(url) -%}
 {%- if url -%}
-  {%- set target_ep = blank_entity(type="EntryPoint", props=[
-    kv("urlTemplate", url | trim | rstrip('/') ~ "/search?q={search_term_string}")
-  ]) -%}
-  
-  {{- kv("potentialAction", blank_entity(type="SearchAction", props=[
-    kv("target", target_ep, is_json=true),
-    kv("query-input", "required name=search_term_string")
-  ]), is_json=true) -}}
+  {# 1. Pre-compute the trimmed base URL path instantly #}
+  {%- set base_url = url.strip().rstrip('/') -%}
+
+  {# 2. Construct the deeply nested SearchAction hierarchy natively #}
+  {%- set action_data = {
+    '@type': 'SearchAction',
+    'target': {'@type': 'EntryPoint','urlTemplate': base_url ~ '/search?q={search_term_string}'},
+    'query-input': 'required name=search_term_string'
+  } -%}
+
+  {# 3. Directly stream out the perfect key-value JSON chunk #}
+  "potentialAction": {{- action_data | tojson -}}
 {%- endif -%}
 {%- endmacro %}
 
 
-{# --- 5. LIST ITEM MACRO --- #}
+
+{# --- 5. LIST ITEM MACRO (Zero-Allocation Architecture) --- #}
 {% macro list_item(item) -%}
 {%- if item -%}
-  {{- blank_entity(type="ListItem", props=[
-    kv("name", item.name),
-    kv("position", item.position, is_json=true),
-    kv("item", item.url)
-  ]) -}}
+  {# 1. Directly map properties into a native Jinja object map #}
+  {%- set li_data = {
+    '@type': 'ListItem',
+    'position': item.position | default(1) | int,
+    'name': item.name
+  } -%}
+  
+  {# 2. Conditionally assign the tracking URL if provided #}
+  {%- if item.url %}{% set _ = li_data.update({'item': item.url.strip().rstrip('/')}) %}{% endif -%}
+
+  {# 3. Stream out the clean JSON string immediately #}
+  {{- li_data | tojson -}}
 {%- endif -%}
 {%- endmacro %}
 
 
 
-
-
-
-
-
-
-
-{# --- REFACTORED RELATION NODE ENGINE USING BLANK_ENTITY --- #}
+{# --- REFACTORED RELATION NODE ENGINE (Zero-Allocation Architecture) --- #}
 {% macro ref(key, id) -%}
-{%- if id is defined and id is not none and id | string | trim != '' -%}
-  {{- kv(key, blank_entity(id=id | trim), is_json=true) -}}
+{%- if id is defined and id is not none and id.strip() != '' -%}
+  "{{- key -}}": {"@id": "{{ id.strip() }}"}
 {%- endif -%}
 {%- endmacro %}
-
 
 {# --- LEAN COMPATIBILITY ALIASES USING ZERO OVERHEAD --- #}
-{% macro is_part_of(id) %}{{- ref('isPartOf', id) -}}{% endmacro %}
-{% macro about(id) %}{{- ref('about', id) -}}{% endmacro %}
-{% macro publisher(id) %}{{- ref('publisher', id) -}}{% endmacro %}
-{% macro main_entity_of_page(id) %}{{- ref('mainEntityOfPage', id) -}}{% endmacro %}
+{% macro is_part_of(id) -%}{{- ref('isPartOf', id) -}}{%- endmacro %}
+{% macro about(id) -%}{{- ref('about', id) -}}{%- endmacro %}
+{% macro publisher(id) -%}{{- ref('publisher', id) -}}{%- endmacro %}
+{% macro main_entity_of_page(id) -%}{{- ref('mainEntityOfPage', id) -}}{%- endmacro %}
+
 
 
 
 eg
 
-{% from "macros.html" import blank_entity, kv, ref, postal_address, contact_point, breadcrumbs with context %}
+{# Example A: Direct standalone core schema block #}
+{{ schema.core_entity(
+     type="WebSite", 
+     id="https://example.com", 
+     url="https://example.com", 
+     name="Main Site Platform"
+) }},
 
-{# Base Layout Wrapper that streams JSON-LD tags #}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# --- 1. ORGANIZATION NODE --- #}
-    {%- if org_data -%}
-    {{ blank_entity(
-      type="Organization",
-      id=org_data.id,
-      url=org_data.url,
-      name=org_data.name,
-      desc=org_data.description,
-      props=[
-        postal_address(org_data.address) if org_data.address else none,
-        contact_point(org_data.contact) if org_data.contact else none
-      ]
-    ) }},
-    {%- endif -%}
+{# Example B: Passing extra parameters cleanly via the 'props' dict parameter #}
+{{ schema.core_entity(
+     type="Organization", 
+     id="https://example.com#org", 
+     url="https://example.com", 
+     name="Lazy Automated Corp",
+     props={
+       "logo": "https://example.comlogo.png",
+       "telephone": "+1-555-555-5555"
+     }
+) }}
 
-    {# --- 2. WEBSITE NODE --- #}
-    {%- if site_data -%}
-    {{ blank_entity(
-      type="WebSite",
-      id=site_data.id,
-      url=site_data.url,
-      name=site_data.name,
-      props=[
-        ref("publisher", org_data.id) if org_data else none
-      ]
-    ) }},
-    {%- endif -%}
-
-    {# --- 3. WEBPAGE NODE --- #}
-    {%- if page_data -%}
-    {{ blank_entity(
-      type="WebPage",
-      id=page_data.id,
-      url=page_data.url,
-      name=page_data.name,
-      desc=page_data.description,
-      props=[
-        ref("isPartOf", site_data.id) if site_data else none,
-        ref("publisher", org_data.id) if org_data else none,
-        ref("mainEntityOfPage", page_data.url)
-      ]
-    ) }}
-
-  
-
-    
-  ]
-}
-</script>
 
 
 
