@@ -153,104 +153,197 @@ to test it
 
 
 
+eg:
+
+# The context passed to your Jinja2 template
+context = {
+    "site": {
+        "home_url": "https://example.com",
+        "search_url": "https://example.com"
+    },
+    "org": {
+        "id": "https://example.com#organization",
+        "name": "Acme Corp",
+        "phone": "+1-800-555-0199",
+        "support_email": "support@example.com",
+        "availableLanguage": ["en", "es"]
+    },
+    "addr": {
+        "street": "123 Main St",
+        "city": "Tech City",
+        "region": "CA",
+        "zip": "94016",
+        "country": "US"
+    },
+    "hero_img": {
+        "width": 1200,
+        "height": 630,
+        "desc": "Acme Corp Headquarters"
+    },
+    "breadcrumbs": [
+        {"position": 1, "name": "Home", "url": "https://example.com"},
+        {"position": 2, "name": "Blog", "url": "https://example.comblog"},
+        {"position": 3, "name": "Jinja2 Guide", "url": "https://example.comblog/jinja2-guide"}
+    ]
+}
+
+{# Run the graph wrapper boilerplate #}
+
+{% call graph_wrapper() %}
+  {{ website_schema(site_ctx) }},
+  {{ organization_schema(org_ctx, site_ctx.home_url) }},
+  {{ webpage_schema(page_ctx, site_ctx.home_url, org_ctx.id) }},
+  {{ breadcrumbs_schema(breadcrumbs_ctx, site_ctx.home_url) }}
+{% endcall %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+####### schemas 
+
+{% macro website_schema(site) -%}
+  {%- if site -%}
+    {# 1. Pre-fetch search object fragment as a native map #}
+    {%- set search_fragment = search_object(site.search_url) | fromjson if site.search_url else {} -%}
+    
+    {# 2. Stream out via core_entity #}
+    {{- core_entity(
+      type='WebSite',
+      id=get_id(site.home_url, 'website'),
+      url=site.home_url,
+      name=site.name | default('Official Website'),
+      props=search_fragment
+    ) -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro organization_schema(org, site_url) -%}
+  {%- if org -%}
+    {# 1. Accumulate sub-fragments into a single props map natively #}
+    {%- set org_props = {} -%}
+    {%- if org.address %}{% set _ = org_props.update(postal_address(org.address) | fromjson) %}{% endif -%}
+    {%- if org.contact %}{% set _ = org_props.update(contact_point(org.contact) | fromjson) %}{% endif -%}
+    {%- if org.logo %}{% set _ = org_props.update(image_object(org.logo, org.logo.url) | fromjson) %}{% endif -%}
+    
+    {# 2. Stream the combined entity out #}
+    {{- core_entity(
+      type='Organization',
+      id=org.id | default(get_id(site_url, 'organization')),
+      url=site_url,
+      name=org.name,
+      props=org_props
+    ) -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro webpage_schema(page, site_url, org_id) -%}
+  {%- if page -%}
+    {%- set page_props = {} -%}
+    
+    {# Graph linking: Bind this webpage to the website and organization nodes #}
+    {%- set _ = page_props.update(is_part_of(get_id(site_url, 'website')) | fromjson) -%}
+    {%- set _ = page_props.update(publisher(org_id) | fromjson) -%}
+    
+    {# Stream out #}
+    {{- core_entity(
+      type='WebPage',
+      id=page.url,
+      url=page.url,
+      name=page.title,
+      props=page_props
+    ) -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro breadcrumbs_schema(crumbs, site_url) -%
+  {%- if crumbs -%}
+    {# 1. Loop and construct the list elements natively #}
+    {%- set bc_items = [] -%}
+    {%- for item in crumbs -%}
+      {%- set _ = bc_items.append(list_item(item) | fromjson) -%}
+    {%- endfor -%}
+    
+    {# 2. Bundle properties and attach graph relations #}
+    {%- set bc_props = {'itemListElement': bc_items} -%}
+    {%- set _ = bc_props.update(is_part_of(get_id(site_url, 'website')) | fromjson) -%}
+    
+    {# 3. Stream out #}
+    {{- core_entity(
+      type='BreadcrumbList',
+      id=get_id(crumbs[-1].url if crumbs|length > 0 else site_url, 'breadcrumb'),
+      props=bc_props
+    ) -}}
+  {%- endif -%}
+{%- endmacro %}
+
+
+{# --- 6. PERSON MACRO (Zero-Allocation Architecture) --- #}
+{% macro person_object(person, site_url=none) -%}
+{%- if person -%}
+  {# 1. Initialize a flat, native dictionary map #}
+  {%- set p_data = {'@type': 'Person'} -%}
+  {%- if person.name %}{% set _ = p_data.update({'name': person.name}) %}{% endif -% }
+  {%- if person.job_title %}{% set _ = p_data.update({'jobTitle': person.job_title}) %}{% endif -%}
+  {%- if person.short_bio %}{% set _ = p_data.update({'description': person.short_bio}) %}{% endif -%}
+  
+  {# 2. Auto-compute author/profile URL cleanly if slug exists #}
+  {%- if person.slug and site_url -%}
+    {%- set profile_url = site_url.strip().rstrip('/') ~ '/authors/' ~ person.slug.strip().strip('/') ~ '/' -%}
+    {%- set _ = p_data.update({'url': profile_url, '@id': profile_url ~ '#person'}) -%}
+  {%- elif person.url -%}
+    {%- set _ = p_data.update({'url': person.url.strip().rstrip('/')}) -%}
+  {%- endif -%}
+
+  {# 3. Ingest arrays like social links without intermediate string overhead #}
+  {%- if person.social_profiles is iterable and person.social_profiles is not string -%}
+    {%- set _ = p_data.update({'sameAs': person.social_profiles}) -%}
+  {%- endif -%}
+
+  {# 4. Directly stream out the perfect JSON string fragment #}
+  {{- p_data | tojson -}}
+{%- endif -%}
+{%- endmacro %}
+
+
+
+{% call graph_wrapper() %}
+  {{ website_schema(site_ctx) }},
+  {{ organization_schema(org_ctx, site_ctx.home_url) }},
+  {{ webpage_schema(page_ctx, site_ctx.home_url, org_ctx.id) }},
+  {{ breadcrumbs_schema(breadcrumbs_ctx, site_ctx.home_url) }}
+{% endcall %}
+
+
+
+
 eg
 
-{# Example A: Direct standalone core schema block #}
-{{ schema.core_entity(
-     type="WebSite", 
-     id="https://example.com", 
-     url="https://example.com", 
-     name="Main Site Platform"
-) }},
 
-{# Example B: Passing extra parameters cleanly via the 'props' dict parameter #}
-{{ schema.core_entity(
-     type="Organization", 
-     id="https://example.com#org", 
-     url="https://example.com", 
-     name="Lazy Automated Corp",
-     props={
-       "logo": "https://example.comlogo.png",
-       "telephone": "+1-555-555-5555"
-     }
-) }}
+context = {
+    "site_url": "https://qname.ai",
+    "author": {
+        "name": "Alex Mercer",
+        "job_title": "Head of Domain Engineering",
+        "short_bio": "Alex specializes in automated WHOIS intelligence and TLD indexing systems.",
+        "slug": "alex-mercer",
+        "social_profiles": [
+            "https://x.com",
+            "https://github.com"
+        ]
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{# 1. Root Component: Organization Schema #}
-{% macro organization_schema(site_config) %}
-{% if site_config %}
-  {% set org_url = full_url(site_config.home_url) %}
-  {{ entity_base("Organization", 
-      id=get_id(org_url, "organization"),
-      name=site_config.org_name,
-      url=org_url,
-      description=site_config.org_desc,
-      props=[
-        image_object(full_url(site_config.home_url, site_config.img.url), site_config.img.width, site_config.img.height, site_config.img.desc) if site_config.img else none,
-        kv("sameAs", site_config.social_links | default([]) | tojson, is_json=true) if site_config.social_links else none
-      ]
-  ) }}
-{% endif %}
-{% endmacro %}
-
-{# 2. Root Component: WebSite Schema #}
-{% macro website_schema(site_config) %}
-{% if site_config %}
-  {% set site_url = full_url(site_config.home_url) %}
-  {{ entity_base("WebSite", 
-      id=get_id(site_url, "website"),
-      name=site_config.name,
-      url=site_url,
-      props=[
-        publisher(get_id(site_url, "organization")),
-        search_object(site_url)
-      ]
-  ) }}
-{% endif %}
-{% endmacro %}
-
-{# 3. Root Component: WebPage Schema #}
-{% macro webpage_schema(page_data, site_config) %}
-{% if page_data %}
-  {% set page_url = full_url(site_config.home_url, page_data.canonical_path) %}
-  {{ entity_base("WebPage", 
-      id=page_url,
-      name=page_data.title,
-      url=page_url,
-      description=page_data.meta_desc,
-      props=[
-        is_part_of(get_id(full_url(site_config.home_url), "website")),
-        publisher(get_id(full_url(site_config.home_url), "organization")),
-        image_object(full_url(site_config.home_url, page_data.img.url), page_data.img.width, page_data.img.height, page_data.img.desc) if page_data.img else none
-      ]
-  ) }}
-{% endif %}
-{% endmacro %}
-
-{# 4. Root Component: BreadcrumbList Schema #}
-{% macro breadcrumblist_schema(breadcrumbs, site_config) %}
-{% if breadcrumbs %}
-{{ entity_base("BreadcrumbList", 
-    props=[
-      kv("itemListElement", "[" ~ (breadcrumbs | map('defined') | join(',\n  ')) ~ "]", is_json=true)
-    ]
-) }}
-{% endif %}
-{% endmacro %}
+{{ person_object(author, site_url) }}
 
 
 
@@ -275,45 +368,28 @@ eg
 
 
 
-home page
 
 
 
-{% call core.graph_wrapper() %}
-  {# 1. Organization Block #}
-  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization'), name=site_name, url=site_url) %}
-    {{ core.image_object(logo_url, caption=site_name ~ " Logo", id=core.get_id(site_url, 'logo')) }}
-    {{ core.kv("sameAs", social_links, is_json=true) }}
-    {{ core.contact_point(company_phone, "customer service", company_email) }}
-    {{ core.address("123 Innovation Way, Suite 500", "San Francisco", "CA", "94107", "US") }}
-  {% endcall %},
 
-  {# 2. WebSite Block #}
-  {% call core.entity_base("WebSite", id=core.get_id(site_url, 'website'), name=site_name, url=site_url) %}
-    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
-    , "potentialAction": [{
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "{{ site_url }}/search?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    }]
-  {% endcall %},
 
-  {# 3. WebPage Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(site_url, 'webpage'), name=home_title, description=home_meta_desc, url=site_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.about("Organization", core.get_id(site_url, 'organization')) }}
-  {% endcall %}
 
-  {# 4. Team Members Loop #}
-  {% for member in team_members %}
-  ,{% call core.entity_base("Person", id=core.get_id(site_url ~ "/authors/" ~ member.slug, 'person'), name=member.name, description=member.short_bio, url=site_url ~ "/authors/" ~ member.slug ~ "/") %}
-    {{ core.kv("jobTitle", member.job_title) }}
-    {{ core.image_object(member.avatar_url) }}
-    {{ core.kv("sameAs", member.social_profiles, is_json=true) }}
-    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
-  {% endcall %}
-  {% endfor %}
-{% endcall %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
