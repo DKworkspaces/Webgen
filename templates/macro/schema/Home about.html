@@ -1,5 +1,5 @@
 
-{% macro render_organization(site_url, site_name, logo_url, social_links=[]) %}
+{% macro render_organization(site_url, site_name, logo_url, social_links=[], knows_about=[]) %}
 {
   "@type": "Organization","@id": "{{ site_url }}/#organization",
   "name": {{ site_name | tojson }},"url": "{{ site_url }}",
@@ -9,6 +9,9 @@
     "width": "512","height": "512"
   },
   "sameAs": {{ social_links | tojson }}
+  {%- if knows_about -%},
+  "knowsAbout": {{ knows_about | tojson }}
+  {%- endif -%}
 }
 {% endmacro %}
 
@@ -47,6 +50,46 @@
 }
 {% endmacro %}
 
+{% macro render_breadcrumb(page_url, site_url, page_title) %}
+{
+  "@type": "BreadcrumbList","@id": "{{ page_url }}/#breadcrumb",
+  "itemListElement": [
+    {
+      "@type": "ListItem","position": 1,
+      "name": "Home","item": "{{ site_url }}"
+    },
+    {
+      "@type": "ListItem","position": 2,
+      "name": {{ page_title | tojson }}
+    }
+  ]
+}
+{% endmacro %}
+
+
+
+
+
+{% macro render_about_page(page_url, page_title, page_meta_description, site_url) %}
+{
+  "@type": "AboutPage","@id": "{{ page_url }}/#webpage",
+  "url": "{{ page_url }}","name": {{ page_title | tojson }},
+  "description": {{ page_meta_description | tojson }},
+  "isPartOf": {
+    "@id": "{{ site_url }}/#website"
+  },
+  "breadcrumb": {
+    "@id": "{{ page_url }}/#breadcrumb"
+  }
+}
+{% endmacro %}
+
+
+
+
+
+
+
 
     {% set graph_nodes = [
       render_organization(site_url=site_url, site_name=site_name, logo_url=logo_url, social_links=["https://facebook.com","https://instagram.com"]),
@@ -55,3 +98,16 @@
     ] %}
     
     {{ graph_nodes | join(',\n') }}
+
+
+
+
+{% set graph_nodes = [
+      render_organization(site_url=site_url, site_name=site_name, logo_url=logo_url, social_links=["https://facebook.com","https://instagram.com"],knows_about=["Digital Marketing","Search Engine Optimization","Web Development"]),
+      render_website(site_url=site_url, site_name=site_name),
+      render_about_page(page_url=page_url,page_title=page_title,page_meta_description=page_meta_description,site_url=site_url),
+      render_breadcrumb(page_url=page_url,site_url=site_url,page_title=page_title)
+    ] %}
+
+
+    
