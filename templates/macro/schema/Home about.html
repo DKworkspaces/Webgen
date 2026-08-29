@@ -5,7 +5,27 @@ home page
 "@type": "Organization","@id": "{{ site_url }}/#organization",
 "name": "{{ site_name }}","url": "{{ site_url }}",
 "description": "{{ site_meta_desc }}",
-"knowsAbout": ["Digital Marketing","Search Engine Optimization","Web Development"],
+"knowsAbout": [
+{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Digital Marketing","sameAs": ["https://wikipedia.org"]
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Search Engine Optimization","sameAs": ["https://wikipedia.org"]
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Web Development","sameAs": ["https://wikipedia.org"]
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Artificial Intelligence","sameAs": ["https://wikipedia.org"]
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Software as a Service (SaaS)","sameAs": ["https://wikipedia.org"]
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Domain Name System (DNS)","sameAs": ["https://wikipedia.org"]
+}
+],
 "logo": {
 "@type": "ImageObject","@id": "{{ site_url }}/#logo",
 "url": "{{ logo_url }}","caption": "{{ site_name }} Logo",
@@ -66,6 +86,17 @@ about Us page
 "url": "{{ site_url }}/authors/{{ member.slug }}/",
 "sameAs": {{ member.social_profiles | default([]) | tojson | safe }},
 "worksFor": {"@id": "{{ site_url }}/#organization"},
+"knowsAbout": [
+{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Search Engine Optimization","sameAs": "https://wikipedia.org"
+},{
+"@type": "Thing","@id": "https://wikidata.org","name": "Artificial Intelligence","sameAs": "https://wikipedia.org"
+},{
+"@type": "Thing","@id": "https://wikidata.org",
+"name": "Software as a Service (SaaS)","sameAs": "https://wikipedia.org"
+}
+],
 "affiliation": {"@id": "{{ site_url }}/#organization"}
 
 }{% if not loop.last %},{% endif %}
