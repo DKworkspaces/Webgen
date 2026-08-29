@@ -1,0 +1,92 @@
+categories tags archive index list page
+
+
+
+
+{
+"@type": "CollectionPage","@id": "{{ page_url }}/#webpage",
+"url": "{{ page_url }}","name": "{{ page_title | default('Browse Articles by Topic Hub') }}",
+"description": "{{ page_meta_description | default('Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.') }}",
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"about": {"@id": "{{ site_url }}/#organization"},
+"breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
+"mainEntity": {
+"@type": "ItemList","@id": "{{ page_url }}/#itemlist",
+"name": "Available Topic Directories","numberOfItems": {{ taxonomies | length }},
+"itemListElement": [
+{% for term in taxonomies %}
+{
+"@type": "ListItem","position": {{ loop.index }},
+"name": {{ term.name | tojson | safe }},"item": "{{ term.url }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+},
+
+
+{
+"@type": "BreadcrumbList","@id": "{{ page_url }}/#breadcrumb",
+"itemListElement": [
+{
+"@type": "ListItem","position": 1,
+"name": "Home","item": "{{ site_url }}"
+},{
+"@type": "ListItem","position": 2,
+"name": "{{ page_title | default('Topics') }}","item": "{{ page_url }}"
+}
+]
+}
+
+
+
+individual category tag archive pages 
+
+
+{
+"@type": "CollectionPage",
+"@id": "{{ taxonomy_url }}/#webpage",
+"url": "{{ taxonomy_url }}",
+"name": "{{ taxonomy_name }} Articles & Resources",
+"description": "{{ taxonomy_description | default('Deep analysis and research updates exploring ' ~ taxonomy_name) }}",
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"about": {"@id": "{{ site_url }}/#organization"},
+"breadcrumb": {"@id": "{{ taxonomy_url }}/#breadcrumb"},
+"mainEntity": {
+"@type": "ItemList","@id": "{{ taxonomy_url }}/#itemlist",
+"name": "Articles in {{ taxonomy_name }}","numberOfItems": {{ items | length }},
+"itemListElement": [
+{% for article in items %}
+{
+"@type": "ListItem","position": {{ loop.index }},
+"name": {{ article.title | tojson | safe }},
+"item": {
+"@type": "BlogPosting","headline": {{ article.title | tojson | safe }},
+"url": "{{ article.url }}","description": {{ article.meta_description | tojson | safe }}
+}
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+},
+
+{
+"@type": "BreadcrumbList","@id": "{{ taxonomy_url }}/#breadcrumb",
+"itemListElement": [
+{
+"@type": "ListItem","position": 1,
+"name": "Home","item": "{{ site_url }}"
+},{
+"@type": "ListItem","position": 2,
+"name": "Categories","item": "{{ site_url }}/categories/"
+},{
+"@type": "ListItem","position": 3,
+"name": {{ taxonomy_name | tojson | safe }},"item": "{{ taxonomy_url }}"
+}
+]
+}
+
+
+
+
+ 
