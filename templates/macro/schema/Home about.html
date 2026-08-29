@@ -1,0 +1,57 @@
+
+{% macro render_organization(site_url, site_name, logo_url, social_links=[]) %}
+{
+  "@type": "Organization","@id": "{{ site_url }}/#organization",
+  "name": {{ site_name | tojson }},"url": "{{ site_url }}",
+  "logo": {
+    "@type": "ImageObject","@id": "{{ site_url }}/#logo",
+    "url": "{{ logo_url }}","caption": "{{ site_name ~ ' Logo' | tojson }}",
+    "width": "512","height": "512"
+  },
+  "sameAs": {{ social_links | tojson }}
+}
+{% endmacro %}
+
+
+{% macro render_website(site_url, site_name) %}
+{
+  "@type": "WebSite","@id": "{{ site_url }}/#website",
+  "url": "{{ site_url }}","name": {{ site_name | tojson }},
+  "publisher": {
+    "@id": "{{ site_url }}/#organization"
+  },
+  "potentialAction": [
+    {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint","urlTemplate": "{{ site_url }}/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  ]
+}
+{% endmacro %}
+
+
+{% macro render_webpage(site_url, home_title, home_meta_desc) %}
+{
+  "@type": "WebPage","@id": "{{ site_url }}/#webpage",
+  "url": "{{ site_url }}","name": {{ home_title | tojson }},
+  "description": {{ home_meta_desc | tojson }},
+  "isPartOf": {
+    "@id": "{{ site_url }}/#website"
+  },
+  "about": {
+    "@id": "{{ site_url }}/#organization"
+  }
+}
+{% endmacro %}
+
+
+    {% set graph_nodes = [
+      render_organization(site_url=site_url, site_name=site_name, logo_url=logo_url, social_links=["https://facebook.com","https://instagram.com"]),
+      render_website(site_url=site_url, site_name=site_name),
+      render_webpage(site_url=site_url, home_title=home_title, home_meta_desc=home_meta_desc)
+    ] %}
+    
+    {{ graph_nodes | join(',\n') }}
