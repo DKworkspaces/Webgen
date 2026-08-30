@@ -3,69 +3,69 @@
 
 {
       "@type": "WebPage",
-      "@id": "{{ post.url | trim }}/#webpage",
-      "url": "{{ post.url | trim }}",
-      "name": {{ post.title | tojson }},
-      "description": {{ (post.summary | default(post.meta_description)) | tojson }},
+      "@id": "{{ post.url }}/#webpage",
+      "url": "{{ post.url }}",
+      "name": {{ post.title }},
+      "description": {{ (post.meta_description }},
       "mainEntity": {
-        "@id": "{{ post.url | trim }}/#video"
+        "@id": "{{ post.url }}/#video"
       },
       "isPartOf": {
-        "@id": "{% if post.subcluster_url %}{{ post.subcluster_url | trim }}/#webpage{% elif post.cluster_url %}{{ post.cluster_url | trim }}/#webpage{% elif post.subpillar_url %}{{ post.subpillar_url | trim }}/#webpage{% elif post.pillar_url %}{{ post.pillar_url | trim }}/#webpage{% else %}{{ site_config.home_url | trim }}/#website{% endif %}"
+        "@id": "{{ post.parent_page_url }}/#webpage"
       },
       "about": {
-        "@id": "{{ site_config.home_url | trim }}/#organization"
+        "@id": "{{ site_config.home_url }}/#organization"
       }
     },
     {
-      "@type": "{{ post.schema_type | default('BlogPosting') }}",
-      "@id": "{{ post.url | trim }}/#article",
+      "@type": "BlogPosting",
+      "@id": "{{ post.url }}/#article",
       "isPartOf": {
-        "@id": "{{ post.url | trim }}/#webpage"
+        "@id": "{{ post.url }}/#webpage"
       },
-      "headline": {{ post.title | tojson }},
-      "description": {{ (post.summary | default(post.meta_description)) | tojson }},
-      "url": "{{ post.url | trim }}",
+      "headline": {{ post.title }},
+      "description": {{ post.meta_description }},
+      "url": "{{ post.url }}",
       "datePublished": "{{ post.date_published_iso }}",
       "dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
       "mainEntityOfPage": {
-        "@id": "{{ post.url | trim }}/#video"
+        "@id": "{{ post.url }}/#video"
       },
       "wordCount": {{ post.word_count | default(0) | int }},
       "inLanguage": "{{ post.language | default('en-US') }}",
       "author": {
         "@type": "Person",
-        "name": {{ post.author_name | default('Editorial Staff') | tojson }},
-        "url": "{{ post.author_profile_url | default(site_config.home_url | trim ~ '/about/') }}"
+        "name": {{ post.author_name }},
+        "url": "{{ post.author_profile_url }}"
       },
       "publisher": {
-        "@id": "{{ site_config.home_url | trim }}/#organization"
+        "@id": "{{ site_config.home_url }}/#organization"
       }
       {% if post.featured_image %},
       "image": {
         "@type": "ImageObject",
         "url": "{{ post.featured_image }}",
-        "caption": {{ (post.image_caption | default(post.title ~ ' Featured Graphic')) | tojson }},
+        "caption": {{ (post.image_caption }},
         "width": {{ post.image_width | default(1200) | int }},
         "height": {{ post.image_height | default(630) | int }}
       }
       {% endif %},
       "hasPart": {
-        "@id": "{{ post.url | trim }}/#video"
+        "@id": "{{ post.url }}/#video"
       }
     },
     {
       "@type": "VideoObject",
-      "@id": "{{ post.url | trim }}/#video",
-      "name": {{ (post.video_title | default(post.title)) | tojson }},
-      "description": {{ (post.video_description | default(post.summary)) | tojson }},
+      "@id": "{{ post.url }}/#video",
+      "name": {{ (post.video_title }},
+      "description": {{ (post.video_description | default(post.summary)) }},
       "thumbnailUrl": [
         "{{ post.video_thumbnail_url | default(post.featured_image) }}"
       ],
-      "uploadDate": "{{ post.video_upload_date | default(post.date_published_iso) }}"
+      "uploadDate": "{{ post.video_upload_date }}"
       {% if post.video_embed_url %},"embedUrl": "{{ post.video_embed_url }}"{% endif %}
       {% if post.video_source_url %},"contentUrl": "{{ post.video_source_url }}"{% endif %},
-      "mainEntityOfPage": "{{ post.url | trim }}",
+      "mainEntityOfPage": "{{ post.url }}",
       "publisher": {
         "@type": "Organization",
         "name": "{% if 'youtube' in (post.video_embed_url | default('') | lower) or 'youtu.be' in (post.video_embed_url | default('') | lower) %}YouTube{% elif 'dailymotion' in (post.video_embed_url | default('') | lower) %}Dailymotion{% else %}{{ site_config.home_name | default('Publisher') }}{% endif %}"
