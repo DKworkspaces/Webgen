@@ -183,7 +183,7 @@ ___________________________________________________
 page as blog post too
 
 
-pilla page
+pilla page >Sub-Pillar page 
 
 
 
@@ -233,7 +233,7 @@ pilla page
 
 
 
-Sub-Pillar page 
+Sub-Pillar page >cluster page
 
 
 
@@ -257,19 +257,17 @@ Sub-Pillar page
 "author": { "@id": "{{ site_url }}/#organization" },
 
 "about": [
-          {
-            "@type": "Thing",
-            "name": "{{ sub_pillar_topic_name }}",
-            "sameAs": "{{ sub_pillar_topic_wikipedia_url }}"
-          }
-        ],
-        "mentions": [
-          {
-            "@type": "Thing",
-            "name": "{{ secondary_topic_name }}",
-            "sameAs": "{{ secondary_topic_wikipedia_url }}"
-          }
-        ]
+{
+"@type": "Thing","name": "{{ sub_pillar_topic_name }}",
+"sameAs": "{{ sub_pillar_topic_wikipedia_url }}"
+}
+],
+"mentions": [
+{
+"@type": "Thing","name": "{{ secondary_topic_name }}",
+"sameAs": "{{ secondary_topic_wikipedia_url }}"
+}
+]
 
 }
 },
@@ -288,7 +286,7 @@ Sub-Pillar page
 
 
 
-cluster page 
+cluster page >subcluster page
 
 
 {
@@ -311,19 +309,17 @@ cluster page
 "author": { "@id": "{{ site_url }}/#organization" },
 
 "about": [
-          {
-            "@type": "Thing",
-            "name": "{{ cluster_topic_name }}",
-            "sameAs": "{{ cluster_topic_wikipedia_url }}"
-          }
-        ],
-        "mentions": [
-          {
-            "@type": "Thing",
-            "name": "{{ cluster_mention_name }}",
-            "sameAs": "{{ cluster_mention_wikipedia_url }}"
-          }
-        ]
+{
+"@type": "Thing","name": "{{ cluster_topic_name }}",
+"sameAs": "{{ cluster_topic_wikipedia_url }}"
+}
+],
+"mentions": [
+{
+"@type": "Thing","name": "{{ cluster_mention_name }}",
+"sameAs": "{{ cluster_mention_wikipedia_url }}"
+}
+]
 }
 },
 
@@ -338,7 +334,7 @@ cluster page
 
 
 
-sub cluster page 
+sub cluster page >blogpost 
 
 
 {
@@ -346,6 +342,19 @@ sub cluster page
 "url": "{{ sub_cluster_url }}","name": "{{ sub_cluster_title }}",
 "description": "{{ sub_cluster_meta_description }}",
 "isPartOf": {"@id": "{{ parent_container_url }}/#webpage"},
+
+"hasPart": [
+{% for post in lower_level_posts %}
+{
+"@type": "BlogPosting","@id": "{{ post.url }}/#article",
+"headline": "{{ post.title | escape }}","url": "{{ post.url }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+
+
+
+
 "breadcrumb": {"@id": "{{ sub_cluster_url }}/#breadcrumb"},
 "mainEntity": {
 "@type": "BlogPosting","@id": "{{ sub_cluster_url }}/#blogposting",
@@ -355,19 +364,17 @@ sub cluster page
 "publisher": { "@id": "{{ site_url }}/#organization" },
 
 "about": [
-          {
-            "@type": "Thing",
-            "name": "{{ leaf_topic_name }}",
-            "sameAs": "{{ leaf_topic_wikipedia_url }}"
-          }
-        ],
-        "mentions": [
-          {
-            "@type": "Thing",
-            "name": "{{ leaf_mention_name }}",
-            "sameAs": "{{ leaf_mention_wikipedia_url }}"
-          }
-        ]
+{
+"@type": "Thing","name": "{{ leaf_topic_name }}",
+"sameAs": "{{ leaf_topic_wikipedia_url }}"
+}
+],
+"mentions": [
+{
+"@type": "Thing","name": "{{ leaf_mention_name }}",
+"sameAs": "{{ leaf_mention_wikipedia_url }}"
+}
+]
 
 "author": { "@id": "{{ site_url }}/#organization" }
 {% if article_image %}, "image": ["{{ article_image }}"]{% endif %}
@@ -390,235 +397,3 @@ sub cluster page
 
 
 ____________________________________________
-
-Page 10: Pillar Page Template (pillar.html)
-
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ pillar_url }}/#webpage",
-      "url": "{{ pillar_url }}",
-      "name": "{{ pillar_title }}",
-      "description": "{{ pillar_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      }, 
-"about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      "breadcrumb": {
-        "@id": "{{ pillar_url }}/#breadcrumb"
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "@id": "{{ pillar_url }}/#cluster-list",
-        "name": "{{ pillar_title }} Supporting Topic Cluster",
-        "description": "Deep-dive supporting guides and cluster content branches connected to this master topic.",
-        "numberOfItems": {{ cluster_pages | length }},
-        "itemListElement": [
-          {% for sub_page in cluster_pages %}
-          {
-            "@type": "ListItem",
-            "position": {{ loop.index }},
-            "name": "{{ sub_page.title }}",
-            "url": "{{ sub_page.url }}"
-          }{% if not loop.last %},{% endif %}
-          {% endfor %}
-        ]
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ pillar_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ pillar_title }}"
-        }
-      ]
-    }
-
-Page 16: Sub-Pillar Page Template (sub-pillar.html)
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ sub_pillar_url }}/#webpage",
-      "url": "{{ sub_pillar_url }}",
-      "name": "{{ sub_pillar_title }}",
-      "description": "{{ sub_pillar_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ sub_pillar_url }}/#breadcrumb"
-      },
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{{ pillar_parent_url }}/#webpage",
-        "name": "{{ pillar_parent_title }}"
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "@id": "{{ sub_pillar_url }}/#sub-cluster-list",
-        "name": "{{ sub_pillar_title }} Deep Supporting Cluster",
-        "description": "Granular supporting child guides and sub-cluster segments managed under this sub-pillar.",
-        "numberOfItems": {{ sub_cluster_pages | length }},
-        "itemListElement": [
-          {% for sub_page in sub_cluster_pages %}
-          {
-            "@type": "ListItem",
-            "position": {{ loop.index }},
-            "name": "{{ sub_page.title }}",
-            "url": "{{ sub_page.url }}"
-          }{% if not loop.last %},{% endif %}
-          {% endfor %}
-        ]
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ sub_pillar_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ pillar_parent_title }}",
-          "item": "{{ pillar_parent_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "{{ sub_pillar_title }}"
-        }
-      ]
-    }
-
-Page 11: Cluster Page Template (cluster.html)
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ cluster_url }}/#webpage",
-      "url": "{{ cluster_url }}",
-      "name": "{{ cluster_title }}",
-      "description": "{{ cluster_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ cluster_url }}/#breadcrumb"
-      },
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{{ pillar_parent_url }}/#webpage",
-        "name": "{{ pillar_parent_title }}"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ cluster_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ pillar_parent_title }}",
-          "item": "{{ pillar_parent_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "{{ cluster_title }}"
-        }
-      ]
-    }
-
-Page 12: Sub-Cluster Page Template (sub-cluster.html)
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ sub_cluster_url }}/#webpage",
-      "url": "{{ sub_cluster_url }}",
-      "name": "{{ sub_cluster_title }}",
-      "description": "{{ sub_cluster_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ sub_cluster_url }}/#breadcrumb"
-      },
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{{ cluster_parent_url }}/#webpage",
-        "name": "{{ cluster_parent_title }}"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ sub_cluster_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ pillar_root_title }}",
-          "item": "{{ pillar_root_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "{{ cluster_parent_title }}",
-          "item": "{{ cluster_parent_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": "{{ sub_cluster_title }}"
-        }
-      ]
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
