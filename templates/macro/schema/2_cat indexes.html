@@ -96,40 +96,6 @@ ________________________________________________________________________________
 
 
 
-Page 8 (Categories/Tags/Archive Index List Dashboard)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. Core Collection Directory Block #}
-  {% call core.entity_base("CollectionPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Dashboard Breadcrumb Path #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, page_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. The Taxonomy Directory ItemList #}
-  {% call core.entity_base("ItemList", id=core.get_id(page_url, 'itemlist'), name="Taxonomy Index Directory", description="Master collection directory of website content taxonomies.") %}
-    {{ core.kv("numberOfItems", taxonomies | length) }}
-    , "itemListElement": [
-      {% for term in taxonomies %}
-      {
-        "@type": "ListItem",
-        "position": {{ loop.index }},
-        "name": {{ term.name | tojson }},
-        "item": {{ term.url | tojson }}
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
-    ]
-  {% endcall %}
-{% endcall %}
 
 Page 8: Categories/Tags/Archive Index List Page (archive-index.html)
 
@@ -183,62 +149,6 @@ Page 8: Categories/Tags/Archive Index List Page (archive-index.html)
 
 
 
-categories list/tag list/archive list
-
-
-
-{%- import "macros/components.html" as component -%}
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# 1. Define the core CollectionPage container #}
-    {%- call component.entity_base("CollectionPage") -%}
-      {{ component.id(request.url, "#webpage") }}
-      {{ component.url(request.url) }}
-      {{ component.kv("name", "Browse Articles by Topic Hub") }}
-      {{ component.kv("description", "Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.") }}
-      
-      {# Structural references back to your homepage anchors #}
-      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
-      , "about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      {# 2. Loop through your list of categories/tags inside an ItemList element #}
-      , "mainEntity": 
-      {%- call component.entity_base("ItemList") -%}
-        {{ component.kv("name", "Available Topic Directories") }}
-        , "itemListElement": [
-          {% for dynamic_item in terms_list %}
-          {%- call component.entity_base("ListItem") -%}
-            {{ component.kv("position", loop.index | string, is_json=true) }}
-            {{ component.kv("name", dynamic_item.name) }}
-            {{ component.kv("url", dynamic_item.absolute_url, is_json=true) }}
-          {%- endcall -%}{% if not loop.last %},{% endif %}
-          {% endfor %}
-        ]
-      {%- endcall -%}
-    {%- endcall -%}
-
-    {# 3. Append the BreadcrumbList path #},
-    {%- call component.entity_base("BreadcrumbList") -%}
-      {{ component.id(request.url, "#breadcrumb") }}
-      , "itemListElement": [
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "1", is_json=true) }}
-          {{ component.kv("name", "Home") }}
-          {{ component.kv("item", site_config.home_url, is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "2", is_json=true) }}
-          {{ component.kv("name", "Topics") }}
-          {{ component.kv("item", request.url, is_json=true) }}
-        {%- endcall -%}
-      ]
-    {%- endcall -%}
-  ]
-}
-</script>
 
 
 
@@ -251,26 +161,7 @@ categories list/tag list/archive list
 
 
 
-Page 9 (Individual Category/Tag Archive Page)
 
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. Standalone Category Archive Page Block #}
-  {% call core.entity_base("CollectionPage", id=core.get_id(taxonomy_url, 'webpage'), name=taxonomy_name ~ " Resource Archive", description=taxonomy_description, url=taxonomy_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(taxonomy_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. 3-Step Taxonomy Breadcrumb Path #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(taxonomy_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, "Categories", site_url ~ "/categories") }},
-      {{ core.list_item(3, taxonomy_name) }}
-    ]
-  {% endcall %}
-{% endcall %}
 
 Page 9: Individual Category/Tag/Archive Page (taxonomy-single.html)
 
@@ -284,6 +175,7 @@ Page 9: Individual Category/Tag/Archive Page (taxonomy-single.html)
       "isPartOf": {
         "@id": "{{ site_url }}/#website"
       },
+
       "breadcrumb": {
         "@id": "{{ taxonomy_url }}/#breadcrumb"
       }
@@ -312,64 +204,4 @@ Page 9: Individual Category/Tag/Archive Page (taxonomy-single.html)
       ]
     }
 
-individual category/tag/archive 
-
-
-{%- import "macros/components.html" as component -%}
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {# 1. Define the active Stream CollectionPage container #}
-    {%- call component.entity_base("CollectionPage") -%}
-      {{ component.id(request.url, "#webpage") }}
-      {{ component.url(request.url) }}
-      {{ component.kv("name", active_term.name ~ " Journal Archive") }}
-      {{ component.kv("description", active_term.description | default("Deep analysis and research updates exploring " ~ active_term.name)) }}
-      
-      {# Structural link references back to the homepage properties #}
-      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
-      , "about": { "@id": "{{ site_config.home_url }}#organization" }
-      
-      {# 2. Loop your actual post feed row cards #}
-      , "mainEntity": 
-      {%- call component.entity_base("ItemList") -%}
-        {{ component.kv("name", "Articles in " ~ active_term.name) }}
-        , "itemListElement": [
-          {% for post in posts_list %}
-          {%- call component.entity_base("ListItem") -%}
-            {{ component.kv("position", loop.index | string, is_json=true) }}
-            {{ component.kv("name", post.title) }}
-            {{ component.kv("url", post.absolute_url, is_json=true) }}
-          {%- endcall -%}{% if not loop.last %},{% endif %}
-          {% endfor %}
-        ]
-      {%- endcall -%}
-    {%- endcall -%}
-
-    {# 3. Append the multi-step BreadcrumbList #},
-    {%- call component.entity_base("BreadcrumbList") -%}
-      {{ component.id(request.url, "#breadcrumb") }}
-      , "itemListElement": [
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "1", is_json=true) }}
-          {{ component.kv("name", "Home") }}
-          {{ component.kv("item", site_config.home_url, is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "2", is_json=true) }}
-          {{ component.kv("name", "Categories") }}
-          {{ component.kv("item", site_config.home_url ~ "categories/", is_json=true) }}
-        {%- endcall -%},
-        {%- call component.entity_base("ListItem") -%}
-          {{ component.kv("position", "3", is_json=true) }}
-          {{ component.kv("name", active_term.name) }}
-          {{ component.kv("item", request.url, is_json=true) }}
-        {%- endcall -%}
-      ]
-    {%- endcall -%}
-  ]
-}
- </script>
 
