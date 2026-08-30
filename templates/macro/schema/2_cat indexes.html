@@ -96,4 +96,60 @@ ________________________________________________________________________________
 
 
 
+Page 8 (Categories/Tags/Archive Index List Dashboard)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core Collection Directory Block #}
+  {% call core.entity_base("CollectionPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. Dashboard Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, page_title) }}
+    ]
+  {% endcall %},
+
+  {# 3. The Taxonomy Directory ItemList #}
+  {% call core.entity_base("ItemList", id=core.get_id(page_url, 'itemlist'), name="Taxonomy Index Directory", description="Master collection directory of website content taxonomies.") %}
+    {{ core.kv("numberOfItems", taxonomies | length) }}
+    , "itemListElement": [
+      {% for term in taxonomies %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "name": {{ term.name | tojson }},
+        "item": {{ term.url | tojson }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+Page 9 (Individual Category/Tag Archive Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Standalone Category Archive Page Block #}
+  {% call core.entity_base("CollectionPage", id=core.get_id(taxonomy_url, 'webpage'), name=taxonomy_name ~ " Resource Archive", description=taxonomy_description, url=taxonomy_url) %}
+    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
+    {{ core.kv("breadcrumb", {"@id": core.get_id(taxonomy_url, 'breadcrumb')}, is_json=true) }}
+  {% endcall %},
+
+  {# 2. 3-Step Taxonomy Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(taxonomy_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, "Categories", site_url ~ "/categories") }},
+      {{ core.list_item(3, taxonomy_name) }}
+    ]
+  {% endcall %}
+{% endcall %}
 
