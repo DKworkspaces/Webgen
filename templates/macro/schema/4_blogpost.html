@@ -1,0 +1,119 @@
+Page 14 (BlogPosting Inside a Category Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core BlogPosting Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(category_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+  {% endcall %},
+
+  {# 2. 3-Step Category Article Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, category_name, category_url) }},
+      {{ core.list_item(3, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+
+
+
+
+
+Page 15 (BlogPosting Inside a Cluster Page)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. Core BlogPosting Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(cluster_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+  {% endcall %},
+
+  {# 2. 4-Step Siloed Article Breadcrumb Path #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, pillar_title, pillar_url) }},
+      {{ core.list_item(3, cluster_title, cluster_url) }},
+      {{ core.list_item(4, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
+
+
+
+
+
+Page 16 (BlogPosting with Embedded Video)
+
+{% import 'macros/schema_core.html' as core %}
+
+{% call core.graph_wrapper() %}
+  {# 1. BlogPosting Core Block #}
+  {% call core.entity_base("BlogPosting", id=core.get_id(post_url, 'article'), name=post_title, description=post_meta_description, url=post_url) %}
+    {{ core.kv("headline", post_title) }}
+    {{ core.kv("datePublished", post_date_published) }}
+    {{ core.kv("dateModified", post_date_modified | default(post_date_published)) }}
+    {{ core.kv("mainEntityOfPage", post_url) }}
+    {{ core.is_part_of("WebPage", core.get_id(page_url, 'webpage')) }}
+    {{ core.publisher("Organization", core.get_id(site_url, 'organization')) }}
+    {{ core.image_object(post_featured_image) }}
+    , "author": {
+      "@type": "Person",
+      "@id": "{{ core.get_id(site_url ~ '/authors/' ~ post_author_slug, 'person') }}",
+      "name": "{{ post_author_name }}",
+      "url": "{{ site_url }}/authors/{{ post_author_slug }}/"
+    }
+    , "hasPart": { "@id": "{{ core.get_id(post_url, 'video') }}" }
+  {% endcall %},
+
+  {# 2. The VideoObject Structural Node #}
+  {% call core.entity_base("VideoObject", id=core.get_id(post_url, 'video'), name=video_title, description=video_description) %}
+    , "thumbnailUrl": [ {{ video_thumbnail_url | tojson }} ]
+    {{ core.kv("uploadDate", video_upload_date) }}
+    {{ core.kv("contentUrl", video_source_url) }}
+    {{ core.kv("embedUrl", video_embed_url) }}
+    , "potentialAction": {
+      "@type": "SeekToAction",
+      "target": "{{ post_url }}?t={seek_to_second_number}",
+      "startOffset-input": "required name=seek_to_second_number"
+    }
+  {% endcall %},
+
+  {# 3. Standard Breadcrumb Navigation Node #}
+  {% call core.entity_base("BreadcrumbList", id=core.get_id(post_url, 'breadcrumb')) %}
+    , "itemListElement": [
+      {{ core.list_item(1, "Home", site_url) }},
+      {{ core.list_item(2, post_title) }}
+    ]
+  {% endcall %}
+{% endcall %}
