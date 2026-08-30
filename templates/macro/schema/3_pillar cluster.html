@@ -391,44 +391,6 @@ sub cluster page
 
 ____________________________________________
 
-
-
-
-Page 10 (Pillar Page Hub)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. Master Pillar Page Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(pillar_url, 'webpage'), name=pillar_title, description=pillar_meta_description, url=pillar_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(pillar_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Core Pillar Breadcrumb Path #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(pillar_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, pillar_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. Supporting Topic Cluster ItemList Registry #}
-  {% call core.entity_base("ItemList", id=core.get_id(pillar_url, 'cluster-list'), name=pillar_title ~ " Semantic Topic Hub Cluster", description="Direct supporting resources linked to this core cornerstone topic hub.") %}
-    {{ core.kv("numberOfItems", cluster_pages | length) }}
-    , "itemListElement": [
-      {% for sub_page in cluster_pages %}
-      {
-        "@type": "ListItem",
-        "position": {{ loop.index }},
-        "name": {{ sub_page.title | tojson }},
-        "item": {{ sub_page.url | tojson }}
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
-    ]
-  {% endcall %}
-{% endcall %}
-
 Page 10: Pillar Page Template (pillar.html)
 
 
@@ -440,7 +402,9 @@ Page 10: Pillar Page Template (pillar.html)
       "description": "{{ pillar_meta_description }}",
       "isPartOf": {
         "@id": "{{ site_url }}/#website"
-      },
+      }, 
+"about": { "@id": "{{ site_config.home_url }}#organization" }
+      
       "breadcrumb": {
         "@id": "{{ pillar_url }}/#breadcrumb"
       },
@@ -479,54 +443,6 @@ Page 10: Pillar Page Template (pillar.html)
         }
       ]
     }
-
-
-
-
-
-
-
-
-
-
-
-
-Page 11 (Sub-Pillar Page Hub)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Content Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(sub_pillar_url, 'webpage'), name=sub_pillar_title, description=sub_pillar_meta_description, url=sub_pillar_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(sub_pillar_url, 'breadcrumb')}, is_json=true) }}
-    {{ core.main_entity_of_page("WebPage", core.get_id(pillar_parent_url, 'webpage')) }}
-  {% endcall %},
-
-  {# 2. Sub-Pillar 3-Step Breadcrumb Path #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(sub_pillar_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, pillar_parent_title, pillar_parent_url) }},
-      {{ core.list_item(3, sub_pillar_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. Deep Supporting Sub-Cluster ItemList Registry #}
-  {% call core.entity_base("ItemList", id=core.get_id(sub_pillar_url, 'sub-cluster-list'), name=sub_pillar_title ~ " Deep Supporting Silo Cluster", description="Granular child guides managed under this specialized sub-pillar.") %}
-    {{ core.kv("numberOfItems", sub_cluster_pages | length) }}
-    , "itemListElement": [
-      {% for sub_page in sub_cluster_pages %}
-      {
-        "@type": "ListItem",
-        "position": {{ loop.index }},
-        "name": {{ sub_page.title | tojson }},
-        "item": {{ sub_page.url | tojson }}
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
-    ]
-  {% endcall %}
-{% endcall %}
 
 Page 16: Sub-Pillar Page Template (sub-pillar.html)
 
@@ -589,38 +505,6 @@ Page 16: Sub-Pillar Page Template (sub-pillar.html)
       ]
     }
 
-
-
-
-
-
-
-
-
-
-
-Page 12 (Cluster Page Supporting Guide)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(cluster_url, 'webpage'), name=cluster_title, description=cluster_meta_description, url=cluster_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(cluster_url, 'breadcrumb')}, is_json=true) }}
-    {{ core.main_entity_of_page("WebPage", core.get_id(pillar_parent_url, 'webpage')) }}
-  {% endcall %},
-
-  {# 2. Cluster Breadcrumb Path #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(cluster_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, pillar_parent_title, pillar_parent_url) }},
-      {{ core.list_item(3, cluster_title) }}
-    ]
-  {% endcall %}
-{% endcall %}
-
 Page 11: Cluster Page Template (cluster.html)
 
     {
@@ -664,36 +548,6 @@ Page 11: Cluster Page Template (cluster.html)
         }
       ]
     }
-
-
-
-
-
-
-
-
-
-Page 13 (Sub-Cluster Page)
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(sub_cluster_url, 'webpage'), name=sub_cluster_title, description=sub_cluster_meta_description, url=sub_cluster_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(sub_cluster_url, 'breadcrumb')}, is_json=true) }}
-    {{ core.main_entity_of_page("WebPage", core.get_id(cluster_parent_url, 'webpage')) }}
-  {% endcall %},
-
-  {# 2. 4-Step Structural Breadcrumb Chain #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(sub_cluster_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, pillar_root_title, pillar_root_url) }},
-      {{ core.list_item(3, cluster_parent_title, cluster_parent_url) }},
-      {{ core.list_item(4, sub_cluster_title) }}
-    ]
-  {% endcall %}
-{% endcall %}
 
 Page 12: Sub-Cluster Page Template (sub-cluster.html)
 
@@ -744,3 +598,27 @@ Page 12: Sub-Cluster Page Template (sub-cluster.html)
         }
       ]
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
