@@ -177,6 +177,8 @@ Missing "about": {"@id": "{{ site_url }}/#organization"},
 
 
 terms of service page 
+missing  "about": {"@id": "{{ site_url }}/#organization"},
+
 
 
 {
@@ -205,6 +207,8 @@ terms of service page
 
 
 privacy policy page 
+missing  "about": {"@id": "{{ site_url }}/#organization"},
+
 
 
 {
@@ -233,6 +237,8 @@ privacy policy page
 
 
 fact check policy page 
+missing  "about": {"@id": "{{ site_url }}/#organization"},
+
 
 
 
@@ -262,6 +268,8 @@ fact check policy page
 
 
 editorial policy page 
+missing  "about": {"@id": "{{ site_url }}/#organization"},
+
 
 
 {
@@ -306,277 +314,5 @@ editorial policy page
 
 
 
-______________________________
+_______________________________________________________
 
-
-
-Page 4: Terms of Service Template (terms.html)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Breadcrumb Navigation Node #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, page_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. Brand Node Connection #}
-  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
-    {{ core.kv("publishingPrinciples", page_url) }}
-  {% endcall %}
-{% endcall %}
-
-Page 4: Terms of Service Page (terms.html)
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ page_url }}/#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ page_url }}/#breadcrumb"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ page_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ page_title }}"
-        }
-      ]
-    },
-    {
-      "@type": "Organization",
-      "@id": "{{ site_url }}/#organization",
-      "publishingPrinciples": "{{ page_url }}"
-    }
-
-
-
-Page 5: Privacy Policy Template (privacy.html)
-
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Breadcrumb Navigation Node #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, page_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. Brand Node Connection #}
-  {% call core.entity_base("Organization", id=core.get_id(site_url, 'organization')) %}
-    {{ core.kv("publishingPrinciples", page_url) }}
-  {% endcall %}
-{% endcall %}
-
-
-Page 5: Privacy Policy Page (privacy.html)
-
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ page_url }}/#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ page_url }}/#breadcrumb"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ page_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ page_title }}"
-        }
-      ]
-    },
-    {
-      "@type": "Organization",
-      "@id": "{{ site_url }}/#organization",
-      "publishingPrinciples": "{{ page_url }}"
-    }
-
-Page 6: Fact-Checking Policy Template (fact-check-policy.html)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Breadcrumb Navigation Node #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, page_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. News Media Organization Upgrade #}
-  {% call core.entity_base("NewsMediaOrganization", id=core.get_id(site_url, 'organization')) %}
-    {{ core.kv("factCheckingPolicy", page_url) }}
-  {% endcall %}
-{% endcall %}
-
-
-
-Page 6: Fact-Checking Policy Page (fact-check-policy.html)
-
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ page_url }}/#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ page_url }}/#breadcrumb"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ page_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ page_title }}"
-        }
-      ]
-    },
-    {
-      "@type": "NewsMediaOrganization",
-      "@id": "{{ site_url }}/#organization",
-      "name": "{{ site_name }}",
-      "url": "{{ site_url }}",
-      "factCheckingPolicy": "{{ page_url }}"
-    }
-
-
-
-
-
-Page 7: Editorial Policy Template (editorial-policy.html)
-
-{% import 'macros/schema_core.html' as core %}
-
-{% call core.graph_wrapper() %}
-  {# 1. WebPage Core Block #}
-  {% call core.entity_base("WebPage", id=core.get_id(page_url, 'webpage'), name=page_title, description=page_meta_description, url=page_url) %}
-    {{ core.is_part_of("WebSite", core.get_id(site_url, 'website')) }}
-    {{ core.kv("breadcrumb", {"@id": core.get_id(page_url, 'breadcrumb')}, is_json=true) }}
-  {% endcall %},
-
-  {# 2. Breadcrumb Navigation Node #}
-  {% call core.entity_base("BreadcrumbList", id=core.get_id(page_url, 'breadcrumb')) %}
-    , "itemListElement": [
-      {{ core.list_item(1, "Home", site_url) }},
-      {{ core.list_item(2, page_title) }}
-    ]
-  {% endcall %},
-
-  {# 3. News Media Organization Operational Connection #}
-  {% call core.entity_base("NewsMediaOrganization", id=core.get_id(site_url, 'organization')) %}
-    {{ core.kv("publishingPrinciples", page_url) }}
-    {{ core.kv("correctionsPolicy", page_url) }}
-  {% endcall %}
-{% endcall %}
-
-
-Page 7: Editorial Policy Page (editorial-policy.html)
-
-
-
-    {
-      "@type": "WebPage",
-      "@id": "{{ page_url }}/#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": {
-        "@id": "{{ site_url }}/#website"
-      },
-      "breadcrumb": {
-        "@id": "{{ page_url }}/#breadcrumb"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ page_url }}/#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "{{ site_url }}"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ page_title }}"
-        }
-      ]
-    },
-    {
-      "@type": "NewsMediaOrganization",
-      "@id": "{{ site_url }}/#organization",
-      "publishingPrinciples": "{{ page_url }}",
-      "correctionsPolicy": "{{ page_url }}"
-    }
