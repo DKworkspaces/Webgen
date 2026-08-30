@@ -131,6 +131,66 @@ Page 8 (Categories/Tags/Archive Index List Dashboard)
   {% endcall %}
 {% endcall %}
 
+Page 8: Categories/Tags/Archive Index List Page (archive-index.html)
+
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ page_url }}/#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ page_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ page_url }}/#itemlist",
+        "name": "Content Categories Directory",
+        "description": "List of all editorial content categories on the website.",
+        "numberOfItems": {{ taxonomies | length }},
+        "itemListElement": [
+          {% for term in taxonomies %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ term.name }}",
+            "url": "{{ term.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ page_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page_title }}"
+        }
+      ]
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 Page 9 (Individual Category/Tag Archive Page)
 
@@ -153,3 +213,42 @@ Page 9 (Individual Category/Tag Archive Page)
   {% endcall %}
 {% endcall %}
 
+Page 9: Individual Category/Tag/Archive Page (taxonomy-single.html)
+
+
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ taxonomy_url }}/#webpage",
+      "url": "{{ taxonomy_url }}",
+      "name": "{{ taxonomy_name }} Articles & Resources",
+      "description": "{{ taxonomy_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ taxonomy_url }}/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ taxonomy_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Categories",
+          "item": "{{ site_url }}/categories"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ taxonomy_name }}"
+        }
+      ]
+    }
