@@ -429,6 +429,67 @@ Page 10 (Pillar Page Hub)
   {% endcall %}
 {% endcall %}
 
+Page 10: Pillar Page Template (pillar.html)
+
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ pillar_url }}/#webpage",
+      "url": "{{ pillar_url }}",
+      "name": "{{ pillar_title }}",
+      "description": "{{ pillar_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ pillar_url }}/#breadcrumb"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ pillar_url }}/#cluster-list",
+        "name": "{{ pillar_title }} Supporting Topic Cluster",
+        "description": "Deep-dive supporting guides and cluster content branches connected to this master topic.",
+        "numberOfItems": {{ cluster_pages | length }},
+        "itemListElement": [
+          {% for sub_page in cluster_pages %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ sub_page.title }}",
+            "url": "{{ sub_page.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ pillar_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_title }}"
+        }
+      ]
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 Page 11 (Sub-Pillar Page Hub)
 
@@ -467,6 +528,76 @@ Page 11 (Sub-Pillar Page Hub)
   {% endcall %}
 {% endcall %}
 
+Page 16: Sub-Pillar Page Template (sub-pillar.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ sub_pillar_url }}/#webpage",
+      "url": "{{ sub_pillar_url }}",
+      "name": "{{ sub_pillar_title }}",
+      "description": "{{ sub_pillar_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ sub_pillar_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ pillar_parent_url }}/#webpage",
+        "name": "{{ pillar_parent_title }}"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ sub_pillar_url }}/#sub-cluster-list",
+        "name": "{{ sub_pillar_title }} Deep Supporting Cluster",
+        "description": "Granular supporting child guides and sub-cluster segments managed under this sub-pillar.",
+        "numberOfItems": {{ sub_cluster_pages | length }},
+        "itemListElement": [
+          {% for sub_page in sub_cluster_pages %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ sub_page.title }}",
+            "url": "{{ sub_page.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ sub_pillar_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_parent_title }}",
+          "item": "{{ pillar_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ sub_pillar_title }}"
+        }
+      ]
+    }
+
+
+
+
+
+
+
+
+
+
 
 Page 12 (Cluster Page Supporting Guide)
 
@@ -489,6 +620,57 @@ Page 12 (Cluster Page Supporting Guide)
     ]
   {% endcall %}
 {% endcall %}
+
+Page 11: Cluster Page Template (cluster.html)
+
+    {
+      "@type": "WebPage",
+      "@id": "{{ cluster_url }}/#webpage",
+      "url": "{{ cluster_url }}",
+      "name": "{{ cluster_title }}",
+      "description": "{{ cluster_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ cluster_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ pillar_parent_url }}/#webpage",
+        "name": "{{ pillar_parent_title }}"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ cluster_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_parent_title }}",
+          "item": "{{ pillar_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ cluster_title }}"
+        }
+      ]
+    }
+
+
+
+
+
+
+
 
 
 Page 13 (Sub-Cluster Page)
@@ -513,6 +695,52 @@ Page 13 (Sub-Cluster Page)
   {% endcall %}
 {% endcall %}
 
+Page 12: Sub-Cluster Page Template (sub-cluster.html)
 
-
-
+    {
+      "@type": "WebPage",
+      "@id": "{{ sub_cluster_url }}/#webpage",
+      "url": "{{ sub_cluster_url }}",
+      "name": "{{ sub_cluster_title }}",
+      "description": "{{ sub_cluster_meta_description }}",
+      "isPartOf": {
+        "@id": "{{ site_url }}/#website"
+      },
+      "breadcrumb": {
+        "@id": "{{ sub_cluster_url }}/#breadcrumb"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ cluster_parent_url }}/#webpage",
+        "name": "{{ cluster_parent_title }}"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ sub_cluster_url }}/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ pillar_root_title }}",
+          "item": "{{ pillar_root_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ cluster_parent_title }}",
+          "item": "{{ cluster_parent_url }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ sub_cluster_title }}"
+        }
+      ]
+    }
