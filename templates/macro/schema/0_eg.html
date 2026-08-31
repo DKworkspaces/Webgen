@@ -150,6 +150,154 @@ org_payload = {
 
 
 
+{% macro render_breadcrumb_schema(data) %}
+{
+  "@type": "BreadcrumbList",
+  "@id": "{{ data.page_url }}/#breadcrumb",
+  "itemListElement": [
+    {# 1. Hardcode the Home item to save an array iteration cycle #}
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ data.site_url }}"
+    }
+    {# 2. Loop through subsequent segments using a highly optimized lookahead loop #}
+    {%- if data.breadcrumbs -%}
+    ,
+    {%- for crumb in data.breadcrumbs -%}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index + 1 }},
+      "name": "{{ crumb.name }}",
+      "item": "{{ crumb.url }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+    {%- endif -%}
+  ]
+}
+{% endmacro %}
+
+
+org_payload = {
+    "site_url": "https://example.com",
+    "page_url": "https://example.com",
+    
+    # Flat inner pages list (excluding home, which is hardcoded in the macro)
+    "breadcrumbs": [
+        {"name": "Blog", "url": "https://example.com"},
+        {"name": "SEO", "url": "https://example.com/seo"},
+        {"name": "Jinja Optimization", "url": "https://example.com"}
+    ]
+}
+
+
+
+
+
+{% macro render_about_page_schema(data) %}
+{
+  "@type": "AboutPage",
+  "@id": "{{ data.page_url }}/#webpage",
+  "url": "{{ data.page_url }}",
+  "name": "{{ data.page_title }}",
+  "description": "{{ data.page_meta_description }}",
+  "isPartOf": {
+    "@id": "{{ data.site_url }}/#website"
+  },
+  "breadcrumb": {
+    "@id": "{{ data.page_url }}/#breadcrumb"
+  }
+  
+  {# --- CONDITIONAL MAIN ENTITY (TEAM MEMBERS) LOOP --- #}
+  {%- if data.team_members -%}
+  ,
+  "mainEntity": [
+    {%- for member in data.team_members -%}
+    {
+      "@type": "Person",
+      "@id": "{{ data.site_url }}/authors/{{ member.slug }}/#person",
+      "name": "{{ member.name }}",
+      "jobTitle": "{{ member.job_title }}",
+      "description": "{{ member.short_bio }}",
+      "image": "{{ member.avatar_url }}",
+      "url": "{{ data.site_url }}/authors/{{ member.slug }}/",
+      "sameAs": {{ member.social_profiles | default([]) | tojson | safe }},
+      "worksFor": {
+        "@id": "{{ data.site_url }}/#organization"
+      },
+      {# --- DYNAMIC NESTED LOOP FOR KNOWSABOUT --- #}
+      "knowsAbout": [
+        {%- for topic in member.knows_about -%}
+        {
+          "@type": "Thing",
+          "@id": "{{ topic.wikidata_url }}",
+          "name": "{{ topic.name }}",
+          "sameAs": "{{ topic.wikipedia_url }}"
+        }{% if not loop.last %},{% endif %}
+        {%- endfor -%}
+      ],
+      "affiliation": {
+        "@id": "{{ data.site_url }}/#organization"
+      }
+    }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+  ]
+  {%- endif -%}
+}
+{% endmacro %}
+
+
+
+
+org_payload["team_members"] = [
+    {
+        "slug": "alice-smith",
+        "name": "Alice Smith",
+        "job_title": "Head of AI Research",
+        "short_bio": "Alice specializes in enterprise deep learning.",
+        "avatar_url": "https://example.com",
+        "social_profiles": ["https://x.com"],
+        # Alice's unique skillset profile
+        "knows_about": [
+            {
+                "name": "Artificial Intelligence",
+                "wikidata_url": "https://wikidata.org",
+                "wikipedia_url": "https://wikipedia.org"
+            },
+            {
+                "name": "Web Development",
+                "wikidata_url": "https://wikidata.org",
+                "wikipedia_url": "https://wikipedia.org"
+            }
+        ]
+    },
+    {
+        "slug": "bob-jones",
+        "name": "Bob Jones",
+        "job_title": "Lead Software Architect",
+        "short_bio": "Bob designs highly performance-optimized infrastructure.",
+        "avatar_url": "https://example.com",
+        "social_profiles": ["https://github.com"],
+        # Bob's unique skillset profile
+        "knows_about": [
+            {
+                "name": "Search Engine Optimization",
+                "wikidata_url": "https://wikidata.org",
+                "wikipedia_url": "https://wikipedia.org"
+            },
+            {
+                "name": "Software as a Service (SaaS)",
+                "wikidata_url": "https://wikidata.org",
+                "wikipedia_url": "https://wikipedia.org"
+            }
+        ]
+    }
+]
+
+
+
+
 
 
 
@@ -162,11 +310,23 @@ org_payload = {
   {{ seo.render_website_schema(org_payload) }},
    {{ seo.render_webpage_schema(org_payload) }},
   {{ seo.render_organization_schema(org_payload) }}
+
+
+  {{ seo.render_breadcrumb_schema(org_payload) }},
+
+  
 ]
 </script>
 
 
 
+notes :
+for about us page
+of want to stay aunonomus 
 
+
+  "mainEntity": {
+    "@id": "{{ data.site_url }}/#organization"
+  } 
 
 
