@@ -1,3 +1,29 @@
+for different policypages
+
+{% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
+    {
+      "@type": "{{ page_type }}",
+      "@id": "{{ page_url | safe }}/#webpage",
+      "url": "{{ page_url | safe }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": { "@id": "{{ site_url | safe }}/#website" },
+      "about": { "@id": "{{ site_url | safe }}/#organization" },
+      "publishingPrinciples": { "@id": "{{ site_url | safe }}/#organization" }
+    }
+{% endmacro %}
+
+Terms page
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "TermsAndConditions") }}
+Privacy page
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PrivacyPolicy") }}
+Fact Check / Editorial pages
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PolicyPage") }}
+adding in language n breadcrumb in policy pages is necessary 
+
+
+
+
 {% macro render_webpage_schema(data,page_type) %}
 {
   "@type": "{{ page_type | default('WebPage') }}",
@@ -20,6 +46,32 @@
 {% endmacro %}
 
 
+for aboutPage and contactPage 
+{% macro render_utility_page_schema(data, page_type="AboutPage") %}
+{
+  "@type": "{{ page_type }}",
+  "@id": "{{ (data.page_url | default(data.site_url)) | trim }}/#webpage",
+  "url": "{{ (data.page_url | default(data.site_url)) | trim }}",
+  "name": "{{ data.page_title | default(data.site_name) }}",
+  "description": "{{ data.page_meta_description }}",
+  "isPartOf": {
+    "@id": "{{ data.site_url | trim }}/#website"
+  },
+  "about": {
+    "@id": "{{ data.site_url | trim }}/#organization"
+  }
+}
+{% endmacro %}
+
+
+{# About Page #}
+{% if 'about' in page_url %}
+  {{ render_utility_page_schema(data, "AboutPage") }}
+
+{# Contact Page #}
+{% elif 'contact' in page_url %}
+  {{ render_utility_page_schema(data, "ContactPage") }}
+{% endif %}
 
 
 
@@ -189,9 +241,6 @@ org_payload = {
   "description": "{{ data.home_meta_desc | default(data.site_meta_desc) }}",
   "isPartOf": {
     "@id": "{{ data.site_url }}/#website"
-  },
-  "about": {
-    "@id": "{{ data.site_url }}/#organization"
   }
 }
 {% endmacro %}
@@ -375,21 +424,27 @@ org_payload["team_members"] = [
 {% endmacro %}
 
 
-{% macro render_policy_webpage_schema(data) %}
-{
-  "@type": "WebPage",
-  "@id": "{{ data.page_url }}/#webpage",
-  "url": "{{ data.page_url }}",
-  "name": "{{ data.page_title }}",
-  "description": "{{ data.page_meta_description }}",
-  "isPartOf": {
-    "@id": "{{ data.site_url }}/#website"
-  },
-  "publishingPrinciples": {
-    "@id": "{{ data.site_url }}/#organization"
-  }
-}
+{% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
+    {
+      "@type": "{{ page_type }}",
+      "@id": "{{ page_url | safe }}/#webpage",
+      "url": "{{ page_url | safe }}",
+      "name": "{{ page_title }}",
+      "description": "{{ page_meta_description }}",
+      "isPartOf": { "@id": "{{ site_url | safe }}/#website" },
+      "about": { "@id": "{{ site_url | safe }}/#organization" },
+      "publishingPrinciples": { "@id": "{{ site_url | safe }}/#organization" }
+    }
 {% endmacro %}
+
+Terms page
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "TermsAndConditions") }}
+Privacy page
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PrivacyPolicy") }}
+Fact Check / Editorial pages
+{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PolicyPage") }}
+
+
 
 
 
