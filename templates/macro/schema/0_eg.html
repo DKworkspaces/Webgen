@@ -297,6 +297,42 @@ org_payload["team_members"] = [
 
 
 
+{% macro render_contact_page_schema(data) %}
+{
+  "@type": "ContactPage",
+  "@id": "{{ data.page_url }}/#webpage",
+  "url": "{{ data.page_url }}",
+  "name": "{{ data.page_title }}",
+  "description": "{{ data.page_meta_description }}",
+  "isPartOf": {
+    "@id": "{{ data.site_url }}/#website"
+  },
+  "breadcrumb": {
+    "@id": "{{ data.page_url }}/#breadcrumb"
+  },
+  "mainEntity": {
+    "@id": "{{ data.site_url }}/#organization"
+  }
+}
+{% endmacro %}
+
+
+{% macro render_policy_webpage_schema(data) %}
+{
+  "@type": "WebPage",
+  "@id": "{{ data.page_url }}/#webpage",
+  "url": "{{ data.page_url }}",
+  "name": "{{ data.page_title }}",
+  "description": "{{ data.page_meta_description }}",
+  "isPartOf": {
+    "@id": "{{ data.site_url }}/#website"
+  },
+  "publishingPrinciples": {
+    "@id": "{{ data.site_url }}/#organization"
+  }
+}
+{% endmacro %}
+
 
 
 
