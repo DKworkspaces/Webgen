@@ -1,3 +1,61 @@
+{% macro render_webpage_schema(data,page_type) %}
+{
+  "@type": "{{ page_type | default('WebPage') }}",
+  "@id": "{{ data.page_url }}/#webpage",
+  "url": "{{ data.page_url }}",
+  "name": "{{ data.page_title }}",
+  "description": "{{ data.page_description }}",
+  "about": { "@id": "{{ data.site_url }}/#organization" },
+  "isPartOf": { "@id": "{{ data.site_url }}/#website" },
+  "breadcrumb": { "@id": "{{ data.page_url }}/#breadcrumb" },
+  "inLanguage": "{{ data.page_lang | default('en-US') }}"
+  {% if data.page_date_published %},
+  "datePublished": "{{ data.page_date_published }}",
+  "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
+  {% endif %}
+  {% if data.publishing_principles_required %},
+  "publishingPrinciples": { "@id": "{{ data.site_url }}/#organization" }
+  {% endif %}
+}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% macro render_organization_schema(data) %}
 {
   "@type": "Organization",
