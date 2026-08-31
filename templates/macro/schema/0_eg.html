@@ -131,6 +131,95 @@
 
 
 
+conditional
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ org.name | tojson }},
+  "url": "{{ org.url }}",
+  "logo": "{{ org.logo_url }}",
+  {% if org.alternate_name %}"alternateName": {{ org.alternate_name | tojson }},{% endif %}
+  {% if org.description %}"description": {{ org.description | tojson }},{% endif %}
+  
+  {% if org.same_as %}"sameAs": {{ org.same_as | tojson }},{% endif %}
+  
+  {% if org.contact_points %}
+  "contactPoint": [
+    {% for cp in org.contact_points %}
+    {
+      "@type": "ContactPoint",
+      "telephone": "{{ cp.telephone }}",
+      "contactType": "{{ cp.contact_type | default('customer service') }}",
+      {% if cp.area_served %}"areaServed": {{ cp.area_served | tojson }},{% endif %}
+      {% if cp.available_language %}"availableLanguage": {{ cp.available_language | tojson }}{% endif %}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ],
+  {% endif %}
+  
+  {% if org.address %}
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": {{ org.address.street | tojson }},
+    "addressLocality": {{ org.address.city | tojson }},
+    "addressRegion": {{ org.address.state | tojson }},
+    "postalCode": "{{ org.address.zip }}",
+    "addressCountry": "{{ org.address.country }}"
+  }
+  {% endif %}
+}
+</script>
+
+
+
+org_data = {
+    "name": "Acme Corporation",
+    "alternate_name": "Acme Inc.",
+    "url": "https://example.com",
+    "logo_url": "https://example.com/images/logo.png",
+    "description": "The world's leading provider of custom contraptions and widgets.",
+    
+    # Social Media / Official Profile links
+    "same_as": [
+        "https://facebook.com",
+        "https://twitter.com",
+        "https://linkedin.com"
+    ],
+    
+    # Support & Sales Hotlines
+    "contact_points": [
+        {
+            "telephone": "+1-888-555-0199",
+            "contact_type": "customer service",
+            "areaServed": "US",
+            "available_language": ["English", "Spanish"]
+        }
+    ],
+    
+    # Physical HQ Location
+    "address": {
+        "street": "123 Industrial Way",
+        "city": "Toontown",
+        "state": "CA",
+        "zip": "90210",
+        "country": "US"
+    }
+}
+
+# Example rendering statement:
+# template.render(org=org_data)
+
+
+
+
+
+
+
+
+
 
 
 combined 
