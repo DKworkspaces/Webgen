@@ -1,316 +1,93 @@
-<script type="application/ld+json">
-{{ {
-  "@context": "https://schema.org",
+{% macro render_organization_schema(data) %}
+{
   "@type": "Organization",
-  "name": org.name,
-  "url": org.url,
-  "logo": org.logo,
-  "description": org.description,
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": org.street,
-    "addressLocality": org.city,
-    "addressRegion": org.state,
-    "postalCode": org.zip,
-    "addressCountry": org.country
+  "@id": "{{ data.site_url }}/#organization",
+  "name": "{{ data.site_name }}",
+  "url": "{{ data.site_url }}",
+  "description": "{{ data.site_desc }}",
+  "knowsAbout": {{ data.knows_about_list | default([]) | tojson | safe }},
+  "logo": {
+    "@type": "ImageObject",
+    "@id": "{{ data.site_url }}/#logo",
+    "url": "{{ data.logo_url }}",
+    "caption": "{{ data.site_name }} Logo",
+    "width": {{ data.logo_width | default(512) }},
+    "height": {{ data.logo_height | default(512) }}
   },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "telephone": org.phone,
-    "contactType": "customer service"
+  "image": {
+    "@id": "{{ data.site_url }}/#logo"
   },
-  "sameAs": org.social_links
-} | tojson | safe }}
-</script>
-
-
-
-
-{
-  "org": {
-    "name": "Acme Corporation",
-    "url": "https://acme.com",
-    "logo": "https://acme.com/assets/logo.png",
-    "description": "A leading provider of innovative consumer goods and industrial machinery.",
-    "street": "123 Innovation Way",
-    "city": "Tech City",
-    "state": "CA",
-    "zip": "94016",
-    "country": "US",
-    "phone": "+1-800-555-0199",
-    "social_links": [
-      "https://facebook.com",
-      "https://twitter.com",
-      "https://linkedin.com"
-    ]
-  }
-}
-
-
-
-
-
-
-
-
-<script type="application/ld+json">
-{{ {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": site.name,
-  "alternateName": site.alt_name,
-  "url": site.url,
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": site.search_url_template
-    },
-    "query-input": "required name=search_term_string"
-  }
-} | tojson | safe }}
-</script>
-
-
-
-
-{
-  "site": {
-    "name": "Acme Official Store",
-    "alt_name": "Acme Corp Online",
-    "url": "https://acme.com",
-    "search_url_template": "https://acme.com/search?q={search_term_string}"
-  }
-}
-
-
-
-
-
-
-<script type="application/ld+json">
-{{ {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": breadcrumbs | map('attribute', 'item') | list if none else [
-    {
-      "@type": "ListItem",
-      "position": loop.index,
-      "name": crumb.name,
-      "item": crumb.url
-    } for crumb in breadcrumbs
-  ]
-} | tojson | safe }}
-</script>
-
-
-
-
-{
-  "breadcrumbs": [
-    {
-      "name": "Home",
-      "url": "https://example.com"
-    },
-    {
-      "name": "Electronics",
-      "url": "https://example.com/electronics"
-    },
-    {
-      "name": "Smartphones",
-      "url": "https://example.com/electronics/smartphones"
-    }
-  ]
-}
-
-
-
-
-
-
-
-
-
-conditional
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": {{ org.name | tojson }},
-  "url": "{{ org.url }}",
-  "logo": "{{ org.logo_url }}",
-  {% if org.alternate_name %}"alternateName": {{ org.alternate_name | tojson }},{% endif %}
-  {% if org.description %}"description": {{ org.description | tojson }},{% endif %}
-  
-  {% if org.same_as %}"sameAs": {{ org.same_as | tojson }},{% endif %}
-  
-  {% if org.contact_points %}
+  "sameAs": {{ data.social_links | default([]) | tojson | safe }},
   "contactPoint": [
-    {% for cp in org.contact_points %}
     {
       "@type": "ContactPoint",
-      "telephone": "{{ cp.telephone }}",
-      "contactType": "{{ cp.contact_type | default('customer service') }}",
-      {% if cp.area_served %}"areaServed": {{ cp.area_served | tojson }},{% endif %}
-      {% if cp.available_language %}"availableLanguage": {{ cp.available_language | tojson }}{% endif %}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-  ],
-  {% endif %}
-  
-  {% if org.address %}
+      "contactType": "customer service",
+      "availableLanguage": ["en", "es"]
+      {%- if data.company_phone %}, "telephone": "{{ data.company_phone }}"{% endif %}
+      {%- if data.company_email %}, "email": "{{ data.company_email }}"{% endif %}
+    }
+  ]
+  {%- if data.has_physical_address -%}
+  ,
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": {{ org.address.street | tojson }},
-    "addressLocality": {{ org.address.city | tojson }},
-    "addressRegion": {{ org.address.state | tojson }},
-    "postalCode": "{{ org.address.zip }}",
-    "addressCountry": "{{ org.address.country }}"
+    "streetAddress": "123 Business Innovation Way, Suite 500",
+    "addressLocality": "San Francisco",
+    "addressRegion": "CA",
+    "postalCode": "94107",
+    "addressCountry": "US"
   }
-  {% endif %}
+  {%- endif -%}
+
+  {# --- CONDITIONAL POLICY BLOCKS --- #}
+  {%- if data.has_terms %}, "publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
+  {%- if data.has_privacy %}, "privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
+  {%- if data.has_editorial %}, "correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
+  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
 }
-</script>
+{% endmacro %}
 
 
 
-org_data = {
-    "name": "Acme Corporation",
-    "alternate_name": "Acme Inc.",
-    "url": "https://example.com",
-    "logo_url": "https://example.com/images/logo.png",
-    "description": "The world's leading provider of custom contraptions and widgets.",
-    
-    # Social Media / Official Profile links
-    "same_as": [
-        "https://facebook.com",
-        "https://twitter.com",
-        "https://linkedin.com"
+
+
+
+
+org_payload = {
+    "site_url": "https://example.com",
+    "site_name": "Tech Corp",
+    "site_meta_desc": "Innovative software scaling solutions.",
+    "logo_url": "https://example.com",
+    "logo_width": 1200,
+    "logo_height": 630,
+    "knows_about_list": [
+        {"@type": "Thing", "name": "AI", "@id": "https://wikidata.org"}
     ],
-    
-    # Support & Sales Hotlines
-    "contact_points": [
-        {
-            "telephone": "+1-888-555-0199",
-            "contact_type": "customer service",
-            "areaServed": "US",
-            "available_language": ["English", "Spanish"]
-        }
-    ],
-    
-    # Physical HQ Location
-    "address": {
-        "street": "123 Industrial Way",
-        "city": "Toontown",
-        "state": "CA",
-        "zip": "90210",
-        "country": "US"
-    }
+    "social_links": ["https://twitter.com", "https://linkedin.com"],
+    "company_phone": "+1-555-555-0199",
+    "company_email": "support@example.com",
+    "has_physical_address": True,
+    "address_street": "456 Innovation Drive",
+    "address_locality": "San Jose",
+    "address_region": "CA",
+    "address_postal": "95110",
+    "address_country": "US",
+    "has_terms": True,
+    "has_privacy": True,
+    "has_editorial": False,
+    "has_fact_check": False
 }
 
-# Example rendering statement:
-# template.render(org=org_data)
 
 
 
 
-
-
-
-
-
-
-
-combined 
-
-
+{# Import the macro template file securely #}
+{% import "macros/seo_utilities.html" as seo without context %}
 
 <script type="application/ld+json">
-{{ {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "name": org.name,
-      "url": org.url,
-      "logo": org.logo,
-      "description": org.description,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": org.street,
-        "addressLocality": org.city,
-        "addressRegion": org.state,
-        "postalCode": org.zip,
-        "addressCountry": org.country
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": org.phone,
-        "contactType": "customer service"
-      },
-      "sameAs": org.social_links
-    } if org else none,
-    {
-      "@type": "WebSite",
-      "name": site.name,
-      "alternateName": site.alt_name,
-      "url": site.url,
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": site.search_url_template
-        },
-        "query-input": "required name=search_term_string"
-      }
-    } if site else none,
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": loop.index,
-          "name": crumb.name,
-          "item": crumb.url
-        } for crumb in breadcrumbs
-      ]
-    } if breadcrumbs else none
-  ] | reject('none') | list
-} | tojson | safe }}
+{{ seo.render_organization_schema(org_payload) }}
 </script>
-
-
-
-
-
-
-{
-  "org": {
-    "name": "Acme Corporation",
-    "url": "https://acme.com",
-    "logo": "https://acme.com/assets/logo.png",
-    "description": "Innovative consumer goods.",
-    "street": "123 Innovation Way",
-    "city": "Tech City",
-    "state": "CA",
-    "zip": "94016",
-    "country": "US",
-    "phone": "+1-800-555-0199",
-    "social_links": ["https://facebook.com"]
-  },
-  "site": {
-    "name": "Acme Store",
-    "alt_name": "Acme Online",
-    "url": "https://acme.com",
-    "search_url_template": "https://acme.com/search?q={search_term_string}"
-  },
-  "breadcrumbs": [
-    { "name": "Home", "url": "https://example.com" },
-    { "name": "Electronics", "url": "https://example.com/electronics" }
-  ]
-}
-
 
 
 
