@@ -1,16 +1,6 @@
 for different policypages
 
 {% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
-    {
-      "@type": "{{ page_type }}",
-      "@id": "{{ page_url | safe }}/#webpage",
-      "url": "{{ page_url | safe }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": { "@id": "{{ site_url | safe }}/#website" },
-      "about": { "@id": "{{ site_url | safe }}/#organization" },
-      "publishingPrinciples": { "@id": "{{ site_url | safe }}/#organization" }
-    }
 {% endmacro %}
 
 Terms page
@@ -31,23 +21,79 @@ adding in language n breadcrumb in policy pages is necessary
   "url": "{{ data.page_url | trim }}",
   "name": "{{ data.page_title }}",
   "description": "{{ data.page_description }}",
-  "isPartOf": { "@id": "{{ data.site_url | trim }}/#website" },
+  "isPartOf": { "@type": "WebSite","@id": "{{ data.site_url | trim }}/#website" },
   "inLanguage": "{{ data.page_lang | default('en-US') }}"
   {%- if not is_home -%},
-  "about": { "@id": "{{ data.site_url | trim }}/#organization" },
-  "breadcrumb": { "@id": "{{ data.page_url | trim }}/#breadcrumb" }
+  "about": { "@type": "Organization", "@id": "{{ data.site_url | trim }}/#organization" },
+  "breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ data.page_url | trim }}/#breadcrumb" }
   {%- endif -%}
   {%- if data.page_date_published -%},
   "datePublished": "{{ data.page_date_published }}",
   "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
   {%- endif -%}
   {%- if data.publishing_principles_required -%},
-  "publishingPrinciples": { "@id": "{{ data.site_url | trim }}/#organization" }
+  "publishingPrinciples": { "@type": "CreativeWork", "@id": "{{ data.site_url | trim }}/#policy" }
   {%- endif -%}
 }
 {% endmacro %}
 
+
+if contactpage or AboutPage 
+
+  "mainEntity": {
+    "@type": "Organization",
+    "@id": "https://example.com",
+    "name": "Acme Corp"
+  }
+
+if policies then
+"about": {
+    "@type": "Organization",
+    "@id": "https://example.com",
+    "name": "Acme Corp"
+  }
+
+
+for each policy page we need extra Schema 
+
+creative Work schema
+
+{% macro render_policy_document_schema(data, page_type="WebPage") %}
+{%- if page_type in ['PrivacyPolicy', 'TermsAndConditions'] -%}
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "@id": "{{ data.page_url | trim }}/#policy",
+  "name": "{{ data.page_title }}",
+  "headline": "{{ data.page_title }}",
+  "description": "{{ data.page_description }}",
+  "url": "{{ data.page_url | trim }}",
+  "inLanguage": "{{ data.page_lang | default('en-US') }}",
+  "author": {
+    "@type": "Organization",
+    "@id": "{{ data.site_url | trim }}/#organization"
+  },
+  "copyrightHolder": {
+    "@type": "Organization",
+    "@id": "{{ data.site_url | trim }}/#organization"
+  }
+  {%- if data.page_date_published -%},
+  "datePublished": "{{ data.page_date_published }}",
+  "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
+  {%- endif -%}
+}
+{%- endif -%}
 {% endmacro %}
+
+
+
+
+
+
+
+
+
+
 
 
     {# 1. Check for Homepage #}
@@ -67,7 +113,7 @@ adding in language n breadcrumb in policy pages is necessary
         {{ render_webpage_schema(data, "AboutPage") }}
       {% elif 'contact' in page_url %}
         {{ render_webpage_schema(data, "ContactPage") }}
-      {% else %}
+{% else %}
         {# Dynamic layout mapping for standard articles/blogs #}
         {{ render_webpage_schema(data, "WebPage") }}
       {% endif %}
@@ -84,32 +130,6 @@ adding in language n breadcrumb in policy pages is necessary
 
 
 
-for aboutPage and contactPage 
-{% macro render_utility_page_schema(data, page_type="AboutPage") %}
-{
-  "@type": "{{ page_type }}",
-  "@id": "{{ (data.page_url | default(data.site_url)) | trim }}/#webpage",
-  "url": "{{ (data.page_url | default(data.site_url)) | trim }}",
-  "name": "{{ data.page_title | default(data.site_name) }}",
-  "description": "{{ data.page_meta_description }}",
-  "isPartOf": {
-    "@id": "{{ data.site_url | trim }}/#website"
-  },
-  "about": {
-    "@id": "{{ data.site_url | trim }}/#organization"
-  }
-}
-{% endmacro %}
-
-
-{# About Page #}
-{% if 'about' in page_url %}
-  {{ render_utility_page_schema(data, "AboutPage") }}
-
-{# Contact Page #}
-{% elif 'contact' in page_url %}
-  {{ render_utility_page_schema(data, "ContactPage") }}
-{% endif %}
 
 
 
