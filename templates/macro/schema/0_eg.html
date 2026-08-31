@@ -1,0 +1,228 @@
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": org.name,
+  "url": org.url,
+  "logo": org.logo,
+  "description": org.description,
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": org.street,
+    "addressLocality": org.city,
+    "addressRegion": org.state,
+    "postalCode": org.zip,
+    "addressCountry": org.country
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": org.phone,
+    "contactType": "customer service"
+  },
+  "sameAs": org.social_links
+} | tojson | safe }}
+</script>
+
+
+
+
+{
+  "org": {
+    "name": "Acme Corporation",
+    "url": "https://acme.com",
+    "logo": "https://acme.com/assets/logo.png",
+    "description": "A leading provider of innovative consumer goods and industrial machinery.",
+    "street": "123 Innovation Way",
+    "city": "Tech City",
+    "state": "CA",
+    "zip": "94016",
+    "country": "US",
+    "phone": "+1-800-555-0199",
+    "social_links": [
+      "https://facebook.com",
+      "https://twitter.com",
+      "https://linkedin.com"
+    ]
+  }
+}
+
+
+
+
+
+
+
+
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": site.name,
+  "alternateName": site.alt_name,
+  "url": site.url,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": site.search_url_template
+    },
+    "query-input": "required name=search_term_string"
+  }
+} | tojson | safe }}
+</script>
+
+
+
+
+{
+  "site": {
+    "name": "Acme Official Store",
+    "alt_name": "Acme Corp Online",
+    "url": "https://acme.com",
+    "search_url_template": "https://acme.com/search?q={search_term_string}"
+  }
+}
+
+
+
+
+
+
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": breadcrumbs | map('attribute', 'item') | list if none else [
+    {
+      "@type": "ListItem",
+      "position": loop.index,
+      "name": crumb.name,
+      "item": crumb.url
+    } for crumb in breadcrumbs
+  ]
+} | tojson | safe }}
+</script>
+
+
+
+
+{
+  "breadcrumbs": [
+    {
+      "name": "Home",
+      "url": "https://example.com"
+    },
+    {
+      "name": "Electronics",
+      "url": "https://example.com/electronics"
+    },
+    {
+      "name": "Smartphones",
+      "url": "https://example.com/electronics/smartphones"
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+combined 
+
+
+
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": org.name,
+      "url": org.url,
+      "logo": org.logo,
+      "description": org.description,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": org.street,
+        "addressLocality": org.city,
+        "addressRegion": org.state,
+        "postalCode": org.zip,
+        "addressCountry": org.country
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": org.phone,
+        "contactType": "customer service"
+      },
+      "sameAs": org.social_links
+    } if org else none,
+    {
+      "@type": "WebSite",
+      "name": site.name,
+      "alternateName": site.alt_name,
+      "url": site.url,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": site.search_url_template
+        },
+        "query-input": "required name=search_term_string"
+      }
+    } if site else none,
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": loop.index,
+          "name": crumb.name,
+          "item": crumb.url
+        } for crumb in breadcrumbs
+      ]
+    } if breadcrumbs else none
+  ] | reject('none') | list
+} | tojson | safe }}
+</script>
+
+
+
+
+
+
+{
+  "org": {
+    "name": "Acme Corporation",
+    "url": "https://acme.com",
+    "logo": "https://acme.com/assets/logo.png",
+    "description": "Innovative consumer goods.",
+    "street": "123 Innovation Way",
+    "city": "Tech City",
+    "state": "CA",
+    "zip": "94016",
+    "country": "US",
+    "phone": "+1-800-555-0199",
+    "social_links": ["https://facebook.com"]
+  },
+  "site": {
+    "name": "Acme Store",
+    "alt_name": "Acme Online",
+    "url": "https://acme.com",
+    "search_url_template": "https://acme.com/search?q={search_term_string}"
+  },
+  "breadcrumbs": [
+    { "name": "Home", "url": "https://example.com" },
+    { "name": "Electronics", "url": "https://example.com/electronics" }
+  ]
+}
+
+
+
+
+
