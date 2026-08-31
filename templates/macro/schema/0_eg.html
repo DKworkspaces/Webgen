@@ -24,26 +24,64 @@ adding in language n breadcrumb in policy pages is necessary
 
 
 
-{% macro render_webpage_schema(data,page_type) %}
+{% macro render_webpage_schema(data, page_type="WebPage", is_home=False) %}
 {
-  "@type": "{{ page_type | default('WebPage') }}",
-  "@id": "{{ data.page_url }}/#webpage",
-  "url": "{{ data.page_url }}",
+  "@type": "{{ page_type }}",
+  "@id": "{{ data.page_url | trim }}/#webpage",
+  "url": "{{ data.page_url | trim }}",
   "name": "{{ data.page_title }}",
   "description": "{{ data.page_description }}",
-  "about": { "@id": "{{ data.site_url }}/#organization" },
-  "isPartOf": { "@id": "{{ data.site_url }}/#website" },
-  "breadcrumb": { "@id": "{{ data.page_url }}/#breadcrumb" },
+  "isPartOf": { "@id": "{{ data.site_url | trim }}/#website" },
   "inLanguage": "{{ data.page_lang | default('en-US') }}"
-  {% if data.page_date_published %},
+  {%- if not is_home -%},
+  "about": { "@id": "{{ data.site_url | trim }}/#organization" },
+  "breadcrumb": { "@id": "{{ data.page_url | trim }}/#breadcrumb" }
+  {%- endif -%}
+  {%- if data.page_date_published -%},
   "datePublished": "{{ data.page_date_published }}",
   "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
-  {% endif %}
-  {% if data.publishing_principles_required %},
-  "publishingPrinciples": { "@id": "{{ data.site_url }}/#organization" }
-  {% endif %}
+  {%- endif -%}
+  {%- if data.publishing_principles_required -%},
+  "publishingPrinciples": { "@id": "{{ data.site_url | trim }}/#organization" }
+  {%- endif -%}
 }
 {% endmacro %}
+
+{% endmacro %}
+
+
+    {# 1. Check for Homepage #}
+    {% if page_url == site_url or page_url == site_url ~ '/' %}
+      {{ render_website_schema(data) }},
+      {{ render_organization_schema(data) }},
+      {{ render_webpage_schema(data, page_type="WebPage", is_home=True) }}
+{# 2. Run the Master Macro across all internal layout channels #}
+    {% else %}
+      {% if 'privacy' in page_url %}
+        {{ render_webpage_schema(data, "PrivacyPolicy") }}
+      {% elif 'terms' in page_url %}
+        {{ render_webpage_schema(data, "TermsAndConditions") }}
+      {% elif 'policy' in page_url %}
+        {{ render_webpage_schema(data, "PolicyPage") }}
+      {% elif 'about' in page_url %}
+        {{ render_webpage_schema(data, "AboutPage") }}
+      {% elif 'contact' in page_url %}
+        {{ render_webpage_schema(data, "ContactPage") }}
+      {% else %}
+        {# Dynamic layout mapping for standard articles/blogs #}
+        {{ render_webpage_schema(data, "WebPage") }}
+      {% endif %}
+    {% endif %}
+
+
+
+
+
+
+
+
+
+
 
 
 for aboutPage and contactPage 
