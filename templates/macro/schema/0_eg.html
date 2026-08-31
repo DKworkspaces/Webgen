@@ -61,9 +61,24 @@ org_payload = {
     "logo_width": 1200,
     "logo_height": 630,
     "knows_about_list": [
-        {"@type": "Thing", "name": "AI", "@id": "https://wikidata.org"}
+        {
+            "@type": "Thing",
+            "@id": "https://wikidata.org",
+            "name": "Artificial Intelligence",
+            "sameAs": "https://wikipedia.org"
+        },
+        {
+            "@type": "Thing",
+            "@id": "https://wikidata.org",
+            "name": "Software as a Service (SaaS)",
+            "sameAs": "https://wikipedia.org"
+        }
     ],
-    "social_links": ["https://twitter.com", "https://linkedin.com"],
+    "social_links": [
+        "https://x.com",
+        "https://linkedin.com",
+        "https://github.com"
+    ],
     "company_phone": "+1-555-555-0199",
     "company_email": "support@example.com",
     "has_physical_address": True,
@@ -82,12 +97,75 @@ org_payload = {
 
 
 
-{# Import the macro template file securely #}
+{% macro render_website_schema(data) %}
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "{{ data.site_url }}/#website",
+  "url": "{{ data.site_url }}",
+  "name": "{{ data.site_name }}",
+  "publisher": {
+    "@id": "{{ data.site_url }}/#organization"
+  },
+  "potentialAction": [
+    {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ data.site_url }}/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  ]
+}
+{% endmacro %}
+
+
+
+{% macro render_webpage_schema(data) %}
+{
+  "@type": "WebPage",
+  "@id": "{{ data.page_url | default(data.site_url) }}/#webpage",
+  "url": "{{ data.page_url | default(data.site_url) }}",
+  "name": "{{ data.home_title | default(data.site_name) }}",
+  "description": "{{ data.home_meta_desc | default(data.site_meta_desc) }}",
+  "isPartOf": {
+    "@id": "{{ data.site_url }}/#website"
+  },
+  "about": {
+    "@id": "{{ data.site_url }}/#organization"
+  }
+}
+{% endmacro %}
+
+
+
+
+
+
+# --- Current Page Data (For WebPage Schema) ---
+    "page_url": "https://example.com",          # Matches site_url for home, changes for inner pages
+    "home_title": "Tech Corp | Enterprise Software Solutions",
+    "home_meta_desc": "We build scalable SaaS products, deep-learning models, and digital systems.",
+
+
+
+
+
+
+
+
 {% import "macros/seo_utilities.html" as seo without context %}
 
 <script type="application/ld+json">
-{{ seo.render_organization_schema(org_payload) }}
+[
+  {{ seo.render_website_schema(org_payload) }},
+   {{ seo.render_webpage_schema(org_payload) }},
+  {{ seo.render_organization_schema(org_payload) }}
+]
 </script>
+
+
 
 
 
