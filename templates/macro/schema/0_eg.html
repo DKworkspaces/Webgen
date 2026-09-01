@@ -129,14 +129,12 @@ eg:
   "@type": "BreadcrumbList",
   "@id": "{{ data.page_url }}/#breadcrumb",
   "itemListElement": [
-    {# 1. Hardcode the Home item to save an array iteration cycle #}
     {
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
       "item": "{{ data.site_url }}"
     }
-    {# 2. Loop through subsequent segments using a highly optimized lookahead loop #}
     {%- if data.breadcrumbs -%}
     ,
     {%- for crumb in data.breadcrumbs -%}
@@ -223,7 +221,7 @@ adding in language n breadcrumb in policy pages is necessary
 
 
 
-  {%- if data.logo_url -%},
+  {%- if data.img -%},
 
   "primaryImageOfPage": {
     "@type": "ImageObject",
@@ -275,22 +273,12 @@ creative Work schema
 {% macro render_policy_document_schema(data, page_type="WebPage") %}
 {%- if page_type in ['PrivacyPolicy', 'TermsAndConditions'] -%}
 {
-  "@context": "https://schema.org",
-  "@type": "CreativeWork",
-  "@id": "{{ data.page_url | trim }}/#policy",
-  "name": "{{ data.page_title }}",
-  "headline": "{{ data.page_title }}",
-  "description": "{{ data.page_description }}",
-  "url": "{{ data.page_url | trim }}",
+  "@type": "CreativeWork","@id": "{{ data.page_url | trim }}/#policy",
+  "name": "{{ data.page_title }}","headline": "{{ data.page_title }}",
+  "description": "{{ data.page_description }}","url": "{{ data.page_url | trim }}",
   "inLanguage": "{{ data.page_lang | default('en-US') }}",
-  "author": {
-    "@type": "Organization",
-    "@id": "{{ data.site_url | trim }}/#organization"
-  },
-  "copyrightHolder": {
-    "@type": "Organization",
-    "@id": "{{ data.site_url | trim }}/#organization"
-  }
+  "author": {"@type": "Organization","@id": "{{ data.site_url | trim }}/#organization"},
+  "copyrightHolder": {"@type": "Organization","@id": "{{ data.site_url | trim }}/#organization"}
   {%- if data.page_date_published -%},
   "datePublished": "{{ data.page_date_published }}",
   "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
