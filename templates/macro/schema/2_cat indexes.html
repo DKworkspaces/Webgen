@@ -458,4 +458,51 @@ Tier 3: The Sub-Category Page (Leaf Nodes/Articles Level)
 
 
 
+or
+
+
+
+
+
+{%- macro item_list_elements(items, type, hash) -%}
+  {%- for item in items -%}
+  {"@type":"ListItem","position":{{ loop.index }},"item":{"@type":"{{ type }}","@id":"{{ item.url }}{{ hash }}","url":"{{ item.url }}","name":{{ (item.title or item.name) | tojson }}}}{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro collection_page(url, name, description, parent_url=none, parent_name=none, items=none) -%}
+{
+"@type":"CollectionPage",
+"@id":"{{ url }}#collection-hub",
+"url":"{{ url }}",
+"name":{{ name | tojson }},
+"description":{{ description | tojson }}
+{%- if parent_url and parent_name -%}
+,"isPartOf":{
+"@type":"CollectionPage",
+"@id":"{{ parent_url }}#collection-hub",
+"url":"{{ parent_url }}",
+"name":{{ parent_name | tojson }}}
+{%- endif -%}
+{%- if items -%}
+,"mainEntity":{
+"@type":"ItemList",
+"@id":"{{ url }}#itemlist",
+"name":{{ (name ~ " Index") | tojson }},
+"numberOfItems":{{ items | length }},
+"itemListElement":[
+{{- item_list_elements(items, "CollectionPage", "#collection-hub") -}}
+]}
+{%- endif -%}
+}
+{%- endmacro -%}
+
+
+
+
+
+
+
+
+
 
