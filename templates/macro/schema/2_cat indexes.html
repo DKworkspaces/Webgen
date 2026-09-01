@@ -107,14 +107,25 @@ ________________________________________________________________________________
 
 
 
-{% macro render_unified_collection_schema(website_data, page) %}
+{% macro render_collection_schema(website_data, page) %}
 {
   "@type": "CollectionPage","@id": "{{ page.url | trim }}/#webpage",
   "url": "{{ page.url | trim }}","name": "{{ page.title }}",
   "description": "{{ page.desc }}",
+  {% if page.items is defined %}
   "isPartOf": { 
     "@type": "CollectionPage", "@id": "{{ page.parent_category_index_url | default(website_data.website.site_url | trim ~ '/categories/') }}/#webpage",
     "name": "{{ page.parent_category_index_name | default('Browse Articles by Topic Hub') }}"
+  },
+  {% else %}
+  "isPartOf": { 
+    "@type": "WebSite", "@id": "{{ website_data.website.site_url | trim }}/#website",
+    "name": "{{ website_data.website.site_name }}"
+  },
+  {% endif %}
+  "provider": {
+    "@type": "WebSite","@id": "{{ website_data.website.site_url | trim }}/#website",
+    "name": "{{ website_data.website.site_name }}"
   },
   "about": { "@id": "{{ website_data.website.site_url | trim }}/#organization" },
   "breadcrumb": { "@id": "{{ page.url | trim }}/#breadcrumb" },
@@ -128,11 +139,17 @@ ________________________________________________________________________________
         "name": "{{ item.name or item.title }}",
         "item": {{ (
           {
-            "@type": "BlogPosting","@id": item.url | trim ~ "#article",
-            "headline": item.title,"url": item.url | trim,
-            "description": item.meta_description or item.desc
-          } if (item.title is defined or item.meta_description is defined) else {
-            "@type": "WebPage","@id": item.url | trim,
+            "@type": "BlogPosting",
+            "@id": item.url | trim ~ "#article",
+            "headline": item.title,
+            "url": item.url | trim,
+            "description": item.meta_description or item.desc,
+            "publisher": {
+              "@id": website_data.website.site_url | trim ~ "/#organization"
+            }
+          } if page.items is defined else {
+            "@type": "CollectionPage",
+            "@id": item.url | trim ~ "/#webpage",
             "name": item.name
           }
         ) | tojson | safe }}
@@ -198,7 +215,7 @@ for categories
 how to use
 
 
-{{ render_unified_collection_schema(website_data, page) }}
+{{ render_collection_schema(website_data, page) }}
 
 
  implementation pagination 
