@@ -1,3 +1,188 @@
+{% macro render_organization_schema(data) %}
+{
+  "@type": "Organization","@id": "{{ data.site_url }}/#organization",
+  "name": "{{ data.site_name }}","url": "{{ data.site_url }}",
+  "legalName": "{{ data.legal_name | default(data.site_name) }}","description": "{{ data.site_desc }}",
+  "knowsAbout": {{ data.knows_about_list | default([]) | tojson | safe }},
+  {% if data.slogan %}"slogan": "{{ data.slogan }}",{% endif %}
+  {% if data.founding_year %}"foundingDate": "{{ data.founding_year }}",{% endif %}
+  "logo": {
+    "@type": "ImageObject","@id": "{{ data.site_url }}/#logo",
+    "url": "{{ data.logo_url }}","caption": "{{ data.site_name }} Logo",
+    "width": {{ data.logo_width | default(512) }},"height": {{ data.logo_height | default(512) }}
+  },
+  "image": {
+    "@id": "{{ data.site_url }}/#logo"
+  },
+  "sameAs": {{ data.social_links | default([]) | tojson | safe }},
+  "contactPoint": [
+    {
+      "@type": "ContactPoint","contactType": "customer service","availableLanguage": ["en", "es"],
+      {%- if data.company_phone %}"telephone": "{{ data.company_phone }}",{% endif %}
+      "email": "{{ data.company_email }}"
+    }
+  ]
+  {%- if data.has_physical_address -%}
+  ,
+  "address": {
+    "@type": "PostalAddress",
+    {%- if data.street %}"streetAddress": "{{ data.street }}",{% endif %}
+    "addressLocality": "San Francisco",
+    "addressRegion": "CA",
+    "postalCode": "94107",
+    "addressCountry": "US"
+  }
+  {%- endif -%}
+
+  {# --- CONDITIONAL POLICY BLOCKS --- #}
+  {%- if data.has_terms %}, "publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
+  {%- if data.has_privacy %}, "privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
+  {%- if data.has_editorial %}, "correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
+  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
+}
+{% endmacro %}
+
+{% macro render_website_schema(data) %}
+{
+  "@type": "WebSite","@id": "{{ data.site_url }}/#website",
+  "url": "{{ data.site_url }}","name": "{{ data.site_name }}",
+  {% if data.alternate_name %}"alternateName": "{{ data.alternate_name }}",{% endif %}
+  "description": "{{ data.site_desc | default('') }}",
+  "inLanguage": "{{ data.site_language | default('en-US') }}",
+  "publisher": {
+    "@id": "{{ data.site_url }}/#organization"
+  },
+  "potentialAction": [
+    {"@type": "SearchAction",
+      "target": {"@type": "EntryPoint","urlTemplate": "{{ data.site_url }}/search?q={search_term_string}"},
+      "query-input": "required name=search_term_string"
+    }
+  ]
+}
+{% endmacro %}
+
+
+org_payload = {
+    "site_url": "https://example.com",
+    "site_name": "Tech Corp",
+    "site_meta_desc": "Innovative software scaling solutions.",
+    "logo_url": "https://example.com",
+    "logo_width": 1200,
+    "logo_height": 630,
+    "knows_about_list": [
+        {
+            "@type": "Thing",
+            "@id": "https://wikidata.org",
+            "name": "Artificial Intelligence",
+            "sameAs": "https://wikipedia.org"
+        },
+        {
+            "@type": "Thing",
+            "@id": "https://wikidata.org",
+            "name": "Software as a Service (SaaS)",
+            "sameAs": "https://wikipedia.org"
+        }
+    ],
+    "social_links": [
+        "https://x.com",
+        "https://linkedin.com",
+        "https://github.com"
+    ],
+    "company_email": "support@example.com",
+    "has_physical_address": True,
+    "address_locality": "San Jose",
+    "address_region": "CA",
+    "address_postal": "95110",
+    "address_country": "US",
+    "has_terms": True,
+    "has_privacy": True,
+    "has_editorial": False,
+    "has_fact_check": False
+}
+
+eg:
+
+
+{
+  "site_details": {
+    "site_url": "https://yourblog.com",
+    "brand_name": "Your Brand Name",
+    "logo_url": "https://yourblog.com"
+  },
+  "contact_and_address": {
+    "email": "support@yourblog.com",
+    "address_locality": "Austin",
+    "address_region": "TX",
+    "postal_code": "78701",
+    "address_country": "US"
+  },
+  "features": {
+    "include_address_in_schema": false,
+    "use_organization_schema": true
+  }
+}
+
+
+
+{% macro render_breadcrumb_schema(data) %}
+{
+  "@type": "BreadcrumbList",
+  "@id": "{{ data.page_url }}/#breadcrumb",
+  "itemListElement": [
+    {# 1. Hardcode the Home item to save an array iteration cycle #}
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ data.site_url }}"
+    }
+    {# 2. Loop through subsequent segments using a highly optimized lookahead loop #}
+    {%- if data.breadcrumbs -%}
+    ,
+    {%- for crumb in data.breadcrumbs -%}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index + 1 }},
+      "name": "{{ crumb.name }}",
+      "item": "{{ crumb.url }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+    {%- endif -%}
+  ]
+}
+{% endmacro %}
+
+
+org_payload = {
+    "site_url": "https://example.com",
+    "page_url": "https://example.com",
+    
+    # Flat inner pages list (excluding home, which is hardcoded in the macro)
+    "breadcrumbs": [
+        {"name": "Blog", "url": "https://example.com"},
+        {"name": "SEO", "url": "https://example.com/seo"},
+        {"name": "Jinja Optimization", "url": "https://example.com"}
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 for different policypages
 
 {% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
@@ -19,21 +204,50 @@ adding in language n breadcrumb in policy pages is necessary
   "@type": "{{ page_type }}",
   "@id": "{{ data.page_url | trim }}/#webpage",
   "url": "{{ data.page_url | trim }}",
-  "name": "{{ data.page_title }}",
-  "description": "{{ data.page_description }}",
+  "name": "{{ data.page_title | escape }}",
+  "description": "{{ data.page_description | escape }}",
   "isPartOf": { "@type": "WebSite","@id": "{{ data.site_url | trim }}/#website" },
   "inLanguage": "{{ data.page_lang | default('en-US') }}"
+
+  {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
+  "mainEntity": {
+    "@type": "Organization","@id": "{{ data.site_url | trim }}/#organization",
+    "name": "{{ data.site_name | escape }}"
+  }
+  {%- elif page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
+  "about": {
+    "@type": "Organization","@id": "{{ data.site_url | trim }}/#organization",
+    "name": "{{ data.site_name | escape }}"
+  }
+  {%- endif -%}
+
+
+
+  {%- if data.logo_url -%},
+
+  "primaryImageOfPage": {
+    "@type": "ImageObject",
+    "@id": "{{ data.page_url | trim }}/#primaryimage",
+    "url": "{{ data.page_hero_image | default(data.logo_url) | trim }}",
+    "caption": "{{ data.page_title | escape }} Visual Asset"
+  }
+
+  {%- endif -%}
+
   {%- if not is_home -%},
   "about": { "@type": "Organization", "@id": "{{ data.site_url | trim }}/#organization" },
   "breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ data.page_url | trim }}/#breadcrumb" }
   {%- endif -%}
+
   {%- if data.page_date_published -%},
   "datePublished": "{{ data.page_date_published }}",
   "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
   {%- endif -%}
+
   {%- if data.publishing_principles_required -%},
   "publishingPrinciples": { "@type": "CreativeWork", "@id": "{{ data.site_url | trim }}/#policy" }
   {%- endif -%}
+
 }
 {% endmacro %}
 
@@ -131,6 +345,15 @@ creative Work schema
 
 
 
+What to Use as Your Primary Image
+For the Homepage: 
+  Use your official high-resolution brand logo or a dedicated square brand mark.
+For the About Page: 
+  Use a team photo, a picture of your headquarters (or a virtual office representation), or your master brand banner.
+For the Contact Page:
+  Use a customer support banner icon or your main brand logo asset.
+For Policy Pages:
+  Use your standard site logo. Since text-heavy legal documents rarely have unique imagery, pointing to your logo satisfies the structured requirement safely.
 
 
 
@@ -166,54 +389,6 @@ creative Work schema
 
 
 
-{% macro render_organization_schema(data) %}
-{
-  "@type": "Organization",
-  "@id": "{{ data.site_url }}/#organization",
-  "name": "{{ data.site_name }}",
-  "url": "{{ data.site_url }}",
-  "description": "{{ data.site_desc }}",
-  "knowsAbout": {{ data.knows_about_list | default([]) | tojson | safe }},
-  "logo": {
-    "@type": "ImageObject",
-    "@id": "{{ data.site_url }}/#logo",
-    "url": "{{ data.logo_url }}",
-    "caption": "{{ data.site_name }} Logo",
-    "width": {{ data.logo_width | default(512) }},
-    "height": {{ data.logo_height | default(512) }}
-  },
-  "image": {
-    "@id": "{{ data.site_url }}/#logo"
-  },
-  "sameAs": {{ data.social_links | default([]) | tojson | safe }},
-  "contactPoint": [
-    {
-      "@type": "ContactPoint",
-      "contactType": "customer service",
-      "availableLanguage": ["en", "es"],
-      {%- if data.company_phone %}"telephone": "{{ data.company_phone }}",{% endif %}
-      "email": "{{ data.company_email }}"
-    }
-  ]
-  {%- if data.has_physical_address -%}
-  ,
-  "address": {
-    "@type": "PostalAddress",
-    {%- if data.street %}"streetAddress": "{{ street }}",{% endif %}
-    "addressLocality": "San Francisco",
-    "addressRegion": "CA",
-    "postalCode": "94107",
-    "addressCountry": "US"
-  }
-  {%- endif -%}
-
-  {# --- CONDITIONAL POLICY BLOCKS --- #}
-  {%- if data.has_terms %}, "publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
-  {%- if data.has_privacy %}, "privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
-  {%- if data.has_editorial %}, "correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
-  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
-}
-{% endmacro %}
 
 
 
@@ -221,70 +396,15 @@ creative Work schema
 
 
 
-org_payload = {
-    "site_url": "https://example.com",
-    "site_name": "Tech Corp",
-    "site_meta_desc": "Innovative software scaling solutions.",
-    "logo_url": "https://example.com",
-    "logo_width": 1200,
-    "logo_height": 630,
-    "knows_about_list": [
-        {
-            "@type": "Thing",
-            "@id": "https://wikidata.org",
-            "name": "Artificial Intelligence",
-            "sameAs": "https://wikipedia.org"
-        },
-        {
-            "@type": "Thing",
-            "@id": "https://wikidata.org",
-            "name": "Software as a Service (SaaS)",
-            "sameAs": "https://wikipedia.org"
-        }
-    ],
-    "social_links": [
-        "https://x.com",
-        "https://linkedin.com",
-        "https://github.com"
-    ],
-    "company_email": "support@example.com",
-    "has_physical_address": True,
-    "address_locality": "San Jose",
-    "address_region": "CA",
-    "address_postal": "95110",
-    "address_country": "US",
-    "has_terms": True,
-    "has_privacy": True,
-    "has_editorial": False,
-    "has_fact_check": False
-}
 
 
 
 
 
-{% macro render_website_schema(data) %}
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "@id": "{{ data.site_url }}/#website",
-  "url": "{{ data.site_url }}",
-  "name": "{{ data.site_name }}",
-  "publisher": {
-    "@id": "{{ data.site_url }}/#organization"
-  },
-  "potentialAction": [
-    {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "{{ data.site_url }}/search?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    }
-  ]
-}
-{% endmacro %}
+
+
+
+
 
 
 
@@ -313,46 +433,6 @@ org_payload = {
 
 
 
-{% macro render_breadcrumb_schema(data) %}
-{
-  "@type": "BreadcrumbList",
-  "@id": "{{ data.page_url }}/#breadcrumb",
-  "itemListElement": [
-    {# 1. Hardcode the Home item to save an array iteration cycle #}
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "{{ data.site_url }}"
-    }
-    {# 2. Loop through subsequent segments using a highly optimized lookahead loop #}
-    {%- if data.breadcrumbs -%}
-    ,
-    {%- for crumb in data.breadcrumbs -%}
-    {
-      "@type": "ListItem",
-      "position": {{ loop.index + 1 }},
-      "name": "{{ crumb.name }}",
-      "item": "{{ crumb.url }}"
-    }{% if not loop.last %},{% endif %}
-    {%- endfor -%}
-    {%- endif -%}
-  ]
-}
-{% endmacro %}
-
-
-org_payload = {
-    "site_url": "https://example.com",
-    "page_url": "https://example.com",
-    
-    # Flat inner pages list (excluding home, which is hardcoded in the macro)
-    "breadcrumbs": [
-        {"name": "Blog", "url": "https://example.com"},
-        {"name": "SEO", "url": "https://example.com/seo"},
-        {"name": "Jinja Optimization", "url": "https://example.com"}
-    ]
-}
 
 
 
