@@ -226,7 +226,7 @@ how to use
 
 
 new way
-
+efficient way
 
 {# macros/schemas.html #}
 {% macro collection_page_base(url, name, description, number_of_items, list_name, site_url) -%}
@@ -266,11 +266,24 @@ Tier 1: Category Index Page
   list_name="Available Topic Directories",
   site_url=site_url
 ) -%}
-{%- for term in taxonomies -%}
-{"@type": "ListItem","position": {{ loop.index }},"name": {{ term.name | tojson | safe }},"item": "{{ term.url }}"}{% if not loop.last %},{% endif %}
+{%- for name, url in taxonomies -%}
+{"@type":"ListItem","position":{{ loop.index }},"name":{{ name | tojson }},"item":{{ url | tojson }}}{{- "," if not loop.last -}}
 {%- endfor -%}
 {%- endcall -%}
 </script>
+
+{
+  "page_title": "Sneaker Brands Category Hub",
+  "taxonomies": [
+    ["Nike Shoes", "https://example.com"],
+    ["Adidas Originals", "https://example.com"],
+    ["New Balance Classics", "https://example.com"],
+    ["Asics Performance", "https://example.com"],
+    ["Puma Streetwear", "https://example.com"]
+  ]
+}
+
+
 
 
 Tier 2: Individual Category Page
@@ -285,11 +298,22 @@ Tier 2: Individual Category Page
   list_name="Sub-Categories in " ~ category_name,
   site_url=site_url
 ) -%}
-{%- for sub_cat in sub_categories -%}
-{"@type": "ListItem","position": {{ loop.index }},"name": {{ sub_cat.name | tojson | safe }},"item": "{{ sub_cat.url }}"}{% if not loop.last %},{% endif %}
+{%- for name, url in sub_categories -%}
+{"@type":"ListItem","position":{{ loop.index }},"name":{{ name | tojson }},"item":{{ url | tojson }}}{{- "," if not loop.last -}}
 {%- endfor -%}
 {%- endcall -%}
 </script>
+
+
+{
+  "sub_categories": [
+    ["Men's Trail Running Shoes", "https://example.com"],
+    ["Women's Road Racing Shoes", "https://example.com"],
+    ["Track & Field Spikes", "https://example.com"],
+    ["Barefoot & Minimalist Shoes", "https://example.com"]
+  ]
+}
+
 
 
 Tier 3: Individual Sub-Category Page
@@ -305,19 +329,38 @@ Tier 3: Individual Sub-Category Page
   list_name="Articles inside " ~ subcategory_name,
   site_url=site_url
 ) -%}
-{%- for article in items -%}
-{"@type": "ListItem","position": {{ loop.index }},"name": {{ article.title | tojson | safe }},"item": {"@type": "BlogPosting","headline": {{ article.title | tojson | safe }},"url": "{{ article.url }}","description": {{ article.meta_description | tojson | safe }}}}{% if not loop.last %},{% endif %}
+{%- for title, url, description in items -%}
+{"@type":"ListItem","position":{{ loop.index }},"name":{{ title | tojson }},"item":{"@type":"BlogPosting","headline":{{ title | tojson }},"url":{{ url | tojson }},"description":{{ description | tojson }}}}{{- "," if not loop.last -}}
 {%- endfor -%}
 {%- endcall -%}
 </script>
 
 
+{
+  "items": [
+    [
+      "How to Train for a Marathon", 
+      "https://example.com", 
+      "A complete guide to hitting your mileage goals safely."
+    ],
+    [
+      "Top 10 Trail Running Tips", 
+      "https://example.com", 
+      "Master rough terrain with these essential strategies."
+    ],
+    [
+      "Understanding Pronation", 
+      "https://example.com", 
+      "How your foot strike changes the gear you need."
+    ]
+  ]
+}
 
 
 
 
 or
-
+little effecient 
 
 
 
