@@ -4,20 +4,26 @@ categories tags archive index list page
 
 
 {
-"@type": "CollectionPage","@id": "{{ page_url }}/#webpage",
-"url": "{{ page_url }}","name": "{{ page_title | default('Browse Articles by Topic Hub') }}",
+"@type": "CollectionPage",
+"@id": "{{ page_url }}/#webpage",
+"url": "{{ page_url }}",
+"name": "{{ page_title | default('Browse Articles by Topic Hub') }}",
 "description": "{{ page_meta_description | default('Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.') }}",
 "isPartOf": {"@id": "{{ site_url }}/#website"},
 "about": {"@id": "{{ site_url }}/#organization"},
 "breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
 "mainEntity": {
-"@type": "ItemList","@id": "{{ page_url }}/#itemlist",
-"name": "Available Topic Directories","numberOfItems": {{ taxonomies | length }},
+"@type": "ItemList",
+"@id": "{{ page_url }}/#itemlist",
+"name": "Available Topic Directories",
+"numberOfItems": {{ taxonomies | length }},
 "itemListElement": [
 {% for term in taxonomies %}
 {
-"@type": "ListItem","position": {{ loop.index }},
-"name": {{ term.name | tojson | safe }},"item": "{{ term.url }}"
+"@type": "ListItem",
+"position": {{ loop.index }},
+"name": {{ term.name | tojson | safe }},
+"item": "{{ term.url }}"
 }{% if not loop.last %},{% endif %}
 {% endfor %}
 ]
@@ -53,16 +59,21 @@ individual category tag archive pages
 "about": {"@id": "{{ site_url }}/#organization"},
 "breadcrumb": {"@id": "{{ taxonomy_url }}/#breadcrumb"},
 "mainEntity": {
-"@type": "ItemList","@id": "{{ taxonomy_url }}/#itemlist",
-"name": "Articles in {{ taxonomy_name }}","numberOfItems": {{ items | length }},
+"@type": "ItemList",
+"@id": "{{ taxonomy_url }}/#itemlist",
+"name": "Articles in {{ taxonomy_name }}",
+"numberOfItems": {{ items | length }},
 "itemListElement": [
 {% for article in items %}
 {
-"@type": "ListItem","position": {{ loop.index }},
+"@type": "ListItem",
+"position": {{ loop.index }},
 "name": {{ article.title | tojson | safe }},
 "item": {
-"@type": "BlogPosting","headline": {{ article.title | tojson | safe }},
-"url": "{{ article.url }}","description": {{ article.meta_description | tojson | safe }}
+"@type": "BlogPosting",
+"headline": {{ article.title | tojson | safe }},
+"url": "{{ article.url }}",
+"description": {{ article.meta_description | tojson | safe }}
 }
 }{% if not loop.last %},{% endif %}
 {% endfor %}
@@ -90,4 +101,106 @@ individual category tag archive pages
 
 
  
-________________________________________________________________________________________
+_______________________________________________________________________________________
+
+
+
+
+
+{% macro render_unified_collection_schema(website_data, page) %}
+{
+  "@type": "CollectionPage","@id": "{{ page.url | trim }}/#webpage",
+  "url": "{{ page.url | trim }}","name": "{{ page.title }}",
+  "description": "{{ page.desc }}",
+  "isPartOf": { 
+    "@type": "CollectionPage", "@id": "{{ page.parent_category_index_url | default(website_data.website.site_url | trim ~ '/categories/') }}/#webpage",
+    "name": "{{ page.parent_category_index_name | default('Browse Articles by Topic Hub') }}"
+  },
+  "about": { "@id": "{{ website_data.website.site_url | trim }}/#organization" },
+  "breadcrumb": { "@id": "{{ page.url | trim }}/#breadcrumb" },
+  "mainEntity": {
+    "@type": "ItemList","@id": "{{ page.url | trim }}/#itemlist",
+    "name": "{{ 'Articles in ' ~ page.name }}","numberOfItems": {{ (page.taxonomies or page.items or []) | length }},
+    "itemListElement": [
+      {% for item in (page.taxonomies or page.items or []) %}
+      {
+        "@type": "ListItem","position": {{ loop.index }},
+        "name": "{{ item.name or item.title }}",
+        "item": {{ (
+          {
+            "@type": "BlogPosting","@id": item.url | trim ~ "#article",
+            "headline": item.title,"url": item.url | trim,
+            "description": item.meta_description or item.desc
+          } if (item.title is defined or item.meta_description is defined) else {
+            "@type": "WebPage","@id": item.url | trim,
+            "name": item.name
+          }
+        ) | tojson | safe }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+{% endmacro %}
+
+
+
+
+for categories 
+{
+  "url": "https://example.com",
+  "title": "Resource Categories Index | Acme Corp",
+  "desc": "Browse our structured knowledge bases covering data architecture networks, edge infrastructure deployments, and corporate engineering blocks.",
+  "taxonomies": [
+    {
+      "name": "Data Architecture Networks",
+      "url": "https://example.comdata-networks/"
+    },
+    {
+      "name": "Edge Infrastructure Deployments",
+      "url": "https://example.comedge-infrastructure/"
+    },
+    {
+      "name": "Corporate Engineering Blocks",
+      "url": "https://example.comcorporate-engineering/"
+    }
+  ]
+}
+
+
+
+ individual category 
+
+{
+  "url": "https://example.com",
+  "name": "Data Architecture Networks",
+  "title": "Data Architecture Networks Research & Insights",
+  "desc": "Deep dives into relational matrix synchronization vectors, cluster routing protocols, and global storage layouts.",
+  "parent_category_index_url": "https://example.com",
+  "parent_category_index_name": "Resource Categories Index",
+  "items": [
+    {
+      "title": "Optimizing Multi-Region Cache Sync Speed Metrics",
+      "url": "https://example.com",
+      "meta_description": "An deep architectural overview on stabilizing state sync speeds across high-latency database nodes."
+    },
+    {
+      "title": "A Guide to Non-Blocking Event-Driven Data Pipelines",
+      "url": "https://example.com",
+      "meta_description": "Evaluating execution limits under hyper-scale cluster transactions."
+    }
+  ]
+}
+
+
+
+
+how to use
+
+
+{{ render_unified_collection_schema(website_data, page) }}
+
+
+ implementation pagination 
+
+
