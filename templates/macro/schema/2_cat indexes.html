@@ -218,6 +218,103 @@ how to use
 {{ render_collection_schema(website_data, page) }}
 
 
- implementation pagination 
+
+
+
+
+
+
+
+new way
+
+
+{# macros/schemas.html #}
+{% macro collection_page_base(url, name, description, number_of_items, list_name, site_url) -%}
+{
+"@type": "CollectionPage",
+"@id": "{{ url }}/#webpage",
+"url": "{{ url }}",
+"name": "{{ name }}",
+"description": "{{ description }}",
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"about": {"@id": "{{ site_url }}/#organization"},
+"breadcrumb": {"@id": "{{ url }}/#breadcrumb"},
+"mainEntity": {
+ "@type": "ItemList",
+ "@id": "{{ url }}/#itemlist",
+ "name": "{{ list_name }}",
+ "numberOfItems": {{ number_of_items }},
+ "itemListElement": [
+  {{ caller() }}
+ ]
+ }
+}
+{%- endmacro %}
+
+
+
+Tier 1: Category Index Page
+
+
+{% import 'macros/schemas.html' as schema -%}
+<script type="application/ld+json">
+{%- call schema.collection_page_base(
+  url=page_url,
+  name=page_title | default('Browse Articles by Topic Hub'),
+  description=page_meta_description | default('Explore our structured archives across physical science discoveries, historical analytics, and geopolitical shifts.'),
+  number_of_items=taxonomies | length,
+  list_name="Available Topic Directories",
+  site_url=site_url
+) -%}
+{%- for term in taxonomies -%}
+{"@type": "ListItem","position": {{ loop.index }},"name": {{ term.name | tojson | safe }},"item": "{{ term.url }}"}{% if not loop.last %},{% endif %}
+{%- endfor -%}
+{%- endcall -%}
+</script>
+
+
+Tier 2: Individual Category Page
+
+{% import 'macros/schemas.html' as schema -%}
+<script type="application/ld+json">
+{%- call schema.collection_page_base(
+  url=category_url,
+  name=category_name ~ " Directory Hub",
+  description=category_description | default('Explore deep-dives and analytical reports within our ' ~ category_name ~ ' archive.'),
+  number_of_items=sub_categories | length,
+  list_name="Sub-Categories in " ~ category_name,
+  site_url=site_url
+) -%}
+{%- for sub_cat in sub_categories -%}
+{"@type": "ListItem","position": {{ loop.index }},"name": {{ sub_cat.name | tojson | safe }},"item": "{{ sub_cat.url }}"}{% if not loop.last %},{% endif %}
+{%- endfor -%}
+{%- endcall -%}
+</script>
+
+
+Tier 3: Individual Sub-Category Page
+
+
+{% import 'macros/schemas.html' as schema -%}
+<script type="application/ld+json">
+{%- call schema.collection_page_base(
+  url=subcategory_url,
+  name=subcategory_name ~ " Articles & Resources",
+  description=subcategory_description | default('Deep technical research papers exploring specialized branches of ' ~ subcategory_name),
+  number_of_items=items | length,
+  list_name="Articles inside " ~ subcategory_name,
+  site_url=site_url
+) -%}
+{%- for article in items -%}
+{"@type": "ListItem","position": {{ loop.index }},"name": {{ article.title | tojson | safe }},"item": {"@type": "BlogPosting","headline": {{ article.title | tojson | safe }},"url": "{{ article.url }}","description": {{ article.meta_description | tojson | safe }}}}{% if not loop.last %},{% endif %}
+{%- endfor -%}
+{%- endcall -%}
+</script>
+
+
+
+
+
+
 
 
