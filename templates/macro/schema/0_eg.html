@@ -190,16 +190,16 @@ creative Work schema
     {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "availableLanguage": ["en", "es"]
-      {%- if data.company_phone %}, "telephone": "{{ data.company_phone }}"{% endif %}
-      {%- if data.company_email %}, "email": "{{ data.company_email }}"{% endif %}
+      "availableLanguage": ["en", "es"],
+      {%- if data.company_phone %}"telephone": "{{ data.company_phone }}",{% endif %}
+      "email": "{{ data.company_email }}"
     }
   ]
   {%- if data.has_physical_address -%}
   ,
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "123 Business Innovation Way, Suite 500",
+    {%- if data.street %}"streetAddress": "{{ street }}",{% endif %}
     "addressLocality": "San Francisco",
     "addressRegion": "CA",
     "postalCode": "94107",
@@ -247,10 +247,8 @@ org_payload = {
         "https://linkedin.com",
         "https://github.com"
     ],
-    "company_phone": "+1-555-555-0199",
     "company_email": "support@example.com",
     "has_physical_address": True,
-    "address_street": "456 Innovation Drive",
     "address_locality": "San Jose",
     "address_region": "CA",
     "address_postal": "95110",
