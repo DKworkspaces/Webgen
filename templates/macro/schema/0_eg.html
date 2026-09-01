@@ -1,142 +1,28 @@
-use{% macro render_organization_schema(data) %}
 {
-  "@type": "Organization","@id": "{{ data.site_url }}/#organization",
-  "name": "{{ data.site_name }}","url": "{{ data.site_url }}",
-  "legalName": "{{ data.legal_name | default(data.site_name) }}","description": "{{ data.site_desc }}",
-  "knowsAbout": {{ data.knows_about_list | default([]) | tojson | safe }},
-  {% if data.slogan %}"slogan": "{{ data.slogan }}",{% endif %}
-  {% if data.founding_year %}"foundingDate": "{{ data.founding_year }}",{% endif %}
-  "logo": {
-    "@type": "ImageObject","@id": "{{ data.site_url }}/#logo",
-    "url": "{{ data.logo_url }}","caption": "{{ data.site_name }} Logo",
-    "width": {{ data.logo_width | default(512) }},"height": {{ data.logo_height | default(512) }}
-  },
-  "image": {
-    "@id": "{{ data.site_url }}/#logo"
-  },
-  "sameAs": {{ data.social_links | default([]) | tojson | safe }},
-  "contactPoint": [
-    {
-      "@type": "ContactPoint","contactType": "customer service","availableLanguage": ["en", "es"],
-      {%- if data.company_phone %}"telephone": "{{ data.company_phone }}",{% endif %}
-      "email": "{{ data.company_email }}"
-    }
-  ]
-  {%- if data.has_physical_address -%}
-  ,
-  "address": {
-    "@type": "PostalAddress",
-    {%- if data.street %}"streetAddress": "{{ data.street }}",{% endif %}
-    "addressLocality": "San Francisco",
-    "addressRegion": "CA",
-    "postalCode": "94107",
-    "addressCountry": "US"
-  }
-  {%- endif -%}
-
-  {# --- CONDITIONAL POLICY BLOCKS --- #}
-  {%- if data.has_terms %}, "publishingPrinciples": "{{ data.site_url }}/terms/"{% endif -%}
-  {%- if data.has_privacy %}, "privacyPolicy": "{{ data.site_url }}/privacy/"{% endif -%}
-  {%- if data.has_editorial %}, "correctionsPolicy": "{{ data.site_url }}/editorial-policy/"{% endif -%}
-  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.site_url }}/fact-check-policy/"{% endif -%}
-}
-{% endmacro %}
-
-{% macro render_website_schema(data) %}
-{
-  "@type": "WebSite","@id": "{{ data.site_url }}/#website",
-  "url": "{{ data.site_url }}","name": "{{ data.site_name }}",
-  {% if data.alternate_name %}"alternateName": "{{ data.alternate_name }}",{% endif %}
-  "description": "{{ data.site_desc | default('') }}",
-  "inLanguage": "{{ data.site_language | default('en-US') }}",
-  "publisher": {
-    "@id": "{{ data.site_url }}/#organization"
-  },
-  "potentialAction": [
-    {"@type": "SearchAction",
-      "target": {"@type": "EntryPoint","urlTemplate": "{{ data.site_url }}/search?q={search_term_string}"},
-      "query-input": "required name=search_term_string"
-    }
-  ]
-}
-{% endmacro %}
-
-
-org_payload = {
+  "website": {
     "site_url": "https://example.com",
-    "site_name": "Tech Corp",
-    "site_meta_desc": "Innovative software scaling solutions.",
-    "logo_url": "https://example.com",
-    "logo_width": 1200,
-    "logo_height": 630,
+    "site_name": "Acme Corp",
+    "alt_name": "Acme Widgets",
+    "site_desc": "Industry leading provider of innovative widget solutions.",
+    "site_lang": "en-US",
     "knows_about_list": [
         {
-            "@type": "Thing",
-            "@id": "https://wikidata.org",
-            "name": "Artificial Intelligence",
-            "sameAs": "https://wikipedia.org"
+        "@type": "Thing",
+        "@id": "https://wikidata.org",
+        "name": "Artificial Intelligence",
+        "sameAs": "https://wikipedia.org"
         },
         {
-            "@type": "Thing",
-            "@id": "https://wikidata.org",
-            "name": "Software as a Service (SaaS)",
-            "sameAs": "https://wikipedia.org"
+        "@type": "Thing",
+        "@id": "https://wikidata.org",
+        "name": "Software as a Service (SaaS)",
+        "sameAs": "https://wikipedia.org"
         }
     ],
     "social_links": [
         "https://x.com",
         "https://linkedin.com",
         "https://github.com"
-    ],
-    "company_email": "support@example.com",
-    "has_physical_address": True,
-    "address_locality": "San Jose",
-    "address_region": "CA",
-    "address_postal": "95110",
-    "address_country": "US",
-    "has_terms": True,
-    "has_privacy": True,
-    "has_editorial": False,
-    "has_fact_check": False
-}
-
-eg:
-
-
-{
-  "site_details": {
-    "site_url": "https://yourblog.com",
-    "brand_name": "Your Brand Name",
-    "logo_url": "https://yourblog.com"
-  },
-  "contact_and_address": {
-    "email": "support@yourblog.com",
-    "address_locality": "Austin",
-    "address_region": "TX",
-    "postal_code": "78701",
-    "address_country": "US"
-  },
-  "features": {
-    "include_address_in_schema": false,
-    "use_organization_schema": true
-  }
-}
-
-
-
-
-{
-  "website_details": {
-    "site_url": "https://example.com",
-    "site_name": "Acme Corp",
-    "alternate_name": "Acme Widgets",
-    "site_desc": "Industry leading provider of innovative widget solutions.",
-    "site_language": "en-US",
-    "slogan": "Innovation through automation.",
-    "knows_about_list": ["Software Engineering", "Cloud Computing", "SaaS Development"],
-    "social_links": [
-      "https://twitter.com",
-      "https://linkedin.com"
     ],
     "policies": {
       "has_terms": true,
@@ -145,7 +31,7 @@ eg:
       "has_fact_check": false
     }
   },
-  "company_details": {
+  "company": {
     "legal_name": "Acme Corporation International LLC",
     "founding_year": "2021",
     "logo": {
@@ -153,37 +39,106 @@ eg:
       "width": 1200,
       "height": 630
     },
-    "contact_info": {
+    "contact": {
       "email": "support@example.com",
-      "phone": "+1-555-0199",
-      "languages": ["en", "es"]
+      "lang": ["en", "es"]
     },
-    "physical_address": {
-      "has_address": true,
-      "street": "123 Innovation Way, Suite 400",
+    "address": {
       "locality": "San Francisco",
       "region": "CA",
-      "postal_code": "94107",
+      "pin": "94107",
       "country": "US"
     }
   }
 }
 
 
+{# 1.Organization and Website Schema #}
+{% macro render_organization_schema(data) %}
+{
+  "@type": "Organization",
+  "@id": "{{ data.website.site_url }}/#organization",
+  "name": "{{ data.website.site_name }}",
+  "url": "{{ data.website.site_url }}",
+  "legalName": "{{ data.company.legal_name | default(data.website.site_name) }}",
+  "description": "{{ data.website.site_desc }}",
+  "knowsAbout": {{ data.website.knows_about_list | default([]) | tojson | safe }},
+  {% if data.website.slogan %}"slogan": "{{ data.website.slogan }}",{% endif %}
+  {% if data.company.founding_year %}"foundingDate": "{{ data.company.founding_year }}",{% endif %}
+  "logo": {
+    "@type": "ImageObject",
+    "@id": "{{ data.website.site_url }}/#logo",
+    "url": "{{ data.company.logo.url }}",
+    "caption": "{{ data.website.site_name }} Logo",
+    "width": {{ data.company.logo.width | default(512) }},
+    "height": {{ data.company.logo.height | default(512) }}
+  },
+  "image": {
+    "@id": "{{ data.website.site_url }}/#logo"
+  },
+  "sameAs": {{ data.website.social_links | default([]) | tojson | safe }},
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": {{ data.company.contact.lang | default(["en"]) | tojson | safe }},
+      {% if data.company.contact.phone %}"telephone": "{{ data.company.company.contact.phone }}",{% endif %}
+      "email": "{{ data.company.contact.email }}"
+    }
+  ]
+  {%- if data.company.address -%},
+  "address": {
+    "@type": "PostalAddress",
+    {% if data.company.address.street %}"streetAddress": "{{ data.company.address.street }}",{% endif %}
+    "addressLocality": "{{ data.company.address.locality | default('San Francisco') }}",
+    "addressRegion": "{{ data.company.address.region | default('CA') }}",
+    "postalCode": "{{ data.company.address.pin | default('94107') }}",
+    "addressCountry": "{{ data.company.address.country | default('US') }}"
+  }
+  {%- endif -%}
+  {%- if data.website.policies.has_terms %}, "publishingPrinciples": "{{ data.website.site_url }}/terms/"{% endif -%}
+  {%- if data.website.policies.has_privacy %}, "privacyPolicy": "{{ data.website.site_url }}/privacy/"{% endif -%}
+  {%- if data.website.policies.has_editorial %}, "correctionsPolicy": "{{ data.website.site_url }}/editorial-policy/"{% endif -%}
+  {%- if data.website.policies.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.website.site_url }}/fact-check-policy/"{% endif -%}
+},
+{
+  "@type": "WebSite",
+  "@id": "{{ data.website.site_url }}/#website",
+  "url": "{{ data.website.site_url }}",
+  "name": "{{ data.website.site_name }}",
+  {% if data.website.alt_name %}"alternateName": "{{ data.website.alt_name }}",{% endif %}
+  "description": "{{ data.website.site_desc | default('') }}",
+  "inLanguage": "{{ data.website.site_lang | default('en-US') }}",
+  "publisher": {
+    "@id": "{{ data.website.site_url }}/#organization"
+  },
+  "potentialAction": [
+    {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ data.website.site_url }}/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  ]
+}
+{% endmacro %}
 
 
+breadcrumb = {
+    "page_url": "https://example.com",
+    
+    # Flat inner pages list (excluding home, which is hardcoded in the macro)
+    "breadcrumbs": [
+        {"name": "Blog", "url": "https://example.com"},
+        {"name": "SEO", "url": "https://example.com/seo"},
+        {"name": "Jinja Optimization", "url": "https://example.com"}
+    ]
+}
 
-
-
-
-
-
-
-
-
-
-
-{% macro render_breadcrumb_schema(data) %}
+{# 2. Breadcrumb Schema #}
+{% macro render_breadcrumb_schema(site_url,data) %}
 {
   "@type": "BreadcrumbList",
   "@id": "{{ data.page_url }}/#breadcrumb",
@@ -192,7 +147,7 @@ eg:
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "{{ data.site_url }}"
+      "item": "{{ site_url }}"
     }
     {%- if data.breadcrumbs -%}
     ,
@@ -210,139 +165,87 @@ eg:
 {% endmacro %}
 
 
-org_payload = {
-    "site_url": "https://example.com",
-    "page_url": "https://example.com",
-    
-    # Flat inner pages list (excluding home, which is hardcoded in the macro)
-    "breadcrumbs": [
-        {"name": "Blog", "url": "https://example.com"},
-        {"name": "SEO", "url": "https://example.com/seo"},
-        {"name": "Jinja Optimization", "url": "https://example.com"}
-    ]
+
+
+website_data= privious website section of json data
+
+page={
+  "url": "https://example.com",
+  "title": "Privacy Policy & Data Protection Rules",
+  "desc": "Learn how we handle, secure, and processing your corporate dataset transparently.",
+  "hero_image": "https://example.com",
+  "date_published": "2026-01-10T09:00:00+00:00",
+  "date_modified": "2026-03-01T14:20:00+00:00"
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-for different policypages
-
-{% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
-{% endmacro %}
-
-Terms page
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "TermsAndConditions") }}
-Privacy page
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PrivacyPolicy") }}
-Fact Check / Editorial pages
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PolicyPage") }}
-adding in language n breadcrumb in policy pages is necessary 
-
-
-
-
-{% macro render_webpage_schema(data, page_type="WebPage", is_home=False) %}
+{% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
 {
   "@type": "{{ page_type }}",
-  "@id": "{{ data.page_url | trim }}/#webpage",
-  "url": "{{ data.page_url | trim }}",
-  "name": "{{ data.page_title | escape }}",
-  "description": "{{ data.page_description | escape }}",
-  "isPartOf": { "@type": "WebSite","@id": "{{ data.site_url | trim }}/#website" },
-  "inLanguage": "{{ data.page_lang | default('en-US') }}"
-
+  "@id": "{{ page.url | trim }}/#webpage",
+  "url": "{{ page.url | trim }}",
+  "name": "{{ page.title | escape }}",
+  "description": "{{ page.desc | escape }}",
+  "isPartOf": { 
+    "@type": "WebSite",
+    "@id": "{{ website_data.website.site_url | trim }}/#website" 
+  },
+  "inLanguage": "{{ website_data.website.site_lang | default('en-US') }}"
   {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
   "mainEntity": {
-    "@type": "Organization","@id": "{{ data.site_url | trim }}/#organization",
-    "name": "{{ data.site_name | escape }}"
-  }
-  {%- elif page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
-  "about": {
-    "@type": "Organization","@id": "{{ data.site_url | trim }}/#organization",
-    "name": "{{ data.site_name | escape }}"
+    "@type": "Organization",
+    "@id": "{{ website_data.website.site_url | trim }}/#organization",
+    "name": "{{ website_data.website.site_name | escape }}"
   }
   {%- endif -%}
-
-
-
-  {%- if data.img -%},
-
+  {%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
+  "about": { 
+    "@type": "Organization", 
+    "@id": "{{ website_data.website.site_url | trim }}/#organization",
+    "name": "{{ website_data.website.site_name | escape }}"
+  },
+  "publishingPrinciples": { 
+    "@type": "CreativeWork", 
+    "@id": "{{ website_data.website.site_url | trim }}/#policy" 
+  }
+  {%- endif -%}
+  {%- if page.hero_image or website_data.company.logo.url -%},
   "primaryImageOfPage": {
     "@type": "ImageObject",
-    "@id": "{{ data.page_url | trim }}/#primaryimage",
-    "url": "{{ data.page_hero_image | default(data.logo_url) | trim }}",
-    "caption": "{{ data.page_title | escape }} Visual Asset"
+    "@id": "{{ page.url | trim }}/#primaryimage",
+    "url": "{{ page.hero_image | default(website_data.company.logo.url) | trim }}",
+    "caption": "{{ page.title | escape }} Visual Asset"
   }
-
   {%- endif -%}
-
   {%- if not is_home -%},
-  "about": { "@type": "Organization", "@id": "{{ data.site_url | trim }}/#organization" },
-  "breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ data.page_url | trim }}/#breadcrumb" }
-  {%- endif -%}
-
-  {%- if data.page_date_published -%},
-  "datePublished": "{{ data.page_date_published }}",
-  "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
-  {%- endif -%}
-
-  {%- if data.publishing_principles_required -%},
-  "publishingPrinciples": { "@type": "CreativeWork", "@id": "{{ data.site_url | trim }}/#policy" }
-  {%- endif -%}
-
-}
-{% endmacro %}
-
-
-if contactpage or AboutPage 
-
-  "mainEntity": {
-    "@type": "Organization",
-    "@id": "https://example.com",
-    "name": "Acme Corp"
+  "breadcrumb": { 
+    "@type": "BreadcrumbList", 
+    "@id": "{{ page.url | trim }}/#breadcrumb" 
   }
-
-if policies then
-"about": {
-    "@type": "Organization",
-    "@id": "https://example.com",
-    "name": "Acme Corp"
-  }
-
-
-for each policy page we need extra Schema 
-
-creative Work schema
-
-{% macro render_policy_document_schema(data, page_type="WebPage") %}
-{%- if page_type in ['PrivacyPolicy', 'TermsAndConditions'] -%}
-{
-  "@type": "CreativeWork","@id": "{{ data.page_url | trim }}/#policy",
-  "name": "{{ data.page_title }}","headline": "{{ data.page_title }}",
-  "description": "{{ data.page_description }}","url": "{{ data.page_url | trim }}",
-  "inLanguage": "{{ data.page_lang | default('en-US') }}",
-  "author": {"@type": "Organization","@id": "{{ data.site_url | trim }}/#organization"},
-  "copyrightHolder": {"@type": "Organization","@id": "{{ data.site_url | trim }}/#organization"}
-  {%- if data.page_date_published -%},
-  "datePublished": "{{ data.page_date_published }}",
-  "dateModified": "{{ data.page_date_modified | default(data.page_date_published) }}"
+  {%- endif -%}
+  {%- if page.date_published -%},
+  "datePublished": "{{ page.date_published }}",
+  "dateModified": "{{ page.date_modified | default(page.date_published) }}"
   {%- endif -%}
 }
+    {# --- MERGED CREATIVEWORK ENGINE --- #}
+{%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
+  {
+    "@type": "CreativeWork","@id": "{{ page.url | trim }}/#policy",
+    "name": "{{ page.title | escape }}","headline": "{{ page.title | escape }}",
+    "description": "{{ page.desc | escape }}","url": "{{ page.url | trim }}",
+    "inLanguage": "{{ website_data.website.site_lang | default('en-US') }}",
+    "author": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
+    "publisher": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
+    "copyrightHolder": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"}
+    {%- if page.date_published -%},
+    "datePublished": "{{ page.date_published }}",
+    "dateModified": "{{ page.date_modified | default(page.date_published) }}"
+    {%- endif -%}
+  }
 {%- endif -%}
 {% endmacro %}
 
@@ -354,42 +257,26 @@ creative Work schema
 
 
 
+how to use
 
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {{ schemas.render_organization_schema(json_data) }},
+    {{ schemas.render_breadcrumb_schema(site_url,json_data) }}
+  ]
+}
+</script>
 
-    {# 1. Check for Homepage #}
-    {% if page_url == site_url or page_url == site_url ~ '/' %}
-      {{ render_website_schema(data) }},
-      {{ render_organization_schema(data) }},
-      {{ render_webpage_schema(data, page_type="WebPage", is_home=True) }}
-{# 2. Run the Master Macro across all internal layout channels #}
-    {% else %}
-      {% if 'privacy' in page_url %}
-        {{ render_webpage_schema(data, "PrivacyPolicy") }}
-      {% elif 'terms' in page_url %}
-        {{ render_webpage_schema(data, "TermsAndConditions") }}
-      {% elif 'policy' in page_url %}
-        {{ render_webpage_schema(data, "PolicyPage") }}
-      {% elif 'about' in page_url %}
-        {{ render_webpage_schema(data, "AboutPage") }}
-      {% elif 'contact' in page_url %}
-        {{ render_webpage_schema(data, "ContactPage") }}
-{% else %}
-        {# Dynamic layout mapping for standard articles/blogs #}
-        {{ render_webpage_schema(data, "WebPage") }}
-      {% endif %}
-    {% endif %}
-
-
-
-
-
-
-
-
-
-
-
+for home page             {{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
+about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }}
+contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }}
+Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }}
+Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }}
+Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }}
+Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }}
 
 
 What to Use as Your Primary Image
@@ -426,97 +313,15 @@ For Policy Pages:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{% macro render_webpage_schema(data) %}
-{
-  "@type": "WebPage",
-  "@id": "{{ data.page_url | default(data.site_url) }}/#webpage",
-  "url": "{{ data.page_url | default(data.site_url) }}",
-  "name": "{{ data.home_title | default(data.site_name) }}",
-  "description": "{{ data.home_meta_desc | default(data.site_meta_desc) }}",
-  "isPartOf": {
-    "@id": "{{ data.site_url }}/#website"
-  }
-}
-{% endmacro %}
-
-
-
-
-
-
-# --- Current Page Data (For WebPage Schema) ---
-    "page_url": "https://example.com",          # Matches site_url for home, changes for inner pages
-    "home_title": "Tech Corp | Enterprise Software Solutions",
-    "home_meta_desc": "We build scalable SaaS products, deep-learning models, and digital systems.",
-
-
-
-
-
-
-
-
-{% macro render_about_page_schema(data) %}
-{
-  "@type": "AboutPage",
-  "@id": "{{ data.page_url }}/#webpage",
-  "url": "{{ data.page_url }}",
-  "name": "{{ data.page_title }}",
-  "description": "{{ data.page_meta_description }}",
-  "isPartOf": {
-    "@id": "{{ data.site_url }}/#website"
-  },
-  "breadcrumb": {
-    "@id": "{{ data.page_url }}/#breadcrumb"
-  }
-  
-  {# --- CONDITIONAL MAIN ENTITY (TEAM MEMBERS) LOOP --- #}
-  {%- if data.team_members -%}
-  ,
-  "mainEntity": [
-    {%- for member in data.team_members -%}
+{# Person Schema #}
+{% macro render_person_schema(website_data,member) %}
     {
-      "@type": "Person",
-      "@id": "{{ data.site_url }}/authors/{{ member.slug }}/#person",
-      "name": "{{ member.name }}",
-      "jobTitle": "{{ member.job_title }}",
-      "description": "{{ member.short_bio }}",
-      "image": "{{ member.avatar_url }}",
-      "url": "{{ data.site_url }}/authors/{{ member.slug }}/",
+      "@type": "Person","@id": "{{ website_data.website.site_url }}/authors/{{ member.slug }}/#person",
+      "name": "{{ member.name }}","jobTitle": "{{ member.job_title }}",
+      "description": "{{ member.short_bio }}","image": "{{ member.avatar_url }}",
+      "url": "{{ website_data.website.site_url }}/authors/{{ member.slug }}/",
       "sameAs": {{ member.social_profiles | default([]) | tojson | safe }},
-      "worksFor": {
-        "@id": "{{ data.site_url }}/#organization"
-      },
-      {# --- DYNAMIC NESTED LOOP FOR KNOWSABOUT --- #}
+      "worksFor": {"@id": "{{ website_data.website.site_url }}/#organization"},
       "knowsAbout": [
         {%- for topic in member.knows_about -%}
         {
@@ -527,105 +332,64 @@ For Policy Pages:
         }{% if not loop.last %},{% endif %}
         {%- endfor -%}
       ],
-      "affiliation": {
-        "@id": "{{ data.site_url }}/#organization"
-      }
-    }{% if not loop.last %},{% endif %}
-    {%- endfor -%}
-  ]
-  {%- endif -%}
-}
+      "affiliation": {"@id": "{{ website_data.website.site_url }}/#organization"}
+    }
 {% endmacro %}
 
-
-
-
-org_payload["team_members"] = [
+{
+  "name": "Jane Doe",
+  "slug": "jane-doe",
+  "job_title": "Principal Solutions Architect",
+  "short_bio": "Specialist in designing resilient, highly distributed multi-region cloud automation grids.",
+  "avatar_url": "https://example.com",
+  "social_profiles": [
+    "https://linkedin.com",
+    "https://github.com"
+  ],
+  "knows_about": [
     {
-        "slug": "alice-smith",
-        "name": "Alice Smith",
-        "job_title": "Head of AI Research",
-        "short_bio": "Alice specializes in enterprise deep learning.",
-        "avatar_url": "https://example.com",
-        "social_profiles": ["https://x.com"],
-        # Alice's unique skillset profile
-        "knows_about": [
-            {
-                "name": "Artificial Intelligence",
-                "wikidata_url": "https://wikidata.org",
-                "wikipedia_url": "https://wikipedia.org"
-            },
-            {
-                "name": "Web Development",
-                "wikidata_url": "https://wikidata.org",
-                "wikipedia_url": "https://wikipedia.org"
-            }
-        ]
+      "name": "Software Engineering",
+      "wikidata_url": "https://wikidata.org",
+      "wikipedia_url": "https://wikipedia.org"
     },
     {
-        "slug": "bob-jones",
-        "name": "Bob Jones",
-        "job_title": "Lead Software Architect",
-        "short_bio": "Bob designs highly performance-optimized infrastructure.",
-        "avatar_url": "https://example.com",
-        "social_profiles": ["https://github.com"],
-        # Bob's unique skillset profile
-        "knows_about": [
-            {
-                "name": "Search Engine Optimization",
-                "wikidata_url": "https://wikidata.org",
-                "wikipedia_url": "https://wikipedia.org"
-            },
-            {
-                "name": "Software as a Service (SaaS)",
-                "wikidata_url": "https://wikidata.org",
-                "wikipedia_url": "https://wikipedia.org"
-            }
-        ]
+      "name": "Cloud Computing",
+      "wikidata_url": "https://wikidata.org",
+      "wikipedia_url": "https://wikipedia.org"
     }
-]
-
-
-
-{% macro render_contact_page_schema(data) %}
-{
-  "@type": "ContactPage",
-  "@id": "{{ data.page_url }}/#webpage",
-  "url": "{{ data.page_url }}",
-  "name": "{{ data.page_title }}",
-  "description": "{{ data.page_meta_description }}",
-  "isPartOf": {
-    "@id": "{{ data.site_url }}/#website"
-  },
-  "breadcrumb": {
-    "@id": "{{ data.page_url }}/#breadcrumb"
-  },
-  "mainEntity": {
-    "@id": "{{ data.site_url }}/#organization"
-  }
+  ]
 }
-{% endmacro %}
 
 
-{% macro policy_schema(site_url, page_url, page_title, page_meta_description, page_type="WebPage") %}
-    {
-      "@type": "{{ page_type }}",
-      "@id": "{{ page_url | safe }}/#webpage",
-      "url": "{{ page_url | safe }}",
-      "name": "{{ page_title }}",
-      "description": "{{ page_meta_description }}",
-      "isPartOf": { "@id": "{{ site_url | safe }}/#website" },
-      "about": { "@id": "{{ site_url | safe }}/#organization" },
-      "publishingPrinciples": { "@id": "{{ site_url | safe }}/#organization" }
-    }
-{% endmacro %}
 
-Terms page
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "TermsAndConditions") }}
-Privacy page
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PrivacyPolicy") }}
-Fact Check / Editorial pages
-{{ policy_schema(site_url, page_url, page_title, page_meta_description, "PolicyPage") }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -649,29 +413,5 @@ Fact Check / Editorial pages
   
 ]
 </script>
-
-
-
-notes :
-for about us page
-of want to stay aunonomus 
-
-
-  "mainEntity": {
-    "@id": "{{ data.site_url }}/#organization"
-  } 
-
-
-# Use generic business communication nodes instead of personal profiles
-    "social_links": [
-        "https://x.com",
-        "https://github.com"
-    ],
-    "company_email": "contact@qname.ai",  # Masked alias routing to your inbox
-    "company_phone": "",                  # Leave completely blank
-    "has_physical_address": False         # Hides your residential workspace footprint
-}
-
-
 
 
