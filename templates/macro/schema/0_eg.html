@@ -1,4 +1,4 @@
-{% macro render_organization_schema(data) %}
+use{% macro render_organization_schema(data) %}
 {
   "@type": "Organization","@id": "{{ data.site_url }}/#organization",
   "name": "{{ data.site_name }}","url": "{{ data.site_url }}",
@@ -35,10 +35,10 @@
   {%- endif -%}
 
   {# --- CONDITIONAL POLICY BLOCKS --- #}
-  {%- if data.has_terms %}, "publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
-  {%- if data.has_privacy %}, "privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
-  {%- if data.has_editorial %}, "correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
-  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
+  {%- if data.has_terms %}, "publishingPrinciples": "{{ data.site_url }}/terms/"{% endif -%}
+  {%- if data.has_privacy %}, "privacyPolicy": "{{ data.site_url }}/privacy/"{% endif -%}
+  {%- if data.has_editorial %}, "correctionsPolicy": "{{ data.site_url }}/editorial-policy/"{% endif -%}
+  {%- if data.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.site_url }}/fact-check-policy/"{% endif -%}
 }
 {% endmacro %}
 
@@ -121,6 +121,65 @@ eg:
     "use_organization_schema": true
   }
 }
+
+
+
+
+{
+  "website_details": {
+    "site_url": "https://example.com",
+    "site_name": "Acme Corp",
+    "alternate_name": "Acme Widgets",
+    "site_desc": "Industry leading provider of innovative widget solutions.",
+    "site_language": "en-US",
+    "slogan": "Innovation through automation.",
+    "knows_about_list": ["Software Engineering", "Cloud Computing", "SaaS Development"],
+    "social_links": [
+      "https://twitter.com",
+      "https://linkedin.com"
+    ],
+    "policies": {
+      "has_terms": true,
+      "has_privacy": true,
+      "has_editorial": false,
+      "has_fact_check": false
+    }
+  },
+  "company_details": {
+    "legal_name": "Acme Corporation International LLC",
+    "founding_year": "2021",
+    "logo": {
+      "url": "https://example.com",
+      "width": 1200,
+      "height": 630
+    },
+    "contact_info": {
+      "email": "support@example.com",
+      "phone": "+1-555-0199",
+      "languages": ["en", "es"]
+    },
+    "physical_address": {
+      "has_address": true,
+      "street": "123 Innovation Way, Suite 400",
+      "locality": "San Francisco",
+      "region": "CA",
+      "postal_code": "94107",
+      "country": "US"
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
