@@ -60,9 +60,9 @@
       "@type": "{{ item.type | default('BlogPosting') }}",
       "@id": "{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}",
       "position": {{ loop.index }},
-      "headline": {{ (item.title or item.name) | tojson }},
-      "url": "{{ item.url }}",
-      "description": {{ (item.meta_description or item.desc) | default('') | tojson }}
+      {% if item.title %}"name": {{ item.title | tojson }},{% endif %}
+      {% if item.desc %}"description": {{ item.desc | tojson }},{% endif %}
+      "url": "{{ item.url }}"
     }{{ "," if not loop.last }}
     {% endfor %}
   ]
@@ -74,26 +74,64 @@
 
 
 
+eg
+Category Index (Root Level / All Categories Hub)
+{
+  "page_data": {
+    "url": "https://example.com",
+    "title": "Our Blog Categories",
+    "desc": "Browse all our top-level editorial resource hubs.",
+    "site_url": "https://example.com"
+  },
+  "node_type": "CollectionPage",
+  "parent_page": null,
+  "items": [
+    "https://example.com/geopolitics",
+    "https://example.com/history",
+    "https://example.com/science"
+  ]
+}
 
+Individual Category Page & Sub-Category Page
 
-
-
-pillar Page 
-
-"about": [
-    {% for topic in about_topics %}
+{
+  "page_data": {
+    "url": "https://example.com",
+    "title": "Global Geopolitics Hub",
+    "desc": "Deep dives into international relations, maps, and statecraft history.",
+    "site_url": "https://example.com"
+  },
+  "node_type": "CollectionPage",
+  "parent_page": {
+    "url": "https://example.com"
+  },
+  "items": [
     {
-      "@type": "{{ topic.type | default('Thing') }}",
-      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
-      "name": {{ topic.name | tojson }},
-      "sameAs": {{ topic.sameAs | tojson }}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-  ],
+      "type": "CollectionPage",
+      "url": "https://example.com/cold-war",
+      "title": "The Cold War Era",
+      "meta_description": "Analyzing the multi-decade proxy conflicts between global superpowers."
+    },
+    {
+      "type": "CollectionPage",
+      "url": "https://example.com/maritime-strategy",
+      "title": "Maritime Chokepoints & Trade",
+      "meta_description": "Examining naval corridors and international shipping lane security."
+    }
+  ]
+}
 
 
-"about": [
-  {
+Pillar Page (Top of Semantic Topic Silo)
+
+{
+  "page_data": {
+    "url": "https://example.com",
+    "title": "The Complete Guide to World War II",
+    "desc": "A comprehensive strategic timeline of the global conflict from 1939 to 1945.",
+    "site_url": "https://example.com",
+    "topics": [
+        {
     "@type": "Thing",
     "@id": "https://example.com",
     "name": "Semantic Web",
@@ -111,353 +149,70 @@ pillar Page
       "https://wikidata.org"
     ]
   }
-]
-
-
-
-
-
-
-
-{% macro render_item(item_data) %}
-  {%- if item_data is string -%}
-    {# Handle a plain URL string #}
-    "item": "{{ item_data }}"
-  {%- elif item_data is mapping -%}
-    {# Handle a dictionary/object #}
-    "item": {
-      "@type": "{{ item_data.type | default('BlogPosting') }}",
-      "headline": {{ item_data.title | tojson }},
-      "url": "{{ item_data.url }}",
-      "description": {{ item_data.meta_description | tojson }}
-    }
-  {%- endif -%}
-{% endmacro %}
-
-
-
-
-
-
-
-
-
-
-
-
-{# file: schema_macros.html #}
-
-
-
-  {% if parent_page and parent_page.url %}
-"isPartOf": {
-    "@type": "WebPage",
-    "@id": "{{ parent.url }}/#webpage",
-    "name": {{ parent.name | tojson }},
-    "url": "{{ parent.url }}"
+    ]
   },
-  {% else %},
-  "isPartOf": {
-    "@type": "WebSite",
-    "@id": "{{ site_data.url  }}/#website",
-    "url": "{{ site_data.url }}"
-  },
-  {% endif %}
-
-or
-
-
-
-
-
-
-{% macro render_collection_node(page_data, parent_page=none, parent_taxonomy=none, taxonomies=none, items=none) %}
-{
-  "@type": "CollectionPage","@id": "{{ page_data.url }}/#webpage",
-  "url": "{{ page_data.url }}","name": "{{ page_data.title }}",
-  "description": "{{ page_data.desc }}",
-  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
-
-  {# A. PAGE UPLINK #}
-  {% if parent_page and parent_page.url %},
-  "isPartOf": {
-    "@type": "CollectionPage","@id": "{{ parent_page.url }}/#webpage",
-    "name": "{{ parent_page.name }}","url": "{{ parent_page.url }}"
-  }
-  {% else %},
-  "isPartOf": {"@id": "{{ page_data.site_url }}/#website"}
-  {% endif %}
-
-  {# B. ABOUT FIELD: Perfect for Interlinked Geopolitics, History & Science #}
-  {% if topics and topics | length > 0 %}
-  , "about": [
-    {% for topic in page_data.topics %}
+  "node_type": "WebPage",
+  "parent_page": null,
+  "items": [
     {
-      "@type": "Thing",
-      "name": {{ topic.name | tojson }},
-      "url": "{{ topic.url | default('') }}"
-      {% if topic.wikidata_url or topic.wikipedia_url %},
-      "sameAs": {{ (topic.wikidata_url or topic.wikipedia_url) | tojson }}
-      {% endif %}
-    }{{ "," if not loop.last }}
-    {% endfor %}
-  ]
-  {% endif %}
-
-  {# C. DOWNWARD #}
-  {% if taxonomies and taxonomies | lee | default('BlogPosting') }}","@id": "{{ article.url }}/#{{ article.type | default('BlogPosting') | lower }}",
-      "position": {{ loop.index }},"headline": {{ article.title | tojson }},
-      "url": "{{ article.url }}","description": {{ article.meta_description | tojson }}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-  ]
-  {% endif %}
-}
-{% endmacro %}
-
-
-
-
-
-
-Tier 1: Category Index Page Call (Master Directory Root)
-
-{{ render_collection_node(
-  page_data = {
-    "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Master Topic & Category Index",
-    "desc": "Browse all curated archives across physical sciences, tech, and engineering.",
-    "topic": "Global Site Directory Catalog"
-  },
-  parent_page = none,
-  parent_taxonomy = none,
-  taxonomies = [
-    { "name": "Physical Sciences", "url": "https://example.com/physical-sciences" }
-  ],
-  items = none
-) }}
-
-
-
-Tier 2: Individual Category Page Call
-
-{{ render_collection_node(
-  page_data = {
-    "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Physical Sciences Hub",
-    "desc": "Deep analysis and research updates exploring physics, chemistry, and space.",
-    "topic": "Physical Sciences"
-  },
-  parent_page = {
-    "name": "Master Topic & Category Index",
-    "url": "https://example.com"
-  },
-  parent_taxonomy = {
-    "name": "Global Site Directory Catalog",
-    "url": "https://example.com"
-  },
-  taxonomies = [
-    { "name": "Quantum Mechanics", "url": "https://example.com/quantum" }
-  ],
-  items = none
-) }}
-
-
-Tier 3: Sub-Category Page Call (with BlogPosts List)
-
-{{ render_collection_node(
-  page_data = {
-    "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Quantum Mechanics Research & Discovery",
-    "desc": "In-depth research papers tracking particle physics and computing frameworks.",
-    "topic": "Quantum Mechanics"
-  },
-  parent_page = {
-    "name": "Physical Sciences Hub",
-    "url": "https://example.com"
-  },
-  parent_taxonomy = {
-    "name": "Physical Sciences",
-    "url": "https://example.com"
-  },
-  taxonomies = none,
-  items = [
-    { 
-      "title": "Understanding Quantum Entanglement Limits", 
-      "url": "https://example.com", 
-      "meta_description": "An analysis of macro-scale particle coordination experiments.",
-      "type": "BlogPosting" 
-    }
-  ]
-) }}
-
-
-
-
-
-
-
-
-{% macro render_cluster_node(page_data, parent_page=none, parent_topic=none, items=none) %}
-{
-  "@type": "WebPage",
-  "@id": "{{ page_data.url }}/#webpage",
-  "url": "{{ page_data.url }}",
-  "name": "{{ page_data.title | e }}",
-  "description": "{{ page_data.desc | e }}"
-
-  {# A. PAGE UPLINK: Immediate 1-level document container connection #}
-  {% if parent_page and parent_page.url %},
-  "isPartOf": {
-    "@type": "WebPage",
-    "@id": "{{ parent_page.url }}/#webpage",
-    "name": "{{ parent_page.name | e }}",
-    "url": "{{ parent_page.url }}"
-  }
-  {% else %},
-  "isPartOf": {
-    "@type": "WebSite",
-    "@id": "{{ page_data.site_url | default('https://example.com') }}/#website",
-    "url": "{{ page_data.site_url | default('https://example.com') }}"
-  }
-  {% endif %}
-  
-  {# B. ABOUT PROPERTY: Clean 1-level semantic topic inheritance #}
-  {% if page_data.topic %},
-  "about": {
-    "@type": "Thing",
-    "@id": "{{ page_data.url }}/#topic",
-    "name": "{{ page_data.topic | e }}"
-    {% if parent_topic and parent_topic.url %},
-    "isPartOf": {
-      "@type": "Thing",
-      "@id": "{{ parent_topic.url }}/#topic",
-      "name": "{{ parent_topic.name | e }}"
-    }
-    {% endif %}
-  }
-  {% endif %}
-
-  {# C. DOWNWARD TREE MAPPING: Maps supporting child cluster pages or final BlogPosting leaves #}
-  {% if items and items | length > 0 %},
-  "hasPart": [
-    {% for item in items %}
+      "type": "WebPage",
+      "url": "https://example.com/european-theatre",
+      "title": "The European Theatre Campaigns",
+      "desc": "From the invasion of Poland to the collapse of the Axis powers."
+    },
     {
-      "@type": "{{ item.type | default('WebPage') }}",
-      "@id": "{{ item.url }}/#{{ item.type | default('WebPage') | lower }}",
-      "position": {{ loop.index }},
-      "name": {{ item.name | tojson | safe }},
-      "url": "{{ item.url }}"
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
+      "type": "BlogPosting",
+      "url": "https://example.com",
+      "title": "The Silent Engine: WW2 Supply Chains",
+      "meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."
+    }
   ]
-  {% endif %}
 }
-{% endmacro %}
 
+4. Cluster Page & Sub-Cluster Page (Deep Silo Nodes with Leaf Articles)
 
-
-1. Pillar Page Call (Master Guide Head)
-
-{{ render_cluster_node(
-  page_data = {
-    "site_url": "https://example.com",
+{
+  "page_data": {
     "url": "https://example.com",
-    "title": "The Ultimate Guide to Enterprise Python Architecture",
-    "desc": "Master clean code patterns, asynchronous testing, and framework engineering.",
-    "topic": "Python Architecture"
-  },
-  parent_page = {
-    "name": "Python Language Track",
-    "url": "https://example.com"
-  },
-  parent_topic = {
-    "name": "Python Programming",
-    "url": "https://example.com"
-  },
-  items = [
-    { "name": "Web Framework Benchmarks", "url": "https://example.com/web-frameworks", "type": "WebPage" }
-  ]
-) }}
-
-
-
-2. Sub-Pillar Page Call (Intermediate Pivot Hub)
-
-{{ render_cluster_node(
-  page_data = {
+    "title": "The European Theatre Campaigns",
+    "desc": "Strategic analysis of the conflict campaigns across Western and Eastern Europe.",
     "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Modern Python Web Framework Layouts",
-    "desc": "A structural mapping of ASGI engines, microframework architectural rules, and middleware arrays.",
-    "topic": "Python Web Frameworks"
+    "topic": "European Theatre of World War II"
   },
-  parent_page = {
-    "name": "The Ultimate Guide to Enterprise Python Architecture",
+  "node_type": "WebPage",
+  "parent_page": {
     "url": "https://example.com"
   },
-  parent_topic = {
-    "name": "Python Architecture",
-    "url": "https://example.com"
+  "parent_topic": {
+    "url": "https://example.com/#topic"
   },
-  items = [
-    { "name": "Evaluating FastAPI Concurrency Performance Settings", "url": "https://example.com", "type": "WebPage" }
+  "items": [
+    {
+      "type": "Article",
+      "url": "https://example.com",
+      "title": "Air Supremacy: Critical Tactics of the Battle of Britain",
+      "meta_description": "A deep look into defensive early warning radar arrays and aerial interception strategies."
+    },
+    {
+      "type": "BlogPosting",
+      "url": "https://example.com",
+      "title": "Engineering D-Day: The Secret Mulberry Harbors",
+      "meta_description": "How temporary pre-fabricated ports successfully supplied the Allied liberation army."
+    }
   ]
-) }}
+}
+
+
+render_schema_node(page_data, node_type, parent_page, parent_topic, items).
 
 
 
-3. Cluster Page Call (Deep Supporting Document)
-
-{{ render_cluster_node(
-  page_data = {
-    "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Evaluating FastAPI Concurrency Performance Settings",
-    "desc": "A granular lookup auditing coroutines, asynchronous thread pools, and worker counts.",
-    "topic": "FastAPI Concurrency Optimization"
-  },
-  parent_page = {
-    "name": "Modern Python Web Framework Layouts",
-    "url": "https://example.com"
-  },
-  parent_topic = {
-    "name": "Python Web Frameworks",
-    "url": "https://example.com"
-  },
-  items = [
-    { "name": "Case Study: Tuning Uvicorn Worker Pools", "url": "https://example.com/uvicorn-pool", "type": "WebPage" }
-  ]
-) }}
 
 
 
-4. Sub-Cluster Page Call (Terminal Leaf Container with BlogPosts list)
 
 
-{{ render_cluster_node(
-  page_data = {
-    "site_url": "https://example.com",
-    "url": "https://example.com",
-    "title": "Case Study: Tuning Uvicorn Worker Pools",
-    "desc": "Real-world engineering diagnostics benchmark testing processing loops under request spikes.",
-    "topic": "Uvicorn Worker Tuning"
-  },
-  parent_page = {
-    "name": "Evaluating FastAPI Concurrency Performance Settings",
-    "url": "https://example.com"
-  },
-  parent_topic = {
-    "name": "FastAPI Concurrency Optimization",
-    "url": "https://example.com"
-  },
-  items = [
-    { "name": "Production Metrics: Asyncpg Connection Pools under Uvicorn", "url": "https://example.com/asyncpg-metrics", "type": "BlogPosting" }
-  ]
-) }}
+
 
 
 
