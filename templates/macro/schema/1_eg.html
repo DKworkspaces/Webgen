@@ -12,14 +12,13 @@
   "isPartOf": {
     "@type": "{{ node_type }}",
     "@id": "{{ parent_page.url }}/#webpage",
-    "name": {{ parent_page.name | tojson }},
     "url": "{{ parent_page.url }}"
   }
   {% else %},
   "isPartOf": {
     "@type": "WebSite",
-    "@id": "{{ page_data.site_url | default('https://example.com') }}/#website",
-    "url": "{{ page_data.site_url | default('https://example.com') }}"
+    "@id": "{{ page_data.site_url }}/#website",
+    "url": "{{ page_data.site_url }}"
   }
   {% endif %}
 
