@@ -228,6 +228,12 @@ render_schema_node(page_data, node_type, parent_page, parent_topic, items).
 
 
 
+Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", parent_page=none, items=categories_list) }}
+Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }}
+Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }}
+Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="CollectionPage", parent_page=index_page_data, parent_topic=main_global_topic, items=cluster_pages_list) }}
+Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }}
+Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }}
 
 
 
