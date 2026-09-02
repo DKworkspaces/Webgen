@@ -1,72 +1,56 @@
 {% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
 {
-  "@type": "{{ node_type }}",
-  "@id": "{{ page_data.url }}/#webpage",
-  "url": "{{ page_data.url }}",
-  "name": {{ page_data.title | tojson }},
+  "@type": "{{ node_type }}","@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}","name": {{ page_data.title | tojson }},
   "description": {{ (page_data.desc or page_data.meta_description) | default('') | tojson }},
   "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
 
   {# A. PAGE UPLINK (Universal Hierarchy Layer) #}
-  {% if parent_page and parent_page.url %},
-  "isPartOf": {
-    "@type": "{{ node_type }}",
-    "@id": "{{ parent_page.url }}/#webpage",
-    "url": "{{ parent_page.url }}"
-  }
-  {% else %},
-  "isPartOf": {
-    "@type": "WebSite",
-    "@id": "{{ page_data.site_url }}/#website",
-    "url": "{{ page_data.site_url }}"
-  }
-  {% endif %}
+  {%- with is_parent = (parent_page and parent_page.url) -%}
+  ,"isPartOf":{{ {
+    "@type": node_type if is_parent else "WebSite",
+    "@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
+    "url": parent_page.url if is_parent else page_data.site_url
+  }|tojson }}
+  {%- endwith -%}
 
   {# B. ABOUT PROPERTY (Handles both multiple topics or single inherited cluster topics) #}
-  {% if page_data.topics and page_data.topics | length > 0 %},
-  "about": [
-    {% for topic in page_data.topics %}
-    {
-      "@type": "{{ topic.type | default('Thing') }}",
-      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
-      "name": {{ topic.name | tojson }},
-      "sameAs": {{ topic.sameAs | tojson }}
-      {% endif %}
-    }{{ "," if not loop.last }}
-    {% endfor %}
+  {%- if page_data.topics -%}
+  ,"about": [
+    {%- for topic in page_data.topics -%}
+      {{ {
+        "@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
+        "name": topic.name,"sameAs": topic.sameAs
+      }|tojson }}{{ "," if not loop.last }}
+    {%- endfor -%}
   ]
-  {% elif page_data.topic %},
-  "about": {
-      "@type": "{{ topic.type | default('Thing') }}",
-      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
-      "name": {{ topic.name | tojson }},
-      "sameAs": {{ topic.sameAs | tojson }},
-    {% if parent_topic and parent_topic.url %},
+  {%- elif page_data.topic -%}
+  {%- with topic = page_data.topic -%}
+  ,"about": {{ {
+    "@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
+    "name": topic.name,"sameAs": topic.sameAs,
     "isPartOf": {
-            "@type": "{{ topic.type | default('Thing') }}",
-            "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
-            "name": {{ topic.name | tojson }},
-            "sameAs": {{ topic.sameAs | tojson }}
-    }
-    {% endif %}
-  }
-  {% endif %}
+      "@type": parent_topic.type | default('Thing'),"@id": parent_topic.slug ~ "#topic",
+      "name": parent_topic.name,"sameAs": parent_topic.sameAs
+    } if (parent_topic and parent_topic.url) else none
+  }|tojson }}
+  {%- endwith -%}
+  {%- endif -%}
 
   {# C. DOWNWARD TREE MAPPING (Standardised to hasPart) #}
-  {% if items and items | length > 0 %},
-  "hasPart": [
-    {% for item in items %}
-    {
-      "@type": "{{ item.type | default('BlogPosting') }}",
-      "@id": "{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}",
-      "position": {{ loop.index }},
-      {% if item.title %}"name": {{ item.title | tojson }},{% endif %}
-      {% if item.desc %}"description": {{ item.desc | tojson }},{% endif %}
-      "url": "{{ item.url }}"
-    }{{ "," if not loop.last }}
-    {% endfor %}
+  {%- if items -%}
+  ,"hasPart": [
+    {%- for item in items -%}
+      {%- with type_val = item.type | default('BlogPosting') -%}
+      {{ {
+        "@type": type_val,"@id": item.url ~ "/#" ~ (type_val | lower),
+        "position": loop.index,"name": item.title if item.title else none,
+        "description": item.desc if item.desc else none,"url": item.url
+      } | tojson }}{{ "," if not loop.last }}
+      {%- endwith -%}
+    {%- endfor -%}
   ]
-  {% endif %}
+  {%- endif -%}
 }
 {% endmacro %}
 
