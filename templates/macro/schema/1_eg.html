@@ -1,3 +1,66 @@
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"about": {"@id": "{{ site_url }}/#organization"},
+"breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
+"mainEntity": {
+"@type": "ItemList",
+"@id": "{{ page_url }}/#itemlist",
+"name": "Available Topic Directories",
+"numberOfItems": {{ taxonomies | length }},
+"itemListElement": [
+{% for term in taxonomies %}
+{
+"@type": "ListItem",
+"position": {{ loop.index }},
+"name": {{ term.name | tojson | safe }},
+"item": "{{ term.url }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+}
+
+
+
+individual category tag archive pages 
+
+
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"about": {"@id": "{{ site_url }}/#organization"},
+"breadcrumb": {"@id": "{{ taxonomy_url }}/#breadcrumb"},
+"mainEntity": {
+"@type": "ItemList",
+"@id": "{{ taxonomy_url }}/#itemlist",
+"name": "Articles in {{ taxonomy_name }}",
+"numberOfItems": {{ items | length }},
+"itemListElement": [
+{% for article in items %}
+{
+"@type": "ListItem",
+"position": {{ loop.index }},
+"name": {{ article.title | tojson | safe }},
+"item": {
+"@type": "BlogPosting",
+"headline": {{ article.title | tojson | safe }},
+"url": "{{ article.url }}",
+"description": {{ article.meta_description | tojson | safe }}
+}
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+}
+
+
+
+
+
+
+
+
+
+
 {# file: schema_macros.html #}
 
 
@@ -5,16 +68,18 @@
 {
   "@type": "CollectionPage","@id": "{{ page_data.url }}#webpage",
   "url": "{{ page_data.url }}","name": "{{ page_data.title | e }}",
-  "description": "{{ page_data.desc | e }}"   
+  "description": "{{ page_data.desc | e }}",
+  "breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
+
   {# Upward Link #}
-  {% if parent.url and parent.title %},
+  {% if parent.url and parent.title %}
   "isPartOf": {
   "@type": "CollectionPage","@id": "{{ parent.url }}#webpage",
   "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
-  }
+  },
   {% endif %} 
   {# Downward Link #}
-  {% if items %},
+  {% if items %}
   "mainEntity": {
   "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
   "name": "{{ page_data.title | e }} Items","numberOfItems": {{ items | length }},
@@ -37,18 +102,19 @@
   "@type": "AboutPage","@id": "{{ page_data.url }}#webpage",
   "url": "{{ page_data.url }}","name": "{{ page_data. title | e }}",
   "description": "{{ page_data.desc | e }}",
+  "breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
   "about": {
     "@type": "Thing","name": "{{ page_data.topic | e }}"
-  }
+  },
   {# Upward Link #}
-  {% if parent.url and parent.title %},
+  {% if parent.url and parent.title %}
   "isPartOf": {
     "@type": "AboutPage","@id": "{{ parent.url }}#webpage",
     "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
-  }
+  },
   {% endif %}   
   {# Downward Link #}
-  {% if items %},
+  {% if items %}
   "mainEntity": {
     "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
     "name": "{{ page_data.title | e }} Resources","numberOfItems": {{ items | length }},
