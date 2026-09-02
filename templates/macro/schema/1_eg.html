@@ -2,80 +2,6 @@ pillar Page
 
 
 
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-},
-{
-"@type": "ItemList","@id": "{{ pillar_url }}/#cluster-list",
-"name": "{{ pillar_title }} Semantic Topic Hub Cluster","description": "Direct supporting resources linked to this core cornerstone topic hub.",
-"numberOfItems": "{{ cluster_pages | length }}",
-"itemListElement": [
-{% for sub_page in cluster_pages %}
-{
-"@type": "ListItem","position": {{ loop.index }},
-"name": "{{ sub_page.title }}","item": "{{ sub_page.url }}"
-}{% if not loop.last %},{% endif %}
-{% endfor %}
-]
-}
-
-
-
-
-sub pillar page 
-
-
-
-
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-"mainEntityOfPage": {
-"@type": "WebPage","@id": "{{ pillar_parent_url }}/#webpage",
-"name": "{{ pillar_parent_title }}"
-}
-},
-{
-"@type": "ItemList","@id": "{{ sub_pillar_url }}/#sub-cluster-list",
-"name": "{{ sub_pillar_title }} Deep Supporting Silo Cluster","description": "Granular child guides managed under this specialized sub-pillar.",
-"numberOfItems": "{{ sub_cluster_pages | length }}",
-"itemListElement": [
-{% for sub_page in sub_cluster_pages %}
-{
-"@type": "ListItem","position": {{ loop.index }},
-"name": "{{ sub_page.title }}","item": "{{ sub_page.url }}"
-}{% if not loop.last %},{% endif %}
-{% endfor %}
-]
-}
-
-
-
-
-
-
-
-cluster page
-
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-"mainEntityOfPage": {
-"@type": "WebPage","@id": "{{ pillar_parent_url }}/#webpage",
-"name": "{{ pillar_parent_title }}"
-}
-}
-
-sub cluster page
-
-
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-"mainEntityOfPage": {
-"@type": "WebPage","@id": "{{ cluster_parent_url }}/#webpage",
-"name": "{{ cluster_parent_title }}"
-}
-}
-
-
 
 
 
@@ -85,7 +11,6 @@ sub cluster page
 category index 
 {
 "isPartOf": {"@id": "{{ site_url }}/#website"},
-"about": {"@id": "{{ site_url }}/#organization"},
 "mainEntity": {
 "itemListElement": [
 {% for term in taxonomies %}
@@ -107,8 +32,6 @@ individual category tag archive pages
 
 {
 "isPartOf": {"@id": "{{ site_url }}/#website"},
-"about": {"@id": "{{ site_url }}/#organization"},
-"breadcrumb": {"@id": "{{ taxonomy_url }}/#breadcrumb"},
 "mainEntity": {
 "itemListElement": [
 {% for article in items %}
@@ -140,72 +63,96 @@ individual category tag archive pages
 {# file: schema_macros.html #}
 
 
-{% macro render_collection_node(page_data, parent=none, items=none) %}
+{% macro render_cluster_node(page_data, parent=none, items=none) %}
 {
-  "@type": "CollectionPage","@id": "{{ page_data.url }}#webpage",
-  "url": "{{ page_data.url }}","name": "{{ page_data.title | e }}",
+  "@type": "WebPage",
+  "@id": "{{ page_data.url }}#webpage",
+  "url": "{{ page_data.url }}",
+  "name": "{{ page_data.title | e }}",
   "description": "{{ page_data.desc | e }}",
-  "breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
+  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
 
-  {# Upward Link #}
-  {% if parent.url and parent.title %}
-  "isPartOf": {
-  "@type": "CollectionPage","@id": "{{ parent.url }}#webpage",
-  "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
-  },
-  {% endif %} 
-  {# Downward Link #}
-  {% if items %}
-  "mainEntity": {
-  "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
-  "name": "{{ page_data.title | e }} Items","numberOfItems": {{ items | length }},
-  "itemListElement": [
-  {% for item in items %}
-  {
-  "@type": "ListItem","position": {{ loop.index }},
-  "name": "{{ item.name | e }}","url": "{{ item.url }}"
-  }{{ "," if not loop.last }}
-  {% endfor %}
-  ]
+  {# Semantic Cluster Topic Mapping #}
+  {% if page_data.topic %},
+  "about": {
+    "@type": "Thing",
+    "@id": "{{ page_data.url }}#topic",
+    "name": "{{ page_data.topic | e }}"
   }
+  {% endif %}
+
+  {# Upward Structural Link #}
+  {% if parent and parent.url and parent.title %},
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "{{ parent.url }}#webpage",
+    "name": "{{ parent.title | e }}",
+    "url": "{{ parent.url }}"
+  }
+  {% endif %}   
+
+  {# Downward Structural Link (Supports Sub-clusters or BlogPosting Leaf Nodes) #}
+  {% if items and items | length > 0 %},
+  "hasPart": [
+    {% for item in items %}
+    {
+      "@type": "{{ item.type | default('WebPage') }}",
+      "@id": "{{ item.url }}#{{ item.type | default('WebPage') | lower }}",
+      "name": "{{ item.name | e }}",
+      "url": "{{ item.url }}"
+    }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
   {% endif %}
 }
 {% endmacro %}
 
 
-{% macro render_cluster_node(page_data, parent=none, items=none) %}
+
+{% macro render_collection_node(page_data, parent=none, items=none) %}
 {
-  "@type": "AboutPage","@id": "{{ page_data.url }}#webpage",
-  "url": "{{ page_data.url }}","name": "{{ page_data. title | e }}",
+  "@type": "CollectionPage",
+  "@id": "{{ page_data.url }}#webpage",
+  "url": "{{ page_data.url }}",
+  "name": "{{ page_data.title | e }}",
   "description": "{{ page_data.desc | e }}",
-  "breadcrumb": {"@id": "{{ page_url }}/#breadcrumb"},
+  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
+  
+  {# Semantic Category Topic #}
+  {% if page_data.topic %},
   "about": {
-    "@type": "Thing","name": "{{ page_data.topic | e }}"
-  },
-  {# Upward Link #}
-  {% if parent.url and parent.title %}
+    "@type": "Thing",
+    "@id": "{{ page_data.url }}#topic",
+    "name": "{{ page_data.topic | e }}"
+  }
+  {% endif %}
+
+  {# Upward Structural Link #}
+  {% if parent and parent.url and parent.title %},
   "isPartOf": {
-    "@type": "AboutPage","@id": "{{ parent.url }}#webpage",
-    "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
-  },
-  {% endif %}   
-  {# Downward Link #}
-  {% if items %}
-  "mainEntity": {
-    "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
-    "name": "{{ page_data.title | e }} Resources","numberOfItems": {{ items | length }},
-    "itemListElement": [
+    "@type": "CollectionPage",
+    "@id": "{{ parent.url }}#webpage",
+    "name": "{{ parent.title | e }}",
+    "url": "{{ parent.url }}"
+  }
+  {% endif %} 
+
+  {# Downward Structural Link (Supports Indexes or Pillars underneath) #}
+  {% if items and items | length > 0 %},
+  "hasPart": [
     {% for item in items %}
     {
-      "@type": "ListItem","position": {{ loop.index }},
-      "name": "{{ item.name | e }}","url": "{{ item.url }}"
+      "@type": "{{ item.type | default('CollectionPage') }}",
+      "@id": "{{ item.url }}#{{ item.type | default('CollectionPage') | lower }}",
+      "name": "{{ item.name | e }}",
+      "url": "{{ item.url }}"
     }{{ "," if not loop.last }}
     {% endfor %}
-   ]
-   }
-   {% endif %}
+  ]
+  {% endif %}
 }
 {% endmacro %}
+
 
 
 {% macro render_blogpost_node(page_url, page_name, page_desc, parent_type, parent_url, parent_name) %}
@@ -324,6 +271,54 @@ Setup 2: The Topic Cluster Hierarchy (AboutPage Track)
 ) }}
 
 
+
+
+
+
+
+
+
+"isPartOf": 
+  {% if parent.url %}
+    {"@id": "{{ parent.url }}/#webpage"}
+  {% else %}
+    {"@id": "{{ site_url }}/#website"}
+  {% endif %},
+
+"about": 
+  {% if subcategory.url %}
+    {
+      "@type": "Thing",
+      "@id": "{{ subcategory.url }}/#subcategory",
+      "name": "{{ subcategory.name | e }}"
+    }
+  {% elif category.url %}
+    {
+      "@type": "Thing",
+      "@id": "{{ category.url }}/#category",
+      "name": "{{ category.name | e }}"
+    }
+  {% else %}
+    {
+      "@type": "Thing",
+      "@id": "{{ category_index_url | default(site_url ~ '/categories') }}/#taxonomy",
+      "name": "Site Directory Catalog"
+    }
+  {% endif %},
+
+  {# Downward structural links #}
+  {% if items and items | length > 0 %}
+  ,"hasPart": [
+    {% for item in items %}
+    {
+      "@type": "{{ item.page_type | default('WebPage') }}",
+      "@id": "{{ item.url }}/#webpage",
+      "name": "{{ item.name | e }}",
+      "url": "{{ item.url }}"
+    }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
+  {% endif %}
 
 
 
