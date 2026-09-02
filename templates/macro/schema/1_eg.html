@@ -1,0 +1,240 @@
+{# file: schema_macros.html #}
+
+{# =====================================================================
+   1. COLLECTION ARCHITECTURE MACRO (Directories & Indexes)
+   ===================================================================== #}
+{% macro render_collection_node(page_url, page_name, page_desc, parent_url=none, parent_name=none, items=none) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ page_url }}#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_name | e }}",
+      "description": "{{ page_desc | e }}"
+      
+      {# Upward Link #}
+      {% if parent_url and parent_name %},
+      "isPartOf": {
+        "@type": "CollectionPage",
+        "@id": "{{ parent_url }}#webpage",
+        "name": "{{ parent_name | e }}",
+        "url": "{{ parent_url }}"
+      }
+      {% endif %}
+      
+      {# Downward Link #}
+      {% if items %},
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ page_url }}#itemlist",
+        "name": "{{ page_name | e }} Items",
+        "numberOfItems": {{ items | length }},
+        "itemListElement": [
+          {% for item in items %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ item.name | e }}",
+            "url": "{{ item.url }}"
+          }{{ "," if not loop.last }}
+          {% endfor %}
+        ]
+      }
+      {% endif %}
+    }
+  ]
+}
+</script>
+{% endmacro %}
+
+
+{# =====================================================================
+   2. TOPIC CLUSTER ARCHITECTURE MACRO (Pillars & Hubs)
+   ===================================================================== #}
+{% macro render_cluster_node(page_url, page_name, page_desc, topic, parent_url=none, parent_name=none, items=none) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      "@id": "{{ page_url }}#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_name | e }}",
+      "description": "{{ page_desc | e }}",
+      "about": {
+        "@type": "Thing",
+        "name": "{{ topic | e }}"
+      }
+      
+      {# Upward Link #}
+      {% if parent_url and parent_name %},
+      "isPartOf": {
+        "@type": "AboutPage",
+        "@id": "{{ parent_url }}#webpage",
+        "name": "{{ parent_name | e }}",
+        "url": "{{ parent_url }}"
+      }
+      {% endif %}
+      
+      {# Downward Link #}
+      {% if items %},
+      "mainEntity": {
+        "@type": "ItemList",
+        "@id": "{{ page_url }}#itemlist",
+        "name": "{{ page_name | e }} Resources",
+        "numberOfItems": {{ items | length }},
+        "itemListElement": [
+          {% for item in items %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "name": "{{ item.name | e }}",
+            "url": "{{ item.url }}"
+          }{{ "," if not loop.last }}
+          {% endfor %}
+        ]
+      }
+      {% endif %}
+    }
+  ]
+}
+</script>
+{% endmacro %}
+
+
+{# =====================================================================
+   3. TERMINAL NODE MACRO (Standard Blogpost / Article for both tracks)
+   ===================================================================== #}
+{% macro render_blogpost_node(page_url, page_name, page_desc, parent_type, parent_url, parent_name) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ page_url }}#webpage",
+      "url": "{{ page_url }}",
+      "name": "{{ page_name | e }}",
+      "description": "{{ page_desc | e }}",
+      "isPartOf": {
+        "@type": "{{ parent_type }}",
+        "@id": "{{ parent_url }}#webpage",
+        "name": "{{ parent_name | e }}",
+        "url": "{{ parent_url }}"
+      }
+    }
+  ]
+}
+</script>
+{% endmacro %}
+
+
+
+
+
+
+
+
+Implementation BreakdownSetup 1: The Category Hierarchy (CollectionPage Track)
+
+
+{% import "schema_macros.html" as schema %}
+
+{# A. Category Index (Root) #}
+{{ schema.render_collection_node(
+    page_url="https://example.com",
+    page_name="Master Category Directory",
+    page_desc="Our index of major topics.",
+    items=[{"name": "Engineering", "url": "https://example.com/engineering"}]
+) }}
+
+{# B. Individual Category #}
+{{ schema.render_collection_node(
+    page_url="https://example.com/engineering",
+    page_name="Engineering Hub",
+    page_desc="Deep technical subjects.",
+    parent_url="https://example.com",
+    parent_name="Master Category Directory",
+    items=[{"name": "Backend Development", "url": "https://example.com/engineering/backend"}]
+) }}
+
+{# C. Sub-Category #}
+{{ schema.render_collection_node(
+    page_url="https://example.com/engineering/backend",
+    page_name="Backend Development",
+    page_desc="Server architectures.",
+    parent_url="https://example.com/engineering",
+    parent_name="Engineering Hub",
+    items=[{"name": "Designing Clean APIs", "url": "https://example.com"}]
+) }}
+
+{# D. Terminal Blogpost (Tied back to CollectionPage) #}
+{{ schema.render_blogpost_node(
+    page_url="https://example.com",
+    page_name="Designing Clean APIs",
+    page_desc="RESTful architectures guide.",
+    parent_type="CollectionPage",
+    parent_url="https://example.com/engineering/backend",
+    parent_name="Backend Development"
+) }}
+
+
+
+Setup 2: The Topic Cluster Hierarchy (AboutPage Track)
+
+
+
+{% import "schema_macros.html" as schema %}
+
+{# A. Pillar Page #}
+{{ schema.render_cluster_node(
+    page_url="https://example.com",
+    page_name="The Definitive SEO Strategy Guide",
+    page_desc="The complete master blueprint for search engines.",
+    topic="Search Engine Optimization",
+    items=[{"name": "Technical SEO Foundations", "url": "https://example.com/technical"}]
+) }}
+
+{# B. Cluster Page #}
+{{ schema.render_cluster_node(
+    page_url="https://example.com/technical",
+    page_name="Technical SEO Foundations",
+    page_desc="Optimizing crawl budgets and engine pipelines.",
+    topic="Technical SEO",
+    parent_url="https://example.com",
+    parent_name="The Definitive SEO Strategy Guide",
+    items=[{"name": "Core Web Vitals Optimization", "url": "https://example.com/technical/core-web-vitals"}]
+) }}
+
+{# C. Sub-Cluster Page #}
+{{ schema.render_cluster_node(
+    page_url="https://example.com/technical/core-web-vitals",
+    page_name="Core Web Vitals Optimization",
+    page_desc="Web vitals deep performance profiling.",
+    topic="Core Web Vitals",
+    parent_url="https://example.com/technical",
+    parent_name="Technical SEO Foundations",
+    items=[{"name": "Mastering INP Optimization", "url": "https://example.com"}]
+) }}
+
+{# D. Terminal Blogpost (Tied back to AboutPage) #}
+{{ schema.render_blogpost_node(
+    page_url="https://example.com",
+    page_name="Mastering Interaction to Next Paint (INP)",
+    page_desc="Fixing script delays.",
+    parent_type="AboutPage",
+    parent_url="https://example.com/technical/core-web-vitals",
+    parent_name="Core Web Vitals Optimization"
+) }}
+
+
+
+
+
+
+
+
