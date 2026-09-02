@@ -325,3 +325,163 @@ Setup 2: The Topic Cluster Hierarchy (AboutPage Track)
 
 
 
+
+
+or
+
+
+
+
+
+
+{% macro render_collection_node(page_data, parent_page=none, parent_taxonomy=none, taxonomies=none, items=none) %}
+{
+  "@type": "CollectionPage",
+  "@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}",
+  "name": "{{ page_data.title | default('Browse Articles by Topic Hub') | e }}",
+  "description": "{{ page_data.desc | default('Explore our structured archives across technical discoveries and research tracks.') | e }}",
+  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
+
+  {# A. PAGE UPLINK: Immediate document container #}
+  {% if parent_page and parent_page.url %},
+  "isPartOf": {
+    "@type": "CollectionPage",
+    "@id": "{{ parent_page.url }}/#webpage",
+    "name": "{{ parent_page.name | e }}",
+    "url": "{{ parent_page.url }}"
+  }
+  {% else %},
+  "isPartOf": {"@id": "{{ page_data.site_url | default('https://example.com') }}/#website"}
+  {% endif %}
+  
+  {# B. ABOUT UPLINK: Exact 1-Level Topic Chain #}
+  , "about": {
+    "@type": "Thing",
+    "@id": "{{ page_data.url }}/#taxonomy",
+    "name": "{{ page_data.topic | default('Global Site Directory Catalog') | e }}"
+    {% if parent_taxonomy and parent_taxonomy.url %},
+    "isPartOf": {
+      "@type": "Thing",
+      "@id": "{{ parent_taxonomy.url }}/#taxonomy",
+      "name": "{{ parent_taxonomy.name | e }}"
+    }
+    {% endif %}
+  }
+
+  {# C. DOWNWARD TREE MAPPING #}
+  {% if taxonomies and taxonomies | length > 0 %},
+  "hasPart": [
+    {% for term in taxonomies %}
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ term.url }}/#webpage",
+      "position": {{ loop.index }},
+      "name": {{ term.name | tojson | safe }},
+      "url": "{{ term.url }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+  {% elif items and items | length > 0 %},
+  "hasPart": [
+    {% for article in items %}
+    {
+      "@type": "{{ article.type | default('BlogPosting') }}",
+      "@id": "{{ article.url }}/#{{ article.type | default('BlogPosting') | lower }}",
+      "position": {{ loop.index }},
+      "headline": {{ article.title | tojson | safe }},
+      "url": "{{ article.url }}",
+      "description": {{ article.meta_description | tojson | safe }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+  {% endif %}
+}
+{% endmacro %}
+
+
+
+
+
+
+Tier 1: Category Index Page Call (Master Directory Root)
+
+{{ render_collection_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Master Topic & Category Index",
+    "desc": "Browse all curated archives across physical sciences, tech, and engineering.",
+    "topic": "Global Site Directory Catalog"
+  },
+  parent_page = none,
+  parent_taxonomy = none,
+  taxonomies = [
+    { "name": "Physical Sciences", "url": "https://example.com/physical-sciences" }
+  ],
+  items = none
+) }}
+
+
+
+Tier 2: Individual Category Page Call
+
+{{ render_collection_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Physical Sciences Hub",
+    "desc": "Deep analysis and research updates exploring physics, chemistry, and space.",
+    "topic": "Physical Sciences"
+  },
+  parent_page = {
+    "name": "Master Topic & Category Index",
+    "url": "https://example.com"
+  },
+  parent_taxonomy = {
+    "name": "Global Site Directory Catalog",
+    "url": "https://example.com"
+  },
+  taxonomies = [
+    { "name": "Quantum Mechanics", "url": "https://example.com/quantum" }
+  ],
+  items = none
+) }}
+
+
+Tier 3: Sub-Category Page Call (with BlogPosts List)
+
+{{ render_collection_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Quantum Mechanics Research & Discovery",
+    "desc": "In-depth research papers tracking particle physics and computing frameworks.",
+    "topic": "Quantum Mechanics"
+  },
+  parent_page = {
+    "name": "Physical Sciences Hub",
+    "url": "https://example.com"
+  },
+  parent_taxonomy = {
+    "name": "Physical Sciences",
+    "url": "https://example.com"
+  },
+  taxonomies = none,
+  items = [
+    { 
+      "title": "Understanding Quantum Entanglement Limits", 
+      "url": "https://example.com", 
+      "meta_description": "An analysis of macro-scale particle coordination experiments.",
+      "type": "BlogPosting" 
+    }
+  ]
+) }}
+
+
+
+
+
+
+
+
