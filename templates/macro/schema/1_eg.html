@@ -1,55 +1,60 @@
 pillar Page 
 
+"about": [
+    {% for topic in about_topics %}
+    {
+      "@type": "{{ topic.type | default('Thing') }}",
+      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
+      "name": {{ topic.name | tojson }},
+      "sameAs": {{ topic.sameAs | tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ],
 
 
-
-
-
-
-
-
-category index 
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-"mainEntity": {
-"itemListElement": [
-{% for term in taxonomies %}
-{
-"@type": "ListItem",
-"position": {{ loop.index }},
-"name": {{ term.name | tojson | safe }},
-"item": "{{ term.url }}"
-}{% if not loop.last %},{% endif %}
-{% endfor %}
+"about": [
+  {
+    "@type": "Thing",
+    "@id": "https://example.com",
+    "name": "Semantic Web",
+    "sameAs": [
+      "https://wikipedia.org",
+      "https://wikidata.org"
+    ]
+  },
+  {
+    "@type": "Thing",
+    "@id": "https://example.com",
+    "name": "Search Engine Optimization",
+    "sameAs": [
+      "https://wikipedia.org",
+      "https://wikidata.org"
+    ]
+  }
 ]
-}
-}
 
 
 
-individual category tag archive pages 
 
 
-{
-"isPartOf": {"@id": "{{ site_url }}/#website"},
-"mainEntity": {
-"itemListElement": [
-{% for article in items %}
-{
-"@type": "ListItem",
-"position": {{ loop.index }},
-"name": {{ article.title | tojson | safe }},
-"item": {
-"@type": "BlogPosting",
-"headline": {{ article.title | tojson | safe }},
-"url": "{{ article.url }}",
-"description": {{ article.meta_description | tojson | safe }}
-}
-}{% if not loop.last %},{% endif %}
-{% endfor %}
-]
-}
-}
+
+
+{% macro render_item(item_data) %}
+  {%- if item_data is string -%}
+    {# Handle a plain URL string #}
+    "item": "{{ item_data }}"
+  {%- elif item_data is mapping -%}
+    {# Handle a dictionary/object #}
+    "item": {
+      "@type": "{{ item_data.type | default('BlogPosting') }}",
+      "headline": {{ item_data.title | tojson }},
+      "url": "{{ item_data.url }}",
+      "description": {{ item_data.meta_description | tojson }}
+    }
+  {%- endif -%}
+{% endmacro %}
+
+
 
 
 
@@ -63,269 +68,21 @@ individual category tag archive pages
 {# file: schema_macros.html #}
 
 
-{% macro render_cluster_node(page_data, parent=none, items=none) %}
-{
-  "@type": "WebPage",
-  "@id": "{{ page_data.url }}#webpage",
-  "url": "{{ page_data.url }}",
-  "name": "{{ page_data.title | e }}",
-  "description": "{{ page_data.desc | e }}",
-  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
 
-  {# Semantic Cluster Topic Mapping #}
-  {% if page_data.topic %},
-  "about": {
-    "@type": "Thing",
-    "@id": "{{ page_data.url }}#topic",
-    "name": "{{ page_data.topic | e }}"
-  }
-  {% endif %}
-
-  {# Upward Structural Link #}
-  {% if parent and parent.url and parent.title %},
-  "isPartOf": {
+  {% if parent_page and parent_page.url %}
+"isPartOf": {
     "@type": "WebPage",
-    "@id": "{{ parent.url }}#webpage",
-    "name": "{{ parent.title | e }}",
+    "@id": "{{ parent.url }}/#webpage",
+    "name": {{ parent.name | tojson }},
     "url": "{{ parent.url }}"
-  }
-  {% endif %}   
-
-  {# Downward Structural Link (Supports Sub-clusters or BlogPosting Leaf Nodes) #}
-  {% if items and items | length > 0 %},
-  "hasPart": [
-    {% for item in items %}
-    {
-      "@type": "{{ item.type | default('WebPage') }}",
-      "@id": "{{ item.url }}#{{ item.type | default('WebPage') | lower }}",
-      "name": "{{ item.name | e }}",
-      "url": "{{ item.url }}"
-    }{{ "," if not loop.last }}
-    {% endfor %}
-  ]
-  {% endif %}
-}
-{% endmacro %}
-
-
-
-{% macro render_collection_node(page_data, parent=none, items=none) %}
-{
-  "@type": "CollectionPage",
-  "@id": "{{ page_data.url }}#webpage",
-  "url": "{{ page_data.url }}",
-  "name": "{{ page_data.title | e }}",
-  "description": "{{ page_data.desc | e }}",
-  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
-  
-  {# Semantic Category Topic #}
-  {% if page_data.topic %},
-  "about": {
-    "@type": "Thing",
-    "@id": "{{ page_data.url }}#topic",
-    "name": "{{ page_data.topic | e }}"
-  }
-  {% endif %}
-
-  {# Upward Structural Link #}
-  {% if parent and parent.url and parent.title %},
+  },
+  {% else %},
   "isPartOf": {
-    "@type": "CollectionPage",
-    "@id": "{{ parent.url }}#webpage",
-    "name": "{{ parent.title | e }}",
-    "url": "{{ parent.url }}"
-  }
-  {% endif %} 
-
-  {# Downward Structural Link (Supports Indexes or Pillars underneath) #}
-  {% if items and items | length > 0 %},
-  "hasPart": [
-    {% for item in items %}
-    {
-      "@type": "{{ item.type | default('CollectionPage') }}",
-      "@id": "{{ item.url }}#{{ item.type | default('CollectionPage') | lower }}",
-      "name": "{{ item.name | e }}",
-      "url": "{{ item.url }}"
-    }{{ "," if not loop.last }}
-    {% endfor %}
-  ]
+    "@type": "WebSite",
+    "@id": "{{ site_data.url  }}/#website",
+    "url": "{{ site_data.url }}"
+  },
   {% endif %}
-}
-{% endmacro %}
-
-
-
-{% macro render_blogpost_node(page_url, page_name, page_desc, parent_type, parent_url, parent_name) %}
-    {
-      "@type": "BlogPosting",
-      "@id": "{{ page_url }}#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_name | e }}",
-      "description": "{{ page_desc | e }}",
-      "isPartOf": {
-        "@type": "{{ parent_type }}",
-        "@id": "{{ parent_url }}#webpage",
-        "name": "{{ parent_name | e }}",
-        "url": "{{ parent_url }}"
-      }
-    }
-{% endmacro %}
-
-
-
-
-
-
-
-
-Implementation BreakdownSetup 1: The Category Hierarchy (CollectionPage Track)
-
-
-{% import "schema_macros.html" as schema %}
-
-{# A. Category Index (Root) #}
-{{ schema.render_collection_node(
-    page_url="https://example.com",
-    page_name="Master Category Directory",
-    page_desc="Our index of major topics.",
-    items=[{"name": "Engineering", "url": "https://example.com/engineering"}]
-) }}
-
-{# B. Individual Category #}
-{{ schema.render_collection_node(
-    page_url="https://example.com/engineering",
-    page_name="Engineering Hub",
-    page_desc="Deep technical subjects.",
-    parent_url="https://example.com",
-    parent_name="Master Category Directory",
-    items=[{"name": "Backend Development", "url": "https://example.com/engineering/backend"}]
-) }}
-
-{# C. Sub-Category #}
-{{ schema.render_collection_node(
-    page_url="https://example.com/engineering/backend",
-    page_name="Backend Development",
-    page_desc="Server architectures.",
-    parent_url="https://example.com/engineering",
-    parent_name="Engineering Hub",
-    items=[{"name": "Designing Clean APIs", "url": "https://example.com"}]
-) }}
-
-{# D. Terminal Blogpost (Tied back to CollectionPage) #}
-{{ schema.render_blogpost_node(
-    page_url="https://example.com",
-    page_name="Designing Clean APIs",
-    page_desc="RESTful architectures guide.",
-    parent_type="CollectionPage",
-    parent_url="https://example.com/engineering/backend",
-    parent_name="Backend Development"
-) }}
-
-
-
-Setup 2: The Topic Cluster Hierarchy (AboutPage Track)
-
-
-
-{% import "schema_macros.html" as schema %}
-
-{# A. Pillar Page #}
-{{ schema.render_cluster_node(
-    page_url="https://example.com",
-    page_name="The Definitive SEO Strategy Guide",
-    page_desc="The complete master blueprint for search engines.",
-    topic="Search Engine Optimization",
-    items=[{"name": "Technical SEO Foundations", "url": "https://example.com/technical"}]
-) }}
-
-{# B. Cluster Page #}
-{{ schema.render_cluster_node(
-    page_url="https://example.com/technical",
-    page_name="Technical SEO Foundations",
-    page_desc="Optimizing crawl budgets and engine pipelines.",
-    topic="Technical SEO",
-    parent_url="https://example.com",
-    parent_name="The Definitive SEO Strategy Guide",
-    items=[{"name": "Core Web Vitals Optimization", "url": "https://example.com/technical/core-web-vitals"}]
-) }}
-
-{# C. Sub-Cluster Page #}
-{{ schema.render_cluster_node(
-    page_url="https://example.com/technical/core-web-vitals",
-    page_name="Core Web Vitals Optimization",
-    page_desc="Web vitals deep performance profiling.",
-    topic="Core Web Vitals",
-    parent_url="https://example.com/technical",
-    parent_name="Technical SEO Foundations",
-    items=[{"name": "Mastering INP Optimization", "url": "https://example.com"}]
-) }}
-
-{# D. Terminal Blogpost (Tied back to AboutPage) #}
-{{ schema.render_blogpost_node(
-    page_url="https://example.com",
-    page_name="Mastering Interaction to Next Paint (INP)",
-    page_desc="Fixing script delays.",
-    parent_type="AboutPage",
-    parent_url="https://example.com/technical/core-web-vitals",
-    parent_name="Core Web Vitals Optimization"
-) }}
-
-
-
-
-
-
-
-
-
-"isPartOf": 
-  {% if parent.url %}
-    {"@id": "{{ parent.url }}/#webpage"}
-  {% else %}
-    {"@id": "{{ site_url }}/#website"}
-  {% endif %},
-
-"about": 
-  {% if subcategory.url %}
-    {
-      "@type": "Thing",
-      "@id": "{{ subcategory.url }}/#subcategory",
-      "name": "{{ subcategory.name | e }}"
-    }
-  {% elif category.url %}
-    {
-      "@type": "Thing",
-      "@id": "{{ category.url }}/#category",
-      "name": "{{ category.name | e }}"
-    }
-  {% else %}
-    {
-      "@type": "Thing",
-      "@id": "{{ category_index_url | default(site_url ~ '/categories') }}/#taxonomy",
-      "name": "Site Directory Catalog"
-    }
-  {% endif %},
-
-  {# Downward structural links #}
-  {% if items and items | length > 0 %}
-  ,"hasPart": [
-    {% for item in items %}
-    {
-      "@type": "{{ item.page_type | default('WebPage') }}",
-      "@id": "{{ item.url }}/#webpage",
-      "name": "{{ item.name | e }}",
-      "url": "{{ item.url }}"
-    }{{ "," if not loop.last }}
-    {% endfor %}
-  ]
-  {% endif %}
-
-
-
-
-
-
-
 
 or
 
@@ -336,62 +93,41 @@ or
 
 {% macro render_collection_node(page_data, parent_page=none, parent_taxonomy=none, taxonomies=none, items=none) %}
 {
-  "@type": "CollectionPage",
-  "@id": "{{ page_data.url }}/#webpage",
-  "url": "{{ page_data.url }}",
-  "name": "{{ page_data.title | default('Browse Articles by Topic Hub') | e }}",
-  "description": "{{ page_data.desc | default('Explore our structured archives across technical discoveries and research tracks.') | e }}",
+  "@type": "CollectionPage","@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}","name": "{{ page_data.title }}",
+  "description": "{{ page_data.desc }}",
   "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
 
-  {# A. PAGE UPLINK: Immediate document container #}
+  {# A. PAGE UPLINK #}
   {% if parent_page and parent_page.url %},
   "isPartOf": {
-    "@type": "CollectionPage",
-    "@id": "{{ parent_page.url }}/#webpage",
-    "name": "{{ parent_page.name | e }}",
-    "url": "{{ parent_page.url }}"
+    "@type": "CollectionPage","@id": "{{ parent_page.url }}/#webpage",
+    "name": "{{ parent_page.name }}","url": "{{ parent_page.url }}"
   }
   {% else %},
-  "isPartOf": {"@id": "{{ page_data.site_url | default('https://example.com') }}/#website"}
+  "isPartOf": {"@id": "{{ page_data.site_url }}/#website"}
   {% endif %}
-  
-  {# B. ABOUT UPLINK: Exact 1-Level Topic Chain #}
-  , "about": {
-    "@type": "Thing",
-    "@id": "{{ page_data.url }}/#taxonomy",
-    "name": "{{ page_data.topic | default('Global Site Directory Catalog') | e }}"
-    {% if parent_taxonomy and parent_taxonomy.url %},
-    "isPartOf": {
-      "@type": "Thing",
-      "@id": "{{ parent_taxonomy.url }}/#taxonomy",
-      "name": "{{ parent_taxonomy.name | e }}"
-    }
-    {% endif %}
-  }
 
-  {# C. DOWNWARD TREE MAPPING #}
-  {% if taxonomies and taxonomies | length > 0 %},
-  "hasPart": [
-    {% for term in taxonomies %}
+  {# B. ABOUT FIELD: Perfect for Interlinked Geopolitics, History & Science #}
+  {% if topics and topics | length > 0 %}
+  , "about": [
+    {% for topic in page_data.topics %}
     {
-      "@type": "CollectionPage",
-      "@id": "{{ term.url }}/#webpage",
-      "position": {{ loop.index }},
-      "name": {{ term.name | tojson | safe }},
-      "url": "{{ term.url }}"
-    }{% if not loop.last %},{% endif %}
+      "@type": "Thing",
+      "name": {{ topic.name | tojson }},
+      "url": "{{ topic.url | default('') }}"
+      {% if topic.wikidata_url or topic.wikipedia_url %},
+      "sameAs": {{ (topic.wikidata_url or topic.wikipedia_url) | tojson }}
+      {% endif %}
+    }{{ "," if not loop.last }}
     {% endfor %}
   ]
-  {% elif items and items | length > 0 %},
-  "hasPart": [
-    {% for article in items %}
-    {
-      "@type": "{{ article.type | default('BlogPosting') }}",
-      "@id": "{{ article.url }}/#{{ article.type | default('BlogPosting') | lower }}",
-      "position": {{ loop.index }},
-      "headline": {{ article.title | tojson | safe }},
-      "url": "{{ article.url }}",
-      "description": {{ article.meta_description | tojson | safe }}
+  {% endif %}
+
+  {# C. DOWNWARD #}
+  {% if taxonomies and taxonomies | lee | default('BlogPosting') }}","@id": "{{ article.url }}/#{{ article.type | default('BlogPosting') | lower }}",
+      "position": {{ loop.index }},"headline": {{ article.title | tojson }},
+      "url": "{{ article.url }}","description": {{ article.meta_description | tojson }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}
   ]
