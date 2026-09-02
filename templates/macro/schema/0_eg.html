@@ -56,31 +56,22 @@
 {# 1.Organization and Website Schema #}
 {% macro render_organization_schema(data) %}
 {
-  "@type": "Organization",
-  "@id": "{{ data.website.site_url }}/#organization",
-  "name": "{{ data.website.site_name }}",
-  "url": "{{ data.website.site_url }}",
-  "legalName": "{{ data.company.legal_name | default(data.website.site_name) }}",
-  "description": "{{ data.website.site_desc }}",
+  "@type": "Organization","@id": "{{ data.website.site_url }}/#organization",
+  "name": "{{ data.website.site_name }}","url": "{{ data.website.site_url }}",
+  "legalName": "{{ data.company.legal_name | default(data.website.site_name) }}","description": "{{ data.website.site_desc }}",
   "knowsAbout": {{ data.website.knows_about_list | default([]) | tojson | safe }},
   {% if data.website.slogan %}"slogan": "{{ data.website.slogan }}",{% endif %}
   {% if data.company.founding_year %}"foundingDate": "{{ data.company.founding_year }}",{% endif %}
   "logo": {
-    "@type": "ImageObject",
-    "@id": "{{ data.website.site_url }}/#logo",
-    "url": "{{ data.company.logo.url }}",
-    "caption": "{{ data.website.site_name }} Logo",
-    "width": {{ data.company.logo.width | default(512) }},
-    "height": {{ data.company.logo.height | default(512) }}
+    "@type": "ImageObject","@id": "{{ data.website.site_url }}/#logo",
+    "url": "{{ data.company.logo.url }}","caption": "{{ data.website.site_name }} Logo",
+    "width": {{ data.company.logo.width | default(512) }},"height": {{ data.company.logo.height | default(512) }}
   },
-  "image": {
-    "@id": "{{ data.website.site_url }}/#logo"
-  },
+  "image": {"@id": "{{ data.website.site_url }}/#logo"},
   "sameAs": {{ data.website.social_links | default([]) | tojson | safe }},
   "contactPoint": [
     {
-      "@type": "ContactPoint",
-      "contactType": "customer service",
+      "@type": "ContactPoint","contactType": "customer service",
       "availableLanguage": {{ data.company.contact.lang | default(["en"]) | tojson | safe }},
       {% if data.company.contact.phone %}"telephone": "{{ data.company.company.contact.phone }}",{% endif %}
       "email": "{{ data.company.contact.email }}"
@@ -90,10 +81,8 @@
   "address": {
     "@type": "PostalAddress",
     {% if data.company.address.street %}"streetAddress": "{{ data.company.address.street }}",{% endif %}
-    "addressLocality": "{{ data.company.address.locality | default('San Francisco') }}",
-    "addressRegion": "{{ data.company.address.region | default('CA') }}",
-    "postalCode": "{{ data.company.address.pin | default('94107') }}",
-    "addressCountry": "{{ data.company.address.country | default('US') }}"
+    "addressLocality": "{{ data.company.address.locality | default('San Francisco') }}","addressRegion": "{{ data.company.address.region | default('CA') }}",
+    "postalCode": "{{ data.company.address.pin | default('94107') }}","addressCountry": "{{ data.company.address.country | default('US') }}"
   }
   {%- endif -%}
   {%- if data.website.policies.has_terms %}, "publishingPrinciples": "{{ data.website.site_url }}/terms/"{% endif -%}
@@ -102,23 +91,15 @@
   {%- if data.website.policies.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.website.site_url }}/fact-check-policy/"{% endif -%}
 },
 {
-  "@type": "WebSite",
-  "@id": "{{ data.website.site_url }}/#website",
-  "url": "{{ data.website.site_url }}",
-  "name": "{{ data.website.site_name }}",
+  "@type": "WebSite","@id": "{{ data.website.site_url }}/#website",
+  "url": "{{ data.website.site_url }}","name": "{{ data.website.site_name }}",
   {% if data.website.alt_name %}"alternateName": "{{ data.website.alt_name }}",{% endif %}
-  "description": "{{ data.website.site_desc | default('') }}",
-  "inLanguage": "{{ data.website.site_lang | default('en-US') }}",
-  "publisher": {
-    "@id": "{{ data.website.site_url }}/#organization"
-  },
+  "description": "{{ data.website.site_desc | default('') }}","inLanguage": "{{ data.website.site_lang | default('en-US') }}",
+  "publisher": {"@id": "{{ data.website.site_url }}/#organization"},
   "potentialAction": [
     {
       "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "{{ data.website.site_url }}/search?q={search_term_string}"
-      },
+      "target": {"@type": "EntryPoint","urlTemplate": "{{ data.website.site_url }}/search?q={search_term_string}"},
       "query-input": "required name=search_term_string"
     }
   ]
@@ -140,23 +121,17 @@ breadcrumb = {
 {# 2. Breadcrumb Schema #}
 {% macro render_breadcrumb_schema(site_url,data) %}
 {
-  "@type": "BreadcrumbList",
-  "@id": "{{ data.page_url }}/#breadcrumb",
+  "@type": "BreadcrumbList","@id": "{{ data.page_url }}/#breadcrumb",
   "itemListElement": [
     {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "{{ site_url }}"
+      "@type": "ListItem","position": 1,"name": "Home","item": "{{ site_url }}"
     }
     {%- if data.breadcrumbs -%}
     ,
     {%- for crumb in data.breadcrumbs -%}
     {
-      "@type": "ListItem",
-      "position": {{ loop.index + 1 }},
-      "name": "{{ crumb.name }}",
-      "item": "{{ crumb.url }}"
+      "@type": "ListItem","position": {{ loop.index + 1 }},
+      "name": "{{ crumb.name }}","item": "{{ crumb.url }}"
     }{% if not loop.last %},{% endif %}
     {%- endfor -%}
     {%- endif -%}
@@ -184,51 +159,32 @@ page={
 
 {% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
 {
-  "@type": "{{ page_type }}",
-  "@id": "{{ page.url | trim }}/#webpage",
-  "url": "{{ page.url | trim }}",
-  "name": "{{ page.title | escape }}",
+  "@type": "{{ page_type }}","@id": "{{ page.url | trim }}/#webpage",
+  "url": "{{ page.url | trim }}","name": "{{ page.title | escape }}",
   "description": "{{ page.desc | escape }}",
-  "isPartOf": { 
-    "@type": "WebSite",
-    "@id": "{{ website_data.website.site_url | trim }}/#website" 
-  },
+  "isPartOf": {"@type": "WebSite","@id": "{{ website_data.website.site_url | trim }}/#website" },
   "inLanguage": "{{ website_data.website.site_lang | default('en-US') }}"
   {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
   "mainEntity": {
-    "@type": "Organization",
-    "@id": "{{ website_data.website.site_url | trim }}/#organization",
+    "@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization",
     "name": "{{ website_data.website.site_name | escape }}"
   }
   {%- endif -%}
   {%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
-  "about": { 
-    "@type": "Organization", 
-    "@id": "{{ website_data.website.site_url | trim }}/#organization",
-    "name": "{{ website_data.website.site_name | escape }}"
-  },
-  "publishingPrinciples": { 
-    "@type": "CreativeWork", 
-    "@id": "{{ website_data.website.site_url | trim }}/#policy" 
-  }
+  "about": { "@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization","name": "{{ website_data.website.site_name | escape }}"},
+  "publishingPrinciples": { "@type": "CreativeWork","@id": "{{ website_data.website.site_url | trim }}/#policy"}
   {%- endif -%}
   {%- if page.hero_image or website_data.company.logo.url -%},
   "primaryImageOfPage": {
-    "@type": "ImageObject",
-    "@id": "{{ page.url | trim }}/#primaryimage",
-    "url": "{{ page.hero_image | default(website_data.company.logo.url) | trim }}",
-    "caption": "{{ page.title | escape }} Visual Asset"
+    "@type": "ImageObject","@id": "{{ page.url | trim }}/#primaryimage",
+    "url": "{{ page.hero_image | default(website_data.company.logo.url) | trim }}","caption": "{{ page.title | escape }} Visual Asset"
   }
   {%- endif -%}
   {%- if not is_home -%},
-  "breadcrumb": { 
-    "@type": "BreadcrumbList", 
-    "@id": "{{ page.url | trim }}/#breadcrumb" 
-  }
+  "breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ page.url | trim }}/#breadcrumb"}
   {%- endif -%}
   {%- if page.date_published -%},
-  "datePublished": "{{ page.date_published }}",
-  "dateModified": "{{ page.date_modified | default(page.date_published) }}"
+  "datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"
   {%- endif -%}
 }
     {# --- MERGED CREATIVEWORK ENGINE --- #}
@@ -242,8 +198,7 @@ page={
     "publisher": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
     "copyrightHolder": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"}
     {%- if page.date_published -%},
-    "datePublished": "{{ page.date_published }}",
-    "dateModified": "{{ page.date_modified | default(page.date_published) }}"
+    "datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"
     {%- endif -%}
   }
 {%- endif -%}
@@ -325,10 +280,8 @@ For Policy Pages:
       "knowsAbout": [
         {%- for topic in member.knows_about -%}
         {
-          "@type": "Thing",
-          "@id": "{{ topic.wikidata_url }}",
-          "name": "{{ topic.name }}",
-          "sameAs": "{{ topic.wikipedia_url }}"
+          "@type": "Thing","@id": "{{ topic.wikidata_url }}",
+          "name": "{{ topic.name }}","sameAs": "{{ topic.wikipedia_url }}"
         }{% if not loop.last %},{% endif %}
         {%- endfor -%}
       ],
