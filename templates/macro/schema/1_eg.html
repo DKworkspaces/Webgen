@@ -1,12 +1,92 @@
+pillar Page 
+
+
+
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+},
+{
+"@type": "ItemList","@id": "{{ pillar_url }}/#cluster-list",
+"name": "{{ pillar_title }} Semantic Topic Hub Cluster","description": "Direct supporting resources linked to this core cornerstone topic hub.",
+"numberOfItems": "{{ cluster_pages | length }}",
+"itemListElement": [
+{% for sub_page in cluster_pages %}
+{
+"@type": "ListItem","position": {{ loop.index }},
+"name": "{{ sub_page.title }}","item": "{{ sub_page.url }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+
+
+
+
+sub pillar page 
+
+
+
+
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"mainEntityOfPage": {
+"@type": "WebPage","@id": "{{ pillar_parent_url }}/#webpage",
+"name": "{{ pillar_parent_title }}"
+}
+},
+{
+"@type": "ItemList","@id": "{{ sub_pillar_url }}/#sub-cluster-list",
+"name": "{{ sub_pillar_title }} Deep Supporting Silo Cluster","description": "Granular child guides managed under this specialized sub-pillar.",
+"numberOfItems": "{{ sub_cluster_pages | length }}",
+"itemListElement": [
+{% for sub_page in sub_cluster_pages %}
+{
+"@type": "ListItem","position": {{ loop.index }},
+"name": "{{ sub_page.title }}","item": "{{ sub_page.url }}"
+}{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+}
+
+
+
+
+
+
+
+cluster page
+
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"mainEntityOfPage": {
+"@type": "WebPage","@id": "{{ pillar_parent_url }}/#webpage",
+"name": "{{ pillar_parent_title }}"
+}
+}
+
+sub cluster page
+
+
+{
+"isPartOf": {"@id": "{{ site_url }}/#website"},
+"mainEntityOfPage": {
+"@type": "WebPage","@id": "{{ cluster_parent_url }}/#webpage",
+"name": "{{ cluster_parent_title }}"
+}
+}
+
+
+
+
+
+
+
+
 category index 
 {
 "isPartOf": {"@id": "{{ site_url }}/#website"},
 "about": {"@id": "{{ site_url }}/#organization"},
 "mainEntity": {
-"@type": "ItemList",
-"@id": "{{ page_url }}/#itemlist",
-"name": "Available Topic Directories",
-"numberOfItems": {{ taxonomies | length }},
 "itemListElement": [
 {% for term in taxonomies %}
 {
@@ -30,10 +110,6 @@ individual category tag archive pages
 "about": {"@id": "{{ site_url }}/#organization"},
 "breadcrumb": {"@id": "{{ taxonomy_url }}/#breadcrumb"},
 "mainEntity": {
-"@type": "ItemList",
-"@id": "{{ taxonomy_url }}/#itemlist",
-"name": "Articles in {{ taxonomy_name }}",
-"numberOfItems": {{ items | length }},
 "itemListElement": [
 {% for article in items %}
 {
