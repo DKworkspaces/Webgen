@@ -8,8 +8,7 @@
   {# A. PAGE UPLINK (Universal Hierarchy Layer) #}
   {%- with is_parent = (parent_page and parent_page.url) -%}
   ,"isPartOf":{{ {
-    "@type": node_type if is_parent else "WebSite",
-    "@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
+    "@type": node_type if is_parent else "WebSite","@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
     "url": parent_page.url if is_parent else page_data.site_url
   }|tojson }}
   {%- endwith -%}
