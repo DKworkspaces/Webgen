@@ -1,119 +1,72 @@
 {# file: schema_macros.html #}
 
-{# =====================================================================
-   1. COLLECTION ARCHITECTURE MACRO (Directories & Indexes)
-   ===================================================================== #}
-{% macro render_collection_node(page_url, page_name, page_desc, parent_url=none, parent_name=none, items=none) %}
-<script type="application/ld+json">
+
+{% macro render_collection_node(page_data, parent=none, items=none) %}
 {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "CollectionPage",
-      "@id": "{{ page_url }}#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_name | e }}",
-      "description": "{{ page_desc | e }}"
-      
-      {# Upward Link #}
-      {% if parent_url and parent_name %},
-      "isPartOf": {
-        "@type": "CollectionPage",
-        "@id": "{{ parent_url }}#webpage",
-        "name": "{{ parent_name | e }}",
-        "url": "{{ parent_url }}"
-      }
-      {% endif %}
-      
-      {# Downward Link #}
-      {% if items %},
-      "mainEntity": {
-        "@type": "ItemList",
-        "@id": "{{ page_url }}#itemlist",
-        "name": "{{ page_name | e }} Items",
-        "numberOfItems": {{ items | length }},
-        "itemListElement": [
-          {% for item in items %}
-          {
-            "@type": "ListItem",
-            "position": {{ loop.index }},
-            "name": "{{ item.name | e }}",
-            "url": "{{ item.url }}"
-          }{{ "," if not loop.last }}
-          {% endfor %}
-        ]
-      }
-      {% endif %}
-    }
+  "@type": "CollectionPage","@id": "{{ page_data.url }}#webpage",
+  "url": "{{ page_data.url }}","name": "{{ page_data.title | e }}",
+  "description": "{{ page_data.desc | e }}"   
+  {# Upward Link #}
+  {% if parent.url and parent.title %},
+  "isPartOf": {
+  "@type": "CollectionPage","@id": "{{ parent.url }}#webpage",
+  "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
+  }
+  {% endif %} 
+  {# Downward Link #}
+  {% if items %},
+  "mainEntity": {
+  "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
+  "name": "{{ page_data.title | e }} Items","numberOfItems": {{ items | length }},
+  "itemListElement": [
+  {% for item in items %}
+  {
+  "@type": "ListItem","position": {{ loop.index }},
+  "name": "{{ item.name | e }}","url": "{{ item.url }}"
+  }{{ "," if not loop.last }}
+  {% endfor %}
   ]
+  }
+  {% endif %}
 }
-</script>
 {% endmacro %}
 
 
-{# =====================================================================
-   2. TOPIC CLUSTER ARCHITECTURE MACRO (Pillars & Hubs)
-   ===================================================================== #}
-{% macro render_cluster_node(page_url, page_name, page_desc, topic, parent_url=none, parent_name=none, items=none) %}
-<script type="application/ld+json">
+{% macro render_cluster_node(page_data, parent=none, items=none) %}
 {
-  "@context": "https://schema.org",
-  "@graph": [
+  "@type": "AboutPage","@id": "{{ page_data.url }}#webpage",
+  "url": "{{ page_data.url }}","name": "{{ page_data. title | e }}",
+  "description": "{{ page_data.desc | e }}",
+  "about": {
+    "@type": "Thing","name": "{{ page_data.topic | e }}"
+  }
+  {# Upward Link #}
+  {% if parent.url and parent.title %},
+  "isPartOf": {
+    "@type": "AboutPage","@id": "{{ parent.url }}#webpage",
+    "name": "{{ parent.title | e }}","url": "{{ parent.url }}"
+  }
+  {% endif %}   
+  {# Downward Link #}
+  {% if items %},
+  "mainEntity": {
+    "@type": "ItemList","@id": "{{ page_data.url }}#itemlist",
+    "name": "{{ page_data.title | e }} Resources","numberOfItems": {{ items | length }},
+    "itemListElement": [
+    {% for item in items %}
     {
-      "@type": "AboutPage",
-      "@id": "{{ page_url }}#webpage",
-      "url": "{{ page_url }}",
-      "name": "{{ page_name | e }}",
-      "description": "{{ page_desc | e }}",
-      "about": {
-        "@type": "Thing",
-        "name": "{{ topic | e }}"
-      }
-      
-      {# Upward Link #}
-      {% if parent_url and parent_name %},
-      "isPartOf": {
-        "@type": "AboutPage",
-        "@id": "{{ parent_url }}#webpage",
-        "name": "{{ parent_name | e }}",
-        "url": "{{ parent_url }}"
-      }
-      {% endif %}
-      
-      {# Downward Link #}
-      {% if items %},
-      "mainEntity": {
-        "@type": "ItemList",
-        "@id": "{{ page_url }}#itemlist",
-        "name": "{{ page_name | e }} Resources",
-        "numberOfItems": {{ items | length }},
-        "itemListElement": [
-          {% for item in items %}
-          {
-            "@type": "ListItem",
-            "position": {{ loop.index }},
-            "name": "{{ item.name | e }}",
-            "url": "{{ item.url }}"
-          }{{ "," if not loop.last }}
-          {% endfor %}
-        ]
-      }
-      {% endif %}
-    }
-  ]
+      "@type": "ListItem","position": {{ loop.index }},
+      "name": "{{ item.name | e }}","url": "{{ item.url }}"
+    }{{ "," if not loop.last }}
+    {% endfor %}
+   ]
+   }
+   {% endif %}
 }
-</script>
 {% endmacro %}
 
 
-{# =====================================================================
-   3. TERMINAL NODE MACRO (Standard Blogpost / Article for both tracks)
-   ===================================================================== #}
 {% macro render_blogpost_node(page_url, page_name, page_desc, parent_type, parent_url, parent_name) %}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
     {
       "@type": "BlogPosting",
       "@id": "{{ page_url }}#webpage",
@@ -127,9 +80,6 @@
         "url": "{{ parent_url }}"
       }
     }
-  ]
-}
-</script>
 {% endmacro %}
 
 
