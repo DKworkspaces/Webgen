@@ -1,3 +1,84 @@
+{% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
+{
+  "@type": "{{ node_type }}",
+  "@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}",
+  "name": {{ page_data.title | tojson }},
+  "description": {{ (page_data.desc or page_data.meta_description) | default('') | tojson }},
+  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
+
+  {# A. PAGE UPLINK (Universal Hierarchy Layer) #}
+  {% if parent_page and parent_page.url %},
+  "isPartOf": {
+    "@type": "{{ node_type }}",
+    "@id": "{{ parent_page.url }}/#webpage",
+    "name": {{ parent_page.name | tojson }},
+    "url": "{{ parent_page.url }}"
+  }
+  {% else %},
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "{{ page_data.site_url | default('https://example.com') }}/#website",
+    "url": "{{ page_data.site_url | default('https://example.com') }}"
+  }
+  {% endif %}
+
+  {# B. ABOUT PROPERTY (Handles both multiple topics or single inherited cluster topics) #}
+  {% if page_data.topics and page_data.topics | length > 0 %},
+  "about": [
+    {% for topic in page_data.topics %}
+    {
+      "@type": "{{ topic.type | default('Thing') }}",
+      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
+      "name": {{ topic.name | tojson }},
+      "sameAs": {{ topic.sameAs | tojson }}
+      {% endif %}
+    }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
+  {% elif page_data.topic %},
+  "about": {
+      "@type": "{{ topic.type | default('Thing') }}",
+      "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
+      "name": {{ topic.name | tojson }},
+      "sameAs": {{ topic.sameAs | tojson }},
+    {% if parent_topic and parent_topic.url %},
+    "isPartOf": {
+            "@type": "{{ topic.type | default('Thing') }}",
+            "@id": "{{ page_data.url }}#topic-{{ loop.index }}",
+            "name": {{ topic.name | tojson }},
+            "sameAs": {{ topic.sameAs | tojson }}
+    }
+    {% endif %}
+  }
+  {% endif %}
+
+  {# C. DOWNWARD TREE MAPPING (Standardised to hasPart) #}
+  {% if items and items | length > 0 %},
+  "hasPart": [
+    {% for item in items %}
+    {
+      "@type": "{{ item.type | default('BlogPosting') }}",
+      "@id": "{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}",
+      "position": {{ loop.index }},
+      "headline": {{ (item.title or item.name) | tojson }},
+      "url": "{{ item.url }}",
+      "description": {{ (item.meta_description or item.desc) | default('') | tojson }}
+    }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
+  {% endif %}
+}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
 pillar Page 
 
 "about": [
