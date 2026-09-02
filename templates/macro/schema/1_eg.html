@@ -485,3 +485,165 @@ Tier 3: Sub-Category Page Call (with BlogPosts List)
 
 
 
+{% macro render_cluster_node(page_data, parent_page=none, parent_topic=none, items=none) %}
+{
+  "@type": "WebPage",
+  "@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}",
+  "name": "{{ page_data.title | e }}",
+  "description": "{{ page_data.desc | e }}"
+
+  {# A. PAGE UPLINK: Immediate 1-level document container connection #}
+  {% if parent_page and parent_page.url %},
+  "isPartOf": {
+    "@type": "WebPage",
+    "@id": "{{ parent_page.url }}/#webpage",
+    "name": "{{ parent_page.name | e }}",
+    "url": "{{ parent_page.url }}"
+  }
+  {% else %},
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "{{ page_data.site_url | default('https://example.com') }}/#website",
+    "url": "{{ page_data.site_url | default('https://example.com') }}"
+  }
+  {% endif %}
+  
+  {# B. ABOUT PROPERTY: Clean 1-level semantic topic inheritance #}
+  {% if page_data.topic %},
+  "about": {
+    "@type": "Thing",
+    "@id": "{{ page_data.url }}/#topic",
+    "name": "{{ page_data.topic | e }}"
+    {% if parent_topic and parent_topic.url %},
+    "isPartOf": {
+      "@type": "Thing",
+      "@id": "{{ parent_topic.url }}/#topic",
+      "name": "{{ parent_topic.name | e }}"
+    }
+    {% endif %}
+  }
+  {% endif %}
+
+  {# C. DOWNWARD TREE MAPPING: Maps supporting child cluster pages or final BlogPosting leaves #}
+  {% if items and items | length > 0 %},
+  "hasPart": [
+    {% for item in items %}
+    {
+      "@type": "{{ item.type | default('WebPage') }}",
+      "@id": "{{ item.url }}/#{{ item.type | default('WebPage') | lower }}",
+      "position": {{ loop.index }},
+      "name": {{ item.name | tojson | safe }},
+      "url": "{{ item.url }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+  {% endif %}
+}
+{% endmacro %}
+
+
+
+1. Pillar Page Call (Master Guide Head)
+
+{{ render_cluster_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "The Ultimate Guide to Enterprise Python Architecture",
+    "desc": "Master clean code patterns, asynchronous testing, and framework engineering.",
+    "topic": "Python Architecture"
+  },
+  parent_page = {
+    "name": "Python Language Track",
+    "url": "https://example.com"
+  },
+  parent_topic = {
+    "name": "Python Programming",
+    "url": "https://example.com"
+  },
+  items = [
+    { "name": "Web Framework Benchmarks", "url": "https://example.com/web-frameworks", "type": "WebPage" }
+  ]
+) }}
+
+
+
+2. Sub-Pillar Page Call (Intermediate Pivot Hub)
+
+{{ render_cluster_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Modern Python Web Framework Layouts",
+    "desc": "A structural mapping of ASGI engines, microframework architectural rules, and middleware arrays.",
+    "topic": "Python Web Frameworks"
+  },
+  parent_page = {
+    "name": "The Ultimate Guide to Enterprise Python Architecture",
+    "url": "https://example.com"
+  },
+  parent_topic = {
+    "name": "Python Architecture",
+    "url": "https://example.com"
+  },
+  items = [
+    { "name": "Evaluating FastAPI Concurrency Performance Settings", "url": "https://example.com", "type": "WebPage" }
+  ]
+) }}
+
+
+
+3. Cluster Page Call (Deep Supporting Document)
+
+{{ render_cluster_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Evaluating FastAPI Concurrency Performance Settings",
+    "desc": "A granular lookup auditing coroutines, asynchronous thread pools, and worker counts.",
+    "topic": "FastAPI Concurrency Optimization"
+  },
+  parent_page = {
+    "name": "Modern Python Web Framework Layouts",
+    "url": "https://example.com"
+  },
+  parent_topic = {
+    "name": "Python Web Frameworks",
+    "url": "https://example.com"
+  },
+  items = [
+    { "name": "Case Study: Tuning Uvicorn Worker Pools", "url": "https://example.com/uvicorn-pool", "type": "WebPage" }
+  ]
+) }}
+
+
+
+4. Sub-Cluster Page Call (Terminal Leaf Container with BlogPosts list)
+
+
+{{ render_cluster_node(
+  page_data = {
+    "site_url": "https://example.com",
+    "url": "https://example.com",
+    "title": "Case Study: Tuning Uvicorn Worker Pools",
+    "desc": "Real-world engineering diagnostics benchmark testing processing loops under request spikes.",
+    "topic": "Uvicorn Worker Tuning"
+  },
+  parent_page = {
+    "name": "Evaluating FastAPI Concurrency Performance Settings",
+    "url": "https://example.com"
+  },
+  parent_topic = {
+    "name": "FastAPI Concurrency Optimization",
+    "url": "https://example.com"
+  },
+  items = [
+    { "name": "Production Metrics: Asyncpg Connection Pools under Uvicorn", "url": "https://example.com/asyncpg-metrics", "type": "BlogPosting" }
+  ]
+) }}
+
+
+
+
+
