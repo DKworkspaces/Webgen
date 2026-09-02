@@ -69,9 +69,18 @@ Category Index (Root Level / All Categories Hub)
   "node_type": "CollectionPage",
   "parent_page": null,
   "items": [
-    "https://example.com/geopolitics",
-    "https://example.com/history",
-    "https://example.com/science"
+    {
+      "type": "CollectionPage",
+      "url": "https://example.com/jinja2",
+      "title": "Jinja2 Architecture & Hacks",
+      "desc": "Exploiting Jinja memory spaces, macros, and variable tricks."
+    },
+    {
+      "type": "CollectionPage",
+      "url": "https://example.com/python",
+      "title": "Python Performance Tuning",
+      "desc": "Writing memory-efficient microservices without boiling the ocean."
+    }
   ]
 }
 
@@ -82,15 +91,27 @@ Individual Category Page & Sub-Category Page
     "url": "https://example.com",
     "title": "Global Geopolitics Hub",
     "desc": "Deep dives into international relations, maps, and statecraft history.",
-    "site_url": "https://example.com"
+    "site_url": "https://example.com",
+    "topic": {
+      "type": "TechArticle",
+      "slug": "https://example.com",
+      "name": "Jinja2 Engineering",
+      "sameAs": "https://wikipedia.org"
+    }
   },
   "node_type": "CollectionPage",
   "parent_page": {
     "url": "https://example.com"
   },
+  "parent_topic": {
+    "type": "ComputerScience",
+    "slug": "https://example.com",
+    "name": "Software Development",
+    "sameAs": "https://wikipedia.org"
+  },
   "items": [
     {
-      "type": "CollectionPage",
+      "type": "BlogPosting",
       "url": "https://example.com/cold-war",
       "title": "The Cold War Era",
       "meta_description": "Analyzing the multi-decade proxy conflicts between global superpowers."
@@ -144,7 +165,7 @@ Pillar Page (Top of Semantic Topic Silo)
       "desc": "From the invasion of Poland to the collapse of the Axis powers."
     },
     {
-      "type": "BlogPosting",
+      "type": "WebPage",
       "url": "https://example.com",
       "title": "The Silent Engine: WW2 Supply Chains",
       "meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."
@@ -171,6 +192,12 @@ Pillar Page (Top of Semantic Topic Silo)
   },
   "items": [
     {
+      "type": "WebPage",
+      "url": "https://example.com",
+      "title": "The Silent Engine: WW2 Supply Chains",
+      "meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."
+    },
+    {
       "type": "Article",
       "url": "https://example.com",
       "title": "Air Supremacy: Critical Tactics of the Battle of Britain",
@@ -184,6 +211,10 @@ Pillar Page (Top of Semantic Topic Silo)
     }
   ]
 }
+
+
+
+
 
 
 render_schema_node(page_data, node_type, parent_page, parent_topic, items).
