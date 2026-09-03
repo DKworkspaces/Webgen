@@ -69,7 +69,7 @@ Index Page (Root Category Hub)
     {"type": "CollectionPage","url": "https://example.com/python",
       "title": "Python Performance Tuning","desc": "Writing memory-efficient microservices without boiling the ocean."}
   ]
-{{ render_schema_node(page_data=page_data, node_type="CollectionPage", parent_page=none, items=item_list) }}
+{{ render_schema_node(page_data=page_data, node_type="CollectionPage", items=item_list) }}
 
 
 
@@ -127,96 +127,89 @@ Sub-Category Page
 
 Pillar Page (Top of Semantic Topic Silo)
 
-{
+{{ render_schema_node(page_data=page_data, node_type='WebPage', items=item_list) }}
+
   "page_data": {
-    "url": "https://example.com",
-    "title": "The Complete Guide to World War II",
-    "desc": "A comprehensive strategic timeline of the global conflict from 1939 to 1945.",
-    "site_url": "https://example.com",
+    "url": "https://example.com","site_url": "https://example.com",
+    "title": "The Complete Guide to World War II","desc": "A comprehensive strategic timeline of the global conflict from 1939 to 1945.",
     "topics": [
-        {
-    "@type": "Thing",
-    "@id": "https://example.com",
-    "name": "Semantic Web",
-    "sameAs": [
-      "https://wikipedia.org",
-      "https://wikidata.org"
-    ]
-  },
-  {
-    "@type": "Thing",
-    "@id": "https://example.com",
-    "name": "Search Engine Optimization",
-    "sameAs": [
-      "https://wikipedia.org",
-      "https://wikidata.org"
+        {"@type": "Thing","@id": "https://example.com",
+    "name": "Semantic Web","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        },{
+    "@type": "Thing","@id": "https://example.com",
+    "name": "Search Engine Optimization","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        }
     ]
   }
-    ]
-  },
-  "node_type": "WebPage",
-  "parent_page": null,
-  "items": [
-    {
-      "type": "WebPage",
-      "url": "https://example.com/european-theatre",
-      "title": "The European Theatre Campaigns",
-      "desc": "From the invasion of Poland to the collapse of the Axis powers."
-    },
-    {
-      "type": "WebPage",
-      "url": "https://example.com",
-      "title": "The Silent Engine: WW2 Supply Chains",
-      "meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."
-    }
+  "item_list": [
+    {"type": "WebPage","url": "https://example.com/european-theatre",
+      "title": "The European Theatre Campaigns","desc": "From the invasion of Poland to the collapse of the Axis powers."},
+    {"type": "WebPage","url": "https://example.com",
+      "title": "The Silent Engine: WW2 Supply Chains","meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."}
   ]
-}
 
-4. Cluster Page & Sub-Cluster Page (Deep Silo Nodes with Leaf Articles)
 
-{
+4. Cluster Page (Deep Silo Nodes with Leaf Articles)
+
+
+{{ render_schema_node(page_data=page_data, node_type='WebPage', parent_page=parent_page, parent_topic=parent_topic, items=item_list) }}
+
   "page_data": {
-    "url": "https://example.com",
-    "title": "The European Theatre Campaigns",
-    "desc": "Strategic analysis of the conflict campaigns across Western and Eastern Europe.",
-    "site_url": "https://example.com",
-    "topic": "European Theatre of World War II"
-  },
-  "node_type": "WebPage",
-  "parent_page": {
-    "url": "https://example.com"
-  },
-  "parent_topic": {
-    "url": "https://example.com/#topic"
-  },
-  "items": [
-    {
-      "type": "WebPage",
-      "url": "https://example.com",
-      "title": "The Silent Engine: WW2 Supply Chains",
-      "meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."
-    },
-    {
-      "type": "Article",
-      "url": "https://example.com",
-      "title": "Air Supremacy: Critical Tactics of the Battle of Britain",
-      "meta_description": "A deep look into defensive early warning radar arrays and aerial interception strategies."
-    },
-    {
-      "type": "BlogPosting",
-      "url": "https://example.com",
-      "title": "Engineering D-Day: The Secret Mulberry Harbors",
-      "meta_description": "How temporary pre-fabricated ports successfully supplied the Allied liberation army."
-    }
+    "url": "https://example.com","site_url": "https://example.com",
+    "title": "The Complete Guide to World War II","desc": "A comprehensive strategic timeline of the global conflict from 1939 to 1945.",
+    "topics": [
+        {"@type": "Thing","@id": "https://example.com",
+    "name": "Semantic Web","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        },{
+    "@type": "Thing","@id": "https://example.com",
+    "name": "Search Engine Optimization","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        }
+    ]
+  }
+  "item_list": [
+    {"type": "WebPage","url": "https://example.com/european-theatre",
+      "title": "The European Theatre Campaigns","desc": "From the invasion of Poland to the collapse of the Axis powers."},
+    {"type": "WebPage","url": "https://example.com",
+      "title": "The Silent Engine: WW2 Supply Chains","meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."}
   ]
-}
+
+"parent_page": {"url": "https://example.com"}
+  "parent_topic": {"type": "ComputerScience","slug": "https://example.com",
+    "name": "Software Development","sameAs": "https://wikipedia.org"}
+
+
+5. subcluster page 
+
+{{ render_schema_node(page_data=page_data, node_type='WebPage',  parent_page=parent_page, parent_topic=parent_topic, items=item_list) }}
+
+  "page_data": {
+    "url": "https://example.com","site_url": "https://example.com",
+    "title": "The Complete Guide to World War II","desc": "A comprehensive strategic timeline of the global conflict from 1939 to 1945.",
+    "topics": [
+        {"@type": "Thing","@id": "https://example.com",
+    "name": "Semantic Web","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        },{
+    "@type": "Thing","@id": "https://example.com",
+    "name": "Search Engine Optimization","sameAs": ["https://wikipedia.org","https://wikidata.org"]
+        }
+    ]
+  }
+  "item_list": [
+    {"type": "BlogPosting","url": "https://example.com/european-theatre",
+      "title": "The European Theatre Campaigns","desc": "From the invasion of Poland to the collapse of the Axis powers."},
+    {"type": "Article","url": "https://example.com",
+      "title": "The Silent Engine: WW2 Supply Chains","meta_description": "How manufacturing output and cargo routing ultimately decided the conflict."}
+  ]
+
+"parent_page": {"url": "https://example.com"}
+  "parent_topic": {"type": "ComputerScience","slug": "https://example.com",
+    "name": "Software Development","sameAs": "https://wikipedia.org"}
 
 
 
 
 
 
-render_schema_node(page_data, node_type, parent_page, parent_topic, items).
 
 
 
@@ -227,10 +220,16 @@ render_schema_node(page_data, node_type, parent_page, parent_topic, items).
 
 
 
-Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", parent_page=none, items=categories_list) }}
+
+
+
+
+
+
+Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }}
 Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }}
 Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }}
-Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="CollectionPage", parent_page=index_page_data, parent_topic=main_global_topic, items=cluster_pages_list) }}
+Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }}
 Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }}
 Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }}
 
