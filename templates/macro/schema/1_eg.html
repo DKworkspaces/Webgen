@@ -57,58 +57,72 @@
 
 
 
-eg
-Category Index (Root Level / All Categories Hub)
-{
-  "page_data": {
-    "url": "https://example.com",
-    "title": "Our Blog Categories",
-    "desc": "Browse all our top-level editorial resource hubs.",
-    "site_url": "https://example.com"
-  },
-  "node_type": "CollectionPage",
-  "parent_page": null,
-  "items": [
-    {
-      "type": "CollectionPage",
-      "url": "https://example.com/jinja2",
-      "title": "Jinja2 Architecture & Hacks",
-      "desc": "Exploiting Jinja memory spaces, macros, and variable tricks."
-    },
-    {
-      "type": "CollectionPage",
-      "url": "https://example.com/python",
-      "title": "Python Performance Tuning",
-      "desc": "Writing memory-efficient microservices without boiling the ocean."
-    }
+
+
+Index Page (Root Category Hub)        
+  "page_data": {"url": "https://example.com","site_url": "https://example.com",
+    "title": "Our Blog Categories","desc": "Browse all our top-level editorial resource hubs."
+  }
+  "item_list": [
+    {"type": "CollectionPage","url": "https://example.com/jinja2",
+      "title": "Jinja2 Architecture & Hacks","desc": "Exploiting Jinja memory spaces, macros, and variable tricks."},
+    {"type": "CollectionPage","url": "https://example.com/python",
+      "title": "Python Performance Tuning","desc": "Writing memory-efficient microservices without boiling the ocean."}
   ]
-}
+{{ render_schema_node(page_data=page_data, node_type="CollectionPage", parent_page=none, items=item_list) }}
+
+
+
 
 Individual Category Page & Sub-Category Page
 
-{
-  "page_data": {
-    "url": "https://example.com",
-    "title": "Global Geopolitics Hub",
-    "desc": "Deep dives into international relations, maps, and statecraft history.",
-    "site_url": "https://example.com",
-    "topic": {
-      "type": "TechArticle",
-      "slug": "https://example.com",
-      "name": "Jinja2 Engineering",
-      "sameAs": "https://wikipedia.org"
+"page_data": {"url": "https://example.com","site_url": "https://example.com",
+    "title": "Our Blog Categories","desc": "Browse all our top-level editorial resource hubs.",
+    "topic": {"type": "TechArticle","slug": "https://example.com",
+      "name": "Jinja2 Engineering","sameAs": "https://wikipedia.org"
     }
-  },
-  "node_type": "CollectionPage",
-  "parent_page": {
-    "url": "https://example.com"
-  },
-  "parent_topic": {
-    "type": "ComputerScience",
-    "slug": "https://example.com",
-    "name": "Software Development",
-    "sameAs": "https://wikipedia.org"
-  },
+  }
+  "item_list": [
+    {"type": "CollectionPage","url": "https://example.com/jinja2",
+      "title": "Jinja2 Architecture & Hacks","desc": "Exploiting Jinja memory spaces, macros, and variable tricks."},
+    {"type": "CollectionPage","url": "https://example.com/python",
+      "title": "Python Performance Tuning","desc": "Writing memory-efficient microservices without boiling the ocean."}
+  ]
+"parent_page": {"url": "https://example.com"}
+  "parent_topic": {"type": "ComputerScience","slug": "https://example.com",
+    "name": "Software Development","sameAs": "https://wikipedia.org"}
+
+{{ render_schema_node(page_data=page_data, node_type="CollectionPage", parent_page=parent_page, parent_topic=parent_topic, items=item_list) }}
+
+
+Sub-Category Page
+
+"page_data": {"url": "https://example.com","site_url": "https://example.com",
+    "title": "Our Blog Categories","desc": "Browse all our top-level editorial resource hubs.",
+    "topic": {"type": "TechArticle","slug": "https://example.com",
+      "name": "Jinja2 Engineering","sameAs": "https://wikipedia.org"
+    }
+  }
+  "item_list": [
+    {"type": "BlogPosting","url": "https://example.com/jinja2",
+      "title": "Jinja2 Architecture & Hacks","desc": "Exploiting Jinja memory spaces, macros, and variable tricks."},
+    {"type": "Article","url": "https://example.com/python",
+      "title": "Python Performance Tuning","desc": "Writing memory-efficient microservices without boiling the ocean."}
+  ]
+"parent_page": {"url": "https://example.com"}
+  "parent_topic": {"type": "ComputerScience","slug": "https://example.com",
+    "name": "Software Development","sameAs": "https://wikipedia.org"}
+
+
+{{ render_schema_node(page_data=page_data, node_type="CollectionPage", parent_page=parent_page, parent_topic=parent_topic, items=item_list) }}
+
+
+
+
+
+
+
+
   "items": [
     {
       "type": "BlogPosting",
