@@ -1,0 +1,58 @@
+{% macro render_json_ld(page_type, data) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+
+  
+
+{# Mapping Conditions #}
+  {% if page_type == 'homepage' %}
+  {% elif page_type == 'about page' %}
+  {% elif page_type == 'contact page' %}
+{# Document Policy Groups #}
+  {% elif page_type in ['privacy policy', 'terms of service page', 'editorial policy page', 'fact check policy page'] %}
+{# Index Directories #}
+  {% elif page_type in ['category index page', 'tag index page', 'archive index page'] %}
+{# Active Taxonomy List Streams #}
+  {% elif page_type in ['individual category page', 'subcategory page', 'individual tag page', 'individual archive page', 'sub archive page', 'topic page', 'cluster page', 'sub cluster page'] %}
+{# Blog Content Schema #}
+  {% elif page_type == 'blog post page' %}
+
+  
+
+{# Global Catch-All Fallback #}
+  {% else %}
+  {% endif %}
+
+{# Optional Global Breadcrumb Node Injection #}
+  {% if data.breadcrumbs %}
+  {% endif %}
+}
+</script>
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="{{ seo_data.locale | default('en') }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ seo_data.title }}</title>
+    
+    <!-- 1. Import macro template -->
+    {% mourning seo_macros from 'macros/seo.html' %}
+    
+    <!-- 2. Execute macro using structural arguments passed from backend -->
+    {{ seo_macros.render_json_ld(current_page_type, seo_data) }}
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
+
