@@ -1,0 +1,145 @@
+json data for page
+
+
+
+{
+  "head": {
+    "title": "Clean Architecture Layout | DevStudio",
+    "description": "Learn how to structurally separate layout domains inside a dynamic JSON configuration schema.",
+    "canonical_url": "https://example.com",
+    "meta_tags": {
+      "og:type": "website",
+      "og:title": "Clean Architecture Layout | DevStudio",
+      "og:image": "https://example.com",
+      "twitter:card": "summary_large_image",
+      "twitter:creator": "@devstudio_io"
+    },
+    "json_ld": {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Clean Architecture Layout",
+      "description": "Learn how to structurally separate layout domains inside a dynamic JSON configuration schema."
+    }
+  },
+  "header": {
+    "brand_name": "DevStudio",
+    "logo_url": "/assets/logo.svg",
+    "navigation": [
+      {"label": "Dashboard", "url": "/dashboard"},
+      {"label": "Tutorials", "url": "/tutorials"},
+      {"label": "Pricing", "url": "/pricing"}
+    ],
+    "show_cta": true,
+    "cta_text": "Get Started"
+  },
+  "page_content": {
+    "hero": {
+      "headline": "Decouple Your Data from Design",
+      "subtext": "Manage enterprise web architectures by scaling structured payloads cleanly."
+    },
+    "features": [
+      {
+        "title": "Lightning Fast Rendition",
+        "body": "Bypassing heavy nested loops with structural key dictionaries optimizes execution times."
+      },
+      {
+        "title": "Infinite Reusability",
+        "body": "Swap page content modules on the fly without changing the application's global head, header, or footer."
+      }
+    ]
+  },
+  "footer": {
+    "copyright_text": "© 2026 DevStudio Engineering Inc.",
+    "links": [
+      {"label": "Privacy Policy", "url": "/privacy"},
+      {"label": "Terms of Service", "url": "/terms"}
+    ]
+  }
+}
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 1. HEAD BLOCK -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{{ head.title }}</title>
+    <meta name="description" content="{{ head.description }}">
+    <link rel="canonical" href="{{ head.canonical_url }}">
+
+    <!-- Direct Hash Map Lookup for Meta Tags (Highly Efficient) -->
+    {% for key, val in head.meta_tags.items() %}
+    {% if key.startswith('og:') %}
+    <meta property="{{ key }}" content="{{ val }}">
+    {% else %}
+    <meta name="{{ key }}" content="{{ val }}">
+    {% endif %}
+    {% endfor %}
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+        {{ head.json_ld | tojson | safe }}
+    </script>
+</head>
+<body>
+
+    <!-- 2. HEADER BLOCK -->
+    <header class="site-header">
+        <divclass="logo-container">
+            <img src="{{ header.logo_url }}" alt="{{ header.brand_name }} Logo">
+            <span>{{ header.brand_name }}</span>
+        </div>
+        <nav>
+            <ul>
+                {% for item in header.navigation %}
+                <li><a href="{{ item.url }}">{{ item.label }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+        {% if header.show_cta %}
+        <button class="btn-primary">{{ header.cta_text }}</button>
+        {% endif %}
+    </header>
+
+    <!-- 3. PAGE CONTENT BLOCK -->
+    <main class="page-wrapper">
+        <!-- Hero Component -->
+        <section class="hero-section">
+            <h1>{{ page_content.hero.headline }}</h1>
+            <p>{{ page_content.hero.subtext }}</p>
+        </section>
+
+        <!-- Dynamic Features List Component -->
+        <section class="grid-features">
+            {% for feature in page_content.features %}
+            <div class="card">
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.body }}</p>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <!-- 4. FOOTER BLOCK -->
+    <footer class="site-footer">
+        <p>{{ footer.copyright_text }}</p>
+        <div class="footer-links">
+            {% for link in footer.links %}
+            <a href="{{ link.url }}">{{ link.label }}</a>
+            {% endfor %}
+        </div>
+    </footer>
+
+</body>
+  </html>
+
+
+
+
+      
