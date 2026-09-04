@@ -641,4 +641,105 @@ blogpost
         {%- call component.entity_base("ListItem") -%}
           {{ component.kv("position", "2", is_json=true) }}
           {{ component.kv("name", post.category | capitalize) }}
-          {{ component.kv("item", site_config.home_url ~ "category/" ~ post.category ~ "/", is_js
+          {{ component.kv("item", site_config.home_url ~ "category/" ~ post.category ~ "/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", post.title) }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+
+
+standalone blogpost Page 
+
+{%- import "macros/components.html" as component -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {# 1. Define the Article WebPage Container Node #}
+    {%- call component.entity_base("WebPage") -%}
+      {{ component.id(request.url, "#webpage") }}
+      {{ component.url(request.url) }}
+      {{ component.kv("name", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      
+      {# LINK DIRECTLY TO WEBSITE: Since there is no pillar hub, link directly to the homepage root #}
+      , "isPartOf": { "@id": "{{ site_config.home_url }}#website" }
+      , "about": { "@id": "{{ site_config.home_url }}#organization" }
+    {%- endcall -%}
+
+    {# 2. Define the Core Authoritative Writing Node #},
+    {% if post.category == 'geopolitics' %}
+      {% set article_type = "AnalysisNewsArticle" %}
+    {% elif post.category == 'science' %}
+      {% set article_type = "ScholarlyArticle" %}
+    {% else %}
+      {% set article_type = "BlogPosting" %}
+    {% endif %}
+
+    {%- call component.entity_base(article_type) -%}
+      {{ component.id(request.url, "#article") }}
+      , "isPartOf": { "@id": "{{ request.url }}#webpage" }
+      {{ component.kv("headline", post.title) }}
+      {{ component.kv("description", post.summary) }}
+      {{ component.kv("datePublished", post.date_published_iso) }}
+      {{ component.kv("dateModified", post.date_modified_iso) }}
+      {{ component.kv("mainEntityOfPage", request.url, is_json=true) }}
+      
+      {# Set reading dimensions #}
+      {{ component.kv("wordCount", post.content | wordcount | string, is_json=true) }}
+      {{ component.kv("inLanguage", "en-US") }}
+
+      {# INLINE PERSONNEL: Map your writer directly without profile page paths #}
+      , "author": 
+      {%- call component.entity_base("Person") -%}
+        {{ component.kv("name", post.author_name) }}
+      {%- endcall -%}
+
+      {# GLOBAL BRAND LINK: Connect publisher back to homepage organization profile #}
+      , "publisher": { "@id": "{{ site_config.home_url }}#organization" }
+
+      {# IMAGE BLOCK: Add the required primary post image node #}
+      {% if post.featured_image %}
+      , "image": 
+      {%- call component.entity_base("ImageObject") -%}
+        {{ component.url(post.featured_image) }}
+        {{ component.kv("caption", post.title ~ " Featured Graphic") }}
+      {%- endcall -%}
+      {% endif %}
+    {%- endcall -%}
+
+    {# 3. Append the simple multi-step BreadcrumbList path #},
+    {%- call component.entity_base("BreadcrumbList") -%}
+      {{ component.id(request.url, "#breadcrumb") }}
+      , "itemListElement": [
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "1", is_json=true) }}
+          {{ component.kv("name", "Home") }}
+          {{ component.kv("item", site_config.home_url, is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "2", is_json=true) }}
+          {{ component.kv("name", post.category | capitalize) }}
+          {{ component.kv("item", site_config.home_url ~ "category/" ~ post.category ~ "/", is_json=true) }}
+        {%- endcall -%},
+        {%- call component.entity_base("ListItem") -%}
+          {{ component.kv("position", "3", is_json=true) }}
+          {{ component.kv("name", post.title) }}
+          {{ component.kv("item", request.url, is_json=true) }}
+        {%- endcall -%}
+      ]
+    {%- endcall -%}
+  ]
+}
+</script>
+
+  
