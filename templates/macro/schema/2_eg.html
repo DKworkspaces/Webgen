@@ -1,147 +1,178 @@
- BlogPost wirh video embedded 
+ working on it
+
+
+
+
+{# 1. GLOBAL WEBPAGE CONTAINER CONTAINER #}
+
+{
+  "@type": "WebPage",
+  "@id": "{{ post.url | trim }}/#webpage",
+  "url": "{{ post.url | trim }}",
+  "name": {{ post.title | tojson }},
+  "description": {{ post.meta_description | tojson }},
+  "inLanguage": "{{ post.language | default('en-IN') }}",
+  "isPartOf": {
+    "@type": "{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}",
+    "@id": "{{ post.parent_page_url | default(site_config.home_url) | trim }}/#webpage"},
+  "breadcrumb": {"@id": "{{ post.url | trim }}/#breadcrumb"},
+  "mainEntity": {"@id": "{{ post.url | trim }}/#article"}
+},
+{# 2. MASTER EDITORIAL CONTENT NODE #}
+{
+  "@type": "{{ post.schema_type | default('BlogPosting') }}",
+  "@id": "{{ post.url | trim }}/#article",
+  "isPartOf": {"@id": "{{ post.url | trim }}/#webpage"},
+  "mainEntityOfPage": {"@id": "{{ post.url | trim }}/#webpage"},
+  "headline": {{ post.title | tojson }},
+  "description": {{ post.meta_description | tojson }},
+  "url": "{{ post.url | trim }}",
+  "datePublished": "{{ post.date_published_iso }}",
+  "dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
+  "wordCount": {{ post.word_count | default(0) | int }},
+  "inLanguage": "{{ post.language | default('en-IN') }}",
+  "author": {
+        "@type": "Person",
+        "name": {{ post.author_name | tojson }},
+        "url": "{{ post_author_profile_url | default(site_config.home_url ~ '/authors/' ~ post.author_slug ~ '/') }}"
+      },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "{{ site_config.home_url | trim }}/#organization",
+    "name": {{ site_config.site_name | default('The Nexus Journal') | tojson }},
+    "logo": {
+    "@type": "ImageObject",
+    "url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"
+    }
+  },
+  {% if post.featured_image %}
+  "image": {
+    "@type": "ImageObject",
+    "@id": "{{ post.url | trim }}/#featuredimage",
+    "url": "{{ post.featured_image }}",
+    "caption": {{ post.image_caption | default(post.title) | tojson }},
+    "width": {{ post.image_width | default(1200) | int }},
+    "height": {{ post.image_height | default(630) | int }}
+   },{% endif %}
+   {% if post.video_embed_url %}
+   "hasPart": {"@id": "{{ post.url | trim }}/#video"},
+   {% endif %}
+   "publishingPrinciples": "{{ site_config.home_url | trim }}/editorial-policy/"
+}
+{# 3. PLATFORM-AWARE VIDEO OBJECT DATA NODE (Completely Streamlined) #}
+{% if post.video_embed_url %}
+,{
+   "@type": "VideoObject",
+   "@id": "{{ post.url | trim }}/#video",
+   "name": {{ post.video_title | default(post.title) | tojson }},
+   "description": {{ post.video_description | default(post.meta_description) | tojson }},
+   "thumbnailUrl": [
+        "{{ post.video_thumbnail_url | default(post.featured_image) }}"
+      ],
+   "uploadDate": "{{ post.video_upload_date | default(post.date_published_iso) }}",
+   "embedUrl": "{{ post.video_embed_url | trim }}",
+   "publisher": {
+     "@type": "Organization",
+     "@id": "{{ site_config.home_url | trim }}/#organization"
+    }
+   {% if post.video_duration_iso %}, "duration": "{{ post.video_duration_iso }}"{% endif %}
+
+{# DYNAMIC VIDEO CHAPTERS LOOP (Runs only if chapters exist on the post state) #}
+   {% if post.video_chapters %}
+   ,"hasPart": [
+   {% for chapter in post.video_chapters %}
+   {
+     "@type": "Clip",
+     "name": {{ chapter.title | tojson }},
+     "startOffset": {{ chapter.start_seconds | int }},
+     "endOffset": {{ chapter.end_seconds | int }},    
+     {# Resolves time parameters safely for both YouTube and Dailymotion networks #}
+     "url": "{% if 'youtube' in post.video_embed_url|lower or 'youtu.be' in post.video_embed_url|lower %}{{ post.video_embed_url | trim }}?t={{ chapter.start_seconds | int }}{% else %}{{ post.video_embed_url | trim }}?start={{ chapter.start_seconds | int }}{% endif %}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+   ]
+  {% endif %}
+}
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+BlogPost wirh video embedded 
 
 
 {
-      "@type": "WebPage",
-      "@id": "{{ post.url }}/#webpage",
-      "url": "{{ post.url }}",
-      "name": {{ post.title }},
-      "description": {{ (post.meta_description }},
-      "mainEntity": {
-        "@id": "{{ post.url }}/#video"
-      },
-      "isPartOf": {
-        "@id": "{{ post.parent_page_url }}/#webpage"
-      },
-      "about": {
-        "@id": "{{ site_config.home_url }}/#organization"
-      }
-    },
-    {
-      "@type": "BlogPosting",
-      "@id": "{{ post.url }}/#article",
-      "isPartOf": {
-        "@id": "{{ post.url }}/#webpage"
-      },
-      "headline": {{ post.title }},
-      "description": {{ post.meta_description }},
-      "url": "{{ post.url }}",
-      "datePublished": "{{ post.date_published_iso }}",
-      "dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
-      "mainEntityOfPage": {
-        "@id": "{{ post.url }}/#video"
-      },
-      "wordCount": {{ post.word_count | default(0) | int }},
-      "inLanguage": "{{ post.language | default('en-US') }}",
-      "author": {
-        "@type": "Person",
-        "name": {{ post.author_name }},
-        "url": "{{ post.author_profile_url }}"
-      },
-      "publisher": {
-        "@id": "{{ site_config.home_url }}/#organization"
-      }
-      {% if post.featured_image %},
-      "image": {
-        "@type": "ImageObject",
-        "url": "{{ post.featured_image }}",
-        "caption": {{ (post.image_caption }},
-        "width": {{ post.image_width | default(1200) | int }},
-        "height": {{ post.image_height | default(630) | int }}
-      }
-      {% endif %},
-      "hasPart": {
-        "@id": "{{ post.url }}/#video"
-      }
-    },
-    {
-      "@type": "VideoObject",
-      "@id": "{{ post.url }}/#video",
-      "name": {{ (post.video_title }},
-      "description": {{ (post.video_description | default(post.summary)) }},
-      "thumbnailUrl": [
-        "{{ post.video_thumbnail_url | default(post.featured_image) }}"
-      ],
-      "uploadDate": "{{ post.video_upload_date }}"
-      {% if post.video_embed_url %},"embedUrl": "{{ post.video_embed_url }}"{% endif %}
-      {% if post.video_source_url %},"contentUrl": "{{ post.video_source_url }}"{% endif %},
-      "mainEntityOfPage": "{{ post.url }}",
-      "publisher": {
-        "@type": "Organization",
-        "name": "{% if 'youtube' in (post.video_embed_url | default('') | lower) or 'youtu.be' in (post.video_embed_url | default('') | lower) %}YouTube{% elif 'dailymotion' in (post.video_embed_url | default('') | lower) %}Dailymotion{% else %}{{ site_config.home_name | default('Publisher') }}{% endif %}"
-      }
-      {% if post.video_duration_iso %},
-      "duration": "{{ post.video_duration_iso }}"
-      {% endif %}
-      {% if post.video_interaction_count %},
-      "interactionStatistic": {
-        "@type": "InteractionCounter",
-        "interactionType": { "@type": "WatchAction" },
-        "userInteractionCount": {{ post.video_interaction_count | int }}
-      }
-      {% endif %},
-      "potentialAction": {
-        "@type": "SeekToAction",
-        "target": "{{ post.url | trim }}?t={seek_to_second_number}",
-        "startOffset-input": "required name=seek_to_second_number"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "{{ post.url | trim }}/#breadcrumb",
-      "itemListElement": [
-        {% set position = 1 %}
-        {
-          "@type": "ListItem",
-          "position": {{ position }},
-          "name": {{ site_config.home_name | default('Home') | tojson }},
-          "item": "{{ site_config.home_url | trim }}"
-        }
-        {% if post.pillar_title and post.pillar_url %}
-          {% set position = position + 1 %}
-          ,{
-            "@type": "ListItem",
-            "position": {{ position }},
-            "name": {{ post.pillar_title | tojson }},
-            "item": "{{ post.pillar_url | trim }}"
-          }
-        {% endif %}
-        {% if post.subpillar_title and post.subpillar_url %}
-          {% set position = position + 1 %}
-          ,{
-            "@type": "ListItem",
-            "position": {{ position }},
-            "name": {{ post.subpillar_title | tojson }},
-            "item": "{{ post.subpillar_url | trim }}"
-          }
-        {% endif %}
-        {% if post.cluster_title and post.cluster_url %}
-          {% set position = position + 1 %}
-          ,{
-            "@type": "ListItem",
-            "position": {{ position }},
-            "name": {{ post.cluster_title | tojson }},
-            "item": "{{ post.cluster_url | trim }}"
-          }
-        {% endif %}
-        {% if post.subcluster_title and post.subcluster_url %}
-          {% set position = position + 1 %}
-          ,{
-            "@type": "ListItem",
-            "position": {{ position }},
-            "name": {{ post.subcluster_title | tojson }},
-            "item": "{{ post.subcluster_url | trim }}"
-          }
-        {% endif %}
-        {% set position = position + 1 %}
-        ,{
-          "@type": "ListItem",
-          "position": {{ position }},
-          "name": {{ post.title | tojson }},
-          "item": "{{ post.url | trim }}"
-        }
-      ]
+   "@type": "WebPage","@id": "{{ post.url }}/#webpage",
+   "url": "{{ post.url }}","name": {{ post.title }},
+   "description": {{ (post.meta_description }},
+   "mainEntity": {"@id": "{{ post.url }}/#video"},
+   "isPartOf": {"@id": "{{ post.parent_page_url }}/#webpage"},
+   "about": {"@id": "{{ site_config.home_url }}/#organization"}
+},
+{
+   "@type": "BlogPosting","@id": "{{ post.url }}/#article",
+   "isPartOf": {"@id": "{{ post.url }}/#webpage"},
+   "headline": {{ post.title }},"description": {{ post.meta_description }},
+   "url": "{{ post.url }}",
+   "datePublished": "{{ post.date_published_iso }}","dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
+   "mainEntityOfPage": {"@id": "{{ post.url }}/#video"},
+   "wordCount": {{ post.word_count | default(0) | int }},
+   "inLanguage": "{{ post.language | default('en-US') }}",
+   "author": {
+     "@type": "Person","name": {{ post.author_name }},
+     "url": "{{ post.author_profile_url }}"
+   },
+   "publisher": {"@id": "{{ site_config.home_url }}/#organization"}
+   {% if post.featured_image %},
+   "image": {
+     "@type": "ImageObject","url": "{{ post.featured_image }}",
+     "caption": {{ (post.image_caption }},
+     "width": {{ post.image_width | default(1200) | int }},"height": {{ post.image_height | default(630) | int }}
+    }{% endif %},
+    "hasPart": {"@id": "{{ post.url }}/#video"}
+},
+{
+   "@type": "VideoObject","@id": "{{ post.url }}/#video",
+   "name": {{ (post.video_title }},"description": {{ (post.video_description | default(post.summary)) }},
+   "thumbnailUrl": ["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
+   "uploadDate": "{{ post.video_upload_date }}"
+   {% if post.video_embed_url %},"embedUrl": "{{ post.video_embed_url }}"{% endif %}
+   {% if post.video_source_url %},"contentUrl": "{{ post.video_source_url }}"{% endif %},
+   "mainEntityOfPage": "{{ post.url }}",
+   "publisher": {
+   "@type": "Organization","name": "{% if 'youtube' in (post.video_embed_url | default('') | lower) or 'youtu.be' in (post.video_embed_url | default('') | lower) %}YouTube{% elif 'dailymotion' in (post.video_embed_url | default('') | lower) %}Dailymotion{% else %}{{ site_config.home_name | default('Publisher') }}{% endif %}"
+   }
+   {% if post.video_duration_iso %},
+   "duration": "{{ post.video_duration_iso }}"
+   {% endif %}
+},
+{
+   "@type": "BreadcrumbList","@id": "{{ post.url | trim }}/#breadcrumb",
+   "itemListElement": [
+   {% set position = 1 %}
+   {
+    "@type": "ListItem","position": {{ position }},
+    "name": {{ site_config.home_name | default('Home') | tojson }},"item": "{{ site_config.home_url | trim }}"
+   }
+   {% set position = 2 %}
+   ,{
+     "@type": "ListItem","position": {{ position }},
+     "name": {{ post.title | tojson }},"item": "{{ post.url | trim }}"
     }
+ ]
+}
 
 
 
