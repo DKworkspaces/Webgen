@@ -38,6 +38,36 @@
   ]
   {%- endif -%}
 
+{#.  this is place where i have to add article of cluster or category page for ranking purpose #}
+  ,"mainEntity": {
+    "@type": "Article",
+    "@id": "{{ page_url }}#article",
+    "headline": "{{ article_headline | striptags | e }}",
+    "description": "{{ article_intro_summary | striptags | e }}",
+    "articleBody": "{{ article_content | striptags | e }}",
+    {% if about_entities %}
+    "about": [
+      {% for entity in about_entities %}
+      {
+        "@type": "Thing",
+        "name": "{{ entity.name | e }}",
+        "sameAs": "{{ entity.wikipedia_url }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ],
+    {% endif %}
+    {% if mentions_entities %}
+    "mentions": [
+      {% for entity in mentions_entities %}
+      {
+        "@type": "Thing",
+        "name": "{{ entity.name | e }}",
+        "sameAs": "{{ entity.wikipedia_url }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+    {% endif %}
+  }
 
 
   {# C. DOWNWARD TREE MAPPING (Standardised to hasPart) #}
