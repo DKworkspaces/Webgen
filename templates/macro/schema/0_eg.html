@@ -225,13 +225,13 @@ how to use
 }
 </script>
 
-for home page             {{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
-about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }}
-contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }}
-Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }}
-Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }}
-Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }}
-Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }}
+for home page             {{ render_organization_schema(json_data) }},{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
+about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 
 
 What to Use as Your Primary Image
