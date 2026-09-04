@@ -32,10 +32,28 @@
   "wordCount": {{ post.word_count | default(0) | int }},
   "inLanguage": "{{ post.language | default('en-IN') }}",
   "author": {
-        "@type": "Person",
+        "@type": "Person","@id": "{{ site_config.home_url | trim }}/authors/staff-desk/#person",
         "name": {{ post.author_name | tojson }},
-        "url": "{{ post_author_profile_url | default(site_config.home_url ~ '/authors/' ~ post.author_slug ~ '/') }}"
+        "url": "{{ post_author_profile_url | default(site_config.home_url ~ '/authors/' ~ post.author_slug ~ '/') }}",
+{# 4. Crucial: Do NOT provide external personal social media tracking links (sameAs) #}
+        "jobTitle": "Strategic Analysis Team"
       },
+
+or
+
+"author": {
+  "@type": "Organization",
+  "@id": "{{ site_config.home_url | trim }}/#organization",
+  "name": {{ site_config.site_name | default('The Nexus Journal') | tojson }},
+  "url": "{{ site_config.home_url | trim }}",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"
+  }
+},
+
+
+
   "publisher": {
     "@type": "Organization",
     "@id": "{{ site_config.home_url | trim }}/#organization",
@@ -54,9 +72,25 @@
     "width": {{ post.image_width | default(1200) | int }},
     "height": {{ post.image_height | default(630) | int }}
    },{% endif %}
-   {% if post.video_embed_url %}
-   "hasPart": {"@id": "{{ post.url | trim }}/#video"},
-   {% endif %}
+{# THE UNIFIED COLLECTION CONTAINER NODE #}
+  "hasPart": [
+{# 1. Inject your video node pointer safely #}
+    {% if post.video_embed_url %}
+    {"@id": "{{ post.url | trim }}/#video"}
+    {% endif %}
+{# 2. Inject your physical text layout sections #}
+    {% if post.editorial_sections %},
+      {% for section in post.editorial_sections %}
+      {
+        "@type": "ArticleSection",
+        "@id": "{{ post.url | trim }}/#{{ section.anchor_slug }}",
+        "name": {{ section.heading_title | tojson }},
+        "url": "{{ post.url | trim }}#{{ section.anchor_slug }}",
+        "description": {{ section.brief_summary | tojson }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    {% endif %}
+  ],
    "publishingPrinciples": "{{ site_config.home_url | trim }}/editorial-policy/"
 }
 {# 3. PLATFORM-AWARE VIDEO OBJECT DATA NODE (Completely Streamlined) #}
