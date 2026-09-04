@@ -13,7 +13,7 @@
   }|tojson }}
   {%- endwith -%}
 
-  {# B. ABOUT PROPERTY (Handles both multiple topics or single inherited cluster topics) #}
+  {# B. ABOUT PROPERTY (Handles both multiple topics ) #}
   {%- if page_data.topics -%}
   ,"about": [
     {%- for topic in page_data.topics -%}
@@ -23,18 +23,22 @@
       }|tojson }}{{ "," if not loop.last }}
     {%- endfor -%}
   ]
-  {%- elif page_data.topic -%}
-  {%- with topic = page_data.topic -%}
-  ,"about": {{ {
-    "@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
-    "name": topic.name,"sameAs": topic.sameAs,
-    "isPartOf": {
-      "@type": parent_topic.type | default('Thing'),"@id": parent_topic.slug ~ "#topic",
-      "name": parent_topic.name,"sameAs": parent_topic.sameAs
-    } if (parent_topic and parent_topic.url) else none
-  }|tojson }}
-  {%- endwith -%}
   {%- endif -%}
+
+
+{# B. MENTION PROPERTY (Handles both multiple topics ) #}
+  {%- if page_data.topics -%}
+  ,"mentions": [
+    {%- for topic in page_data.mention_topics -%}
+      {{ {
+        "@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
+        "name": topic.name,"sameAs": topic.sameAs
+      }|tojson }}{{ "," if not loop.last }}
+    {%- endfor -%}
+  ]
+  {%- endif -%}
+
+
 
   {# C. DOWNWARD TREE MAPPING (Standardised to hasPart) #}
   {%- if items -%}
