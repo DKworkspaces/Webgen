@@ -1,6 +1,49 @@
 smart ticks for jinaj2 templates 
 
 
+in one template 
+{{ (func_base + '/' + func_path) | replace('//', '/') }}
+
+call from other template 
+# Inside your main template (e.g., deployment.yaml)
+{% for item in items %}
+  url: {% with func_base=item.base, func_path=item.path %}{% include 'shared/url_builder.j2' %}{% endwith %}
+{% endfor %}
+
+
+
+
+variables declared with block 
+
+
+{% for item in items %}
+  {% with base=item.base, path=item.path, full_url=(base + '/' + path) | replace('//', '/') %}
+    # You can now use all three variables freely inside this block
+    Base URL: {{ base }}
+    Target Path: {{ path }}
+    Absolute Link: {{ full_url }}
+  {% endwith %}
+{% endfor %}
+
+
+
+implementation of tuple
+
+{% set url_pairs = [
+  ("https://example.com", "/v1/users"),
+  ("https://example.com", "/health"),
+  ("https://example.com", "/intro")
+] %}
+
+{% for base, path in url_pairs %}
+  URL: {{ (base + '/' + path) | replace('//', '/') }}
+{% endfor %}
+
+
+
+
+
+
 Hack 1: The "Inverted Control" Batch Macro
 
 
