@@ -108,6 +108,37 @@
 {% endmacro %}
 
 
+breadcrumb = {
+    "page_url": "https://example.com",
+    
+    # Flat inner pages list (excluding home, which is hardcoded in the macro)
+    "breadcrumbs": [
+        {"name": "Blog", "url": "https://example.com"},
+        {"name": "SEO", "url": "https://example.com/seo"},
+        {"name": "Jinja Optimization", "url": "https://example.com"}
+    ]
+}
+
+{# 2. Breadcrumb Schema #}
+{% macro render_breadcrumb_schema(site_url,data) %}
+{
+  "@type": "BreadcrumbList","@id": "{{ data.page_url }}/#breadcrumb",
+  "itemListElement": [
+    {
+      "@type": "ListItem","position": 1,"name": "Home","item": "{{ site_url }}"
+    }
+    {%- if data.breadcrumbs -%}
+    ,
+    {%- for crumb in data.breadcrumbs -%}
+    {
+      "@type": "ListItem","position": {{ loop.index + 1 }},
+      "name": "{{ crumb.name }}","item": "{{ crumb.url }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+    {%- endif -%}
+  ]
+}
+{% endmacro %}
 
 
 
