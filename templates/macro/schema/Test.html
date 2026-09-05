@@ -6,18 +6,12 @@ Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type
 Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 
-
-  
-
-
 Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-
-Index Page (Root archive Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Individual Archive Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Sub-Archive Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-
+Index Page (Root archive Hub).             {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Individual Archive Page.                   {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Sub-Archive Page.                          {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ render_breadcrumb_schema(site_url,json_data) }}
@@ -28,6 +22,200 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% macro render_organization_schema(data) %}
+{
+  "@type": "Organization","@id": "{{ data.website.site_url }}/#organization",
+  "name": "{{ data.website.site_name }}","url": "{{ data.website.site_url }}",
+  "legalName": "{{ data.company.legal_name | default(data.website.site_name) }}","description": "{{ data.website.site_desc }}",
+  "knowsAbout": {{ data.website.knows_about_list | default([]) | tojson | safe }},
+  {% if data.website.slogan %}"slogan": "{{ data.website.slogan }}",{% endif %}
+  {% if data.company.founding_year %}"foundingDate": "{{ data.company.founding_year }}",{% endif %}
+  "logo": {
+    "@type": "ImageObject","@id": "{{ data.website.site_url }}/#logo",
+    "url": "{{ data.company.logo.url }}","caption": "{{ data.website.site_name }} Logo",
+    "width": {{ data.company.logo.width | default(512) }},"height": {{ data.company.logo.height | default(512) }}
+  },
+  "image": {"@id": "{{ data.website.site_url }}/#logo"},
+  "sameAs": {{ data.website.social_links | default([]) | tojson | safe }},
+  "contactPoint": [{
+      "@type": "ContactPoint","contactType": "customer service",
+      "availableLanguage": {{ data.company.contact.lang | default(["en"]) | tojson | safe }},
+      {% if data.company.contact.phone %}"telephone": "{{ data.company.company.contact.phone }}",{% endif %}
+      "email": "{{ data.company.contact.email }}"
+  }]
+  {%- if data.company.address -%},"address": {
+    "@type": "PostalAddress",
+    {% if data.company.address.street %}"streetAddress": "{{ data.company.address.street }}",{% endif %}
+    "addressLocality": "{{ data.company.address.locality | default('San Francisco') }}","addressRegion": "{{ data.company.address.region | default('CA') }}",
+    "postalCode": "{{ data.company.address.pin | default('94107') }}","addressCountry": "{{ data.company.address.country | default('US') }}"
+  }{%- endif -%}
+  {%- if data.website.policies.has_terms %}, "publishingPrinciples": "{{ data.website.site_url }}/terms/"{% endif -%}
+  {%- if data.website.policies.has_privacy %}, "privacyPolicy": "{{ data.website.site_url }}/privacy/"{% endif -%}
+  {%- if data.website.policies.has_editorial %}, "correctionsPolicy": "{{ data.website.site_url }}/editorial-policy/"{% endif -%}
+  {%- if data.website.policies.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.website.site_url }}/fact-check-policy/"{% endif -%}
+},
+{
+  "@type": "WebSite","@id": "{{ data.website.site_url }}/#website",
+  "url": "{{ data.website.site_url }}","name": "{{ data.website.site_name }}",
+  {% if data.website.alt_name %}"alternateName": "{{ data.website.alt_name }}",{% endif %}
+  "description": "{{ data.website.site_desc | default('') }}","inLanguage": "{{ data.website.site_lang | default('en-US') }}",
+  "publisher": {"@id": "{{ data.website.site_url }}/#organization"},
+  "potentialAction": [{
+    "@type": "SearchAction",
+    "target": {"@type": "EntryPoint","urlTemplate": "{{ data.website.site_url }}/search?q={search_term_string}"},
+    "query-input": "required name=search_term_string"
+  }]
+}
+{% endmacro %}
+
+
+
+
+{# 2. Breadcrumb Schema #}
+{% macro render_breadcrumb_schema(site_url,data) %}
+{
+  "@type": "BreadcrumbList","@id": "{{ data.page_url }}/#breadcrumb",
+  "itemListElement": [{"@type": "ListItem","position": 1,"name": "Home","item": "{{ site_url }}"}
+  {%- if data.breadcrumbs -%},
+    {%- for crumb in data.breadcrumbs -%}
+    {
+      "@type": "ListItem","position": {{ loop.index + 1 }},
+      "name": "{{ crumb.name }}","item": "{{ crumb.url }}"
+    }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+  {%- endif -%}
+]}
+{% endmacro %}
+
+
+
+
+
+
+
+
+{% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
+{
+  "@type": "{{ page_type }}","@id": "{{ page.url | trim }}/#webpage",
+  "url": "{{ page.url | trim }}","name": "{{ page.title | escape }}",
+  "description": "{{ page.desc | escape }}",
+  "isPartOf": {"@type": "WebSite","@id": "{{ website_data.website.site_url | trim }}/#website" },
+  "inLanguage": "{{ website_data.website.site_lang | default('en-US') }}"
+  {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
+  "mainEntity": {
+    "@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization",
+    "name": "{{ website_data.website.site_name | escape }}"
+  }{%- endif -%}
+  {%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},
+  "about": { "@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization","name": "{{ website_data.website.site_name | escape }}"},
+  "publishingPrinciples": { "@type": "CreativeWork","@id": "{{ website_data.website.site_url | trim }}/#policy"}
+  {%- endif -%}
+  {%- if page.hero_image or website_data.company.logo.url -%},
+  "primaryImageOfPage": {
+    "@type": "ImageObject","@id": "{{ page.url | trim }}/#primaryimage",
+    "url": "{{ page.hero_image | default(website_data.company.logo.url) | trim }}","caption": "{{ page.title | escape }} Visual Asset"
+  }{%- endif -%}
+  {%- if not is_home -%},"breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ page.url | trim }}/#breadcrumb"}{%- endif -%}
+  {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+}
+{%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},{
+   "@type": "CreativeWork","@id": "{{ page.url | trim }}/#policy",
+   "name": "{{ page.title | escape }}","headline": "{{ page.title | escape }}",
+   "description": "{{ page.desc | escape }}","url": "{{ page.url | trim }}",
+   "inLanguage": "{{ website_data.website.site_lang | default('en-US') }}",
+   "author": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
+   "publisher": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
+   "copyrightHolder": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"}
+   {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+}{%- endif -%}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+how to use
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {{ schemas.render_organization_schema(json_data) }},
+    {{ schemas.render_breadcrumb_schema(site_url,json_data) }}
+  ]
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{# Person Schema #}
+{% macro render_person_schema(website_data,member) %}
+{
+  "@type": "Person","@id": "{{ website_data.website.site_url }}/authors/{{ member.slug }}/#person",
+  "name": "{{ member.name }}","jobTitle": "{{ member.job_title }}",
+  "description": "{{ member.short_bio }}","image": "{{ member.avatar_url }}",
+  "url": "{{ website_data.website.site_url }}/authors/{{ member.slug }}/",
+  "sameAs": {{ member.social_profiles | default([]) | tojson | safe }},
+  "worksFor": {"@id": "{{ website_data.website.site_url }}/#organization"},
+  "knowsAbout": [
+  {%- for topic in member.knows_about -%}
+    {"@type": "Thing","@id": "{{ topic.wikidata_url }}",
+      "name": "{{ topic.name }}","sameAs": "{{ topic.wikipedia_url }}"
+      }{% if not loop.last %},{% endif %}
+  {%- endfor -%}],
+  "affiliation": {"@id": "{{ website_data.website.site_url }}/#organization"}
+}
+{% endmacro %}
 
 
 
