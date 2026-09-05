@@ -157,6 +157,71 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 
 
 
+{# category/tags/topic cluster pages #}
+
+{% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
+{
+  "@type": "{{ node_type }}","@id": "{{ page_data.url }}/#webpage",
+  "url": "{{ page_data.url }}","name": {{ page_data.title | tojson }},
+  "description": {{ (page_data.desc or page_data.meta_description) | default('') | tojson }},
+  "breadcrumb": {"@id": "{{ page_data.url }}/#breadcrumb"}
+  {%- with is_parent = (parent_page and parent_page.url) -%}
+  ,"isPartOf":{{ {
+    "@type": node_type if is_parent else "WebSite","@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
+    "url": parent_page.url if is_parent else page_data.site_url
+  }|tojson }}{%- endwith -%}
+  {%- if page_data.topics -%},"about": [
+  {%- for topic in page_data.topics -%}
+  {{ {"@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
+    "name": topic.name,"sameAs": topic.sameAs
+    }|tojson }}{{ "," if not loop.last }}
+  {%- endfor -%}]
+  {%- endif -%}
+  {%- if page_data.topics -%},"mentions": [
+  {%- for topic in page_data.mention_topics -%}
+  {{ {"@type": topic.type | default('Thing'),"@id": topic.slug ~ "#topic",
+    "name": topic.name,"sameAs": topic.sameAs
+    }|tojson }}{{ "," if not loop.last }}
+  {%- endfor -%}]
+  {%- endif -%}
+{#.  this is place where i have to add article of cluster or category page for ranking purpose #}
+  ,"mainEntity": {
+    "@type": "Article","@id": "{{ page_url }}#article",
+    "headline": "{{ article_headline | striptags | e }}","description": "{{ article_intro_summary | striptags | e }}",
+    "articleBody": "{{ article_content | striptags | e }}",
+    {% if about_entities %}"about": [
+    {% for entity in about_entities %}{
+      "@type": "Thing","name": "{{ entity.name | e }}",
+      "sameAs": "{{ entity.wikipedia_url }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}],
+    {% endif %}
+    {% if mentions_entities %}"mentions": [
+    {% for entity in mentions_entities %}{
+      "@type": "Thing","name": "{{ entity.name | e }}",
+      "sameAs": "{{ entity.wikipedia_url }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}]
+    {% endif %} }
+  {%- if items -%},"hasPart": [
+  {%- for item in items -%}
+    {%- with type_val = item.type | default('BlogPosting') -%}
+    {{ {"@type": type_val,"@id": item.url ~ "/#" ~ (type_val | lower),
+      "position": loop.index,"name": item.title if item.title else none,
+      "description": item.desc if item.desc else none,"url": item.url
+    } | tojson }}{{ "," if not loop.last }}
+    {%- endwith -%}
+  {%- endfor -%}]
+  {%- endif -%}
+}
+{% endmacro %}
+
+
+
+
+
+
+
 
 
 
