@@ -48,7 +48,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 
 
 {% macro render_organization_schema(data) %}
-{
+  {
   "@type": "Organization","@id": "{{ data.website.site_url }}/#organization",
   "name": "{{ data.website.site_name }}","url": "{{ data.website.site_url }}",
   "legalName": "{{ data.company.legal_name | default(data.website.site_name) }}","description": "{{ data.website.site_desc }}",
@@ -77,7 +77,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
   {%- if data.website.policies.has_privacy %}, "privacyPolicy": "{{ data.website.site_url }}/privacy/"{% endif -%}
   {%- if data.website.policies.has_editorial %}, "correctionsPolicy": "{{ data.website.site_url }}/editorial-policy/"{% endif -%}
   {%- if data.website.policies.has_fact_check %}, "verificationFactCheckingPolicy": "{{ data.website.site_url }}/fact-check-policy/"{% endif -%}
-},{
+  },{
   "@type": "WebSite","@id": "{{ data.website.site_url }}/#website",
   "url": "{{ data.website.site_url }}","name": "{{ data.website.site_name }}",
   {% if data.website.alt_name %}"alternateName": "{{ data.website.alt_name }}",{% endif %}
@@ -87,12 +87,12 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
     "@type": "SearchAction",
     "target": {"@type": "EntryPoint","urlTemplate": "{{ data.website.site_url }}/search?q={search_term_string}"},
     "query-input": "required name=search_term_string"
-}]}
+  }]}
 {% endmacro %}
 
 
 {% macro render_breadcrumb_schema(site_url,data) %}
-{
+  {
   "@type": "BreadcrumbList","@id": "{{ data.page_url }}/#breadcrumb",
   "itemListElement": [{"@type": "ListItem","position": 1,"name": "Home","item": "{{ site_url }}"}
   {%- if data.breadcrumbs -%},
@@ -102,11 +102,11 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
     }{% if not loop.last %},{% endif %}
     {%- endfor -%}
   {%- endif -%}
-]}
+  ]}
 {% endmacro %}
 
 {% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
-{
+  {
   "@type": "{{ page_type }}","@id": "{{ page.url | trim }}/#webpage",
   "url": "{{ page.url | trim }}","name": "{{ page.title | escape }}",
   "description": "{{ page.desc | escape }}",
@@ -128,8 +128,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
   }{%- endif -%}
   {%- if not is_home -%},"breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ page.url | trim }}/#breadcrumb"}{%- endif -%}
   {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
-}
-{%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},{
+  }{%- if page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'] -%},{
    "@type": "CreativeWork","@id": "{{ page.url | trim }}/#policy",
    "name": "{{ page.title | escape }}","headline": "{{ page.title | escape }}",
    "description": "{{ page.desc | escape }}","url": "{{ page.url | trim }}",
@@ -138,7 +137,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
    "publisher": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"},
    "copyrightHolder": {"@type": "Organization","@id": "{{ website_data.website.site_url | trim }}/#organization"}
    {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
-}{%- endif -%}
+  }{%- endif -%}
 {% endmacro %}
 
 
@@ -146,7 +145,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 {# category/tags/topic cluster pages #}
 
 {% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
-{
+  {
   "@type": "{{ node_type }}","@id": "{{ page_data.url }}/#webpage",
   "url": "{{ page_data.url }}","name": {{ page_data.title | tojson }},
   "description": {{ (page_data.desc or page_data.meta_description) | default('') | tojson }},
@@ -198,7 +197,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
     } | tojson }}{{ "," if not loop.last }}
     {%- endwith -%}
   {%- endfor -%}]
-{%- endif -%} }
+  {%- endif -%} }
 {% endmacro %}
 
 
@@ -211,14 +210,14 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 
 
 {% macro render_blogging_schema(post, site_config) %}
-{
+  {
   "@type": "WebPage","@id": "{{ post.url | trim }}/#webpage",
   "url": "{{ post.url | trim }}","name": {{ post.title | tojson }},
   "description": {{ post.meta_description | tojson }},"inLanguage": "{{ post.language | default('en-IN') }}",
   "isPartOf": {"@type": "{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id": "{{ post.parent_page_url | default(site_config.home_url) | trim }}/#webpage"},
   "breadcrumb": {"@id": "{{ post.url | trim }}/#breadcrumb"},
   "mainEntity": {"@id": "{{ post.url | trim }}/#article"}
-},{
+  },{
   "@type": "{{ post.schema_type | default('BlogPosting') }}","@id": "{{ post.url | trim }}/#article",
   "isPartOf": {"@id": "{{ post.url | trim }}/#webpage"},"mainEntityOfPage": {"@id": "{{ post.url | trim }}/#webpage"},
   "headline": {{ post.title | tojson }},"description": {{ post.meta_description | tojson }},
@@ -263,7 +262,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
   {% endfor %}
   {% endif %}],
   "publishingPrinciples": "{{ site_config.home_url | trim }}/editorial-policy/"
-} {% if post.video_embed_url %},{
+  } {% if post.video_embed_url %},{
   "@type": "VideoObject","@id": "{{ post.url | trim }}/#video",
   "name": {{ post.video_title | default(post.title) | tojson }},"description": {{ post.video_description | default(post.meta_description) | tojson }},
   "thumbnailUrl": ["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
@@ -279,7 +278,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
     }{% if not loop.last %},{% endif %}
   {% endfor %}]
   {% endif %}
-}{% endif %}
+  }{% endif %}
 {% endmacro %}
 
 
@@ -332,7 +331,7 @@ how to use
 
 {# Person Schema #}
 {% macro render_person_schema(website_data,member) %}
-{
+  {
   "@type": "Person","@id": "{{ website_data.website.site_url }}/authors/{{ member.slug }}/#person",
   "name": "{{ member.name }}","jobTitle": "{{ member.job_title }}",
   "description": "{{ member.short_bio }}","image": "{{ member.avatar_url }}",
@@ -346,7 +345,7 @@ how to use
       }{% if not loop.last %},{% endif %}
   {%- endfor -%}],
   "affiliation": {"@id": "{{ website_data.website.site_url }}/#organization"}
-}
+  }
 {% endmacro %}
 
 
