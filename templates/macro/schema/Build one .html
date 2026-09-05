@@ -24,19 +24,15 @@
     "width": {{ comp.logo.width | default(512, true) }},
     "height": {{ comp.logo.height | default(512, true) }}
   },
-  "image": {
-    "@id": "{{ web.site_url }}/#logo"
-  },
+  "image": {"@id": "{{ web.site_url }}/#logo"},
   "sameAs": {{ web.social_links | default([], true) | tojson }},
-  "contactPoint": [
-    {
-      "@type": "ContactPoint",
-      "contactType": "customer service",
-      "availableLanguage": {{ contact.lang | default(["en"], true) | tojson }},
-      {%- if contact.phone %}"telephone": "{{ contact.phone }}",{%- endif %}
-      "email": "{{ contact.email }}"
-    }
-  ],
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": {{ contact.lang | default(["en"], true) | tojson }},
+    {%- if contact.phone %}"telephone": "{{ contact.phone }}",{%- endif %}
+    "email": "{{ contact.email }}"
+  }],
   "address": {
     "@type": "PostalAddress"
     {%- if addr.street %}, "streetAddress": "{{ addr.street }}"{% endif %},
@@ -49,9 +45,21 @@
   {%- if policies.has_privacy %}, "privacyPolicy": "{{ web.site_url }}/privacy/"{% endif -%}
   {%- if policies.has_editorial %}, "correctionsPolicy": "{{ web.site_url }}/editorial-policy/"{% endif -%}
   {%- if policies.has_fact_check %}, "verificationFactCheckingPolicy": "{{ web.site_url }}/fact-check-policy/"{% endif -%}
-  
-  {# --- CALLER INJECTION POINT --- #}
-  {%- if caller -%},{{ caller() | trim }}{%- endif -%}
+},
+{
+  "@type": "WebSite",
+  "@id": "{{ web.site_url }}/#website",
+  "url": "{{ web.site_url }}",
+  "name": "{{ web.site_name }}",
+  {%- if web.alt_name %}"alternateName": "{{ web.alt_name }}",{%- endif %}
+  "description": "{{ web.site_desc | default('', true) }}",
+  "inLanguage": "{{ web.site_lang | default('en-US', true) }}",
+  "publisher": {"@id": "{{ web.site_url }}/#organization"},
+  "potentialAction": [{
+    "@type": "SearchAction",
+    "target": {"@type": "EntryPoint","urlTemplate": "{{ web.site_url }}/search?q={search_term_string}"},
+    "query-input": "required name=search_term_string"
+  }]
 }
 {% endwith %}
 {% endmacro %}
