@@ -122,7 +122,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
   {% with web = website_data.website, comp = website_data.company,
     is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
     site_url = web.site_url,
-    org_id = site_url ~ "/#organization",pol_id = site_url ~ "/#policy",
+    org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
     crumb_id = page.url ~ "/#breadcrumb" %}
   {
