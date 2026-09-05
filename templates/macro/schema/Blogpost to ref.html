@@ -1,0 +1,82 @@
+blogpost link to collective refrence page connect to external domains 
+
+
+blogpost 
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPost",
+  "@id": "{{ request.url }}#article",
+  "isBasedOn": "{{ post.category_reference_url }}#ref_page"
+}
+</script>
+
+
+
+refrence page 
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": "{{ request.url }}#ref_page",
+  "url": "{{ request.url }}",
+  "name": "{{ category.name|tojson }} Reference Hub",
+  "description": "Curated citations and verified industry resources for {{ category.name|tojson }}.",
+  "about": [
+    {
+      "@type": "Thing",
+      "name": "{{ category.name|tojson }}"
+    }
+  ],
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "Verified {{ category.name|tojson }} Citations",
+    "itemListElement": [
+      {% for citation in category.citations %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "item": {
+          "@type": "WebPage",
+          "@id": "{{ citation.url }}",
+          "name": "{{ citation.title|tojson }}",
+          "url": "{{ citation.url }}"
+        }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  "citation": [
+    {% for citation in category.citations %}
+    "{{ citation.url }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+
+
+
+
+eg
+
+# Context passed to the Blog template
+post = {
+    "title": "Advanced Dynamic Technical SEO Strategies",
+    "date_published": "2026-09-05T10:00:00+05:30",
+    "summary": "Deep dive into programmatically scaled site architectures.",
+    "category_reference_url": "https://yourdomain.com"
+}
+
+# Context passed to the Reference Hub template
+category = {
+    "name": "SEO & Analytics",
+    "citations": [
+        {"title": "Google Search Documentation", "url": "https://google.com"},
+        {"title": "W3C Semantic Web Standards", "url": "https://w3.org"}
+    ]
+}
+
+
