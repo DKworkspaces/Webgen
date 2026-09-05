@@ -1,78 +1,64 @@
  working on it
 
 
-
-
-{# 1. GLOBAL WEBPAGE CONTAINER CONTAINER #}
-
+{% macro render_blogging_schema(post, site_config) %}
 {
-  "@type": "WebPage",
-  "@id": "{{ post.url | trim }}/#webpage",
-  "url": "{{ post.url | trim }}",
-  "name": {{ post.title | tojson }},
-  "description": {{ post.meta_description | tojson }},
-  "inLanguage": "{{ post.language | default('en-IN') }}",
-  "isPartOf": {
-    "@type": "{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}",
-    "@id": "{{ post.parent_page_url | default(site_config.home_url) | trim }}/#webpage"},
+  "@type": "WebPage","@id": "{{ post.url | trim }}/#webpage",
+  "url": "{{ post.url | trim }}","name": {{ post.title | tojson }},
+  "description": {{ post.meta_description | tojson }},"inLanguage": "{{ post.language | default('en-IN') }}",
+  "isPartOf": {"@type": "{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id": "{{ post.parent_page_url | default(site_config.home_url) | trim }}/#webpage"},
   "breadcrumb": {"@id": "{{ post.url | trim }}/#breadcrumb"},
   "mainEntity": {"@id": "{{ post.url | trim }}/#article"}
-},
-{# 2. MASTER EDITORIAL CONTENT NODE #}
-{
-  "@type": "{{ post.schema_type | default('BlogPosting') }}",
-  "@id": "{{ post.url | trim }}/#article",
-  "isPartOf": {"@id": "{{ post.url | trim }}/#webpage"},
-  "mainEntityOfPage": {"@id": "{{ post.url | trim }}/#webpage"},
-  "headline": {{ post.title | tojson }},
-  "description": {{ post.meta_description | tojson }},
+},{
+  "@type": "{{ post.schema_type | default('BlogPosting') }}","@id": "{{ post.url | trim }}/#article",
+  "isPartOf": {"@id": "{{ post.url | trim }}/#webpage"},"mainEntityOfPage": {"@id": "{{ post.url | trim }}/#webpage"},
+  "headline": {{ post.title | tojson }},"description": {{ post.meta_description | tojson }},
   "url": "{{ post.url | trim }}",
-  "datePublished": "{{ post.date_published_iso }}",
-  "dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
-  "wordCount": {{ post.word_count | default(0) | int }},
-  "inLanguage": "{{ post.language | default('en-IN') }}",
+  "datePublished": "{{ post.date_published_iso }}","dateModified": "{{ post.date_modified_iso | default(post.date_published_iso) }}",
+  "wordCount": {{ post.word_count | default(0) | int }},"inLanguage": "{{ post.language | default('en-IN') }}",
   "author": {
-    "@type": "Organization",
-    "@id": "{{ site_config.home_url | trim }}/#organization",
-    "name": {{ site_config.site_name | default('The Nexus Journal') | tojson }},
-    "url": "{{ site_config.home_url | trim }}",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"
-    }
+    "@type": "Organization","@id": "{{ site_config.home_url | trim }}/#organization",
+    "name": {{ site_config.site_name | default('The Nexus Journal') | tojson }},"url": "{{ site_config.home_url | trim }}",
+    "logo": {"@type": "ImageObject","url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"}
   },
   "publisher": {
-    "@type": "Organization",
-    "@id": "{{ site_config.home_url | trim }}/#organization",
+    "@type": "Organization","@id": "{{ site_config.home_url | trim }}/#organization",
     "name": {{ site_config.site_name | default('The Nexus Journal') | tojson }},
-    "logo": {
-    "@type": "ImageObject",
-    "url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"
-    }
+    "logo": {"@type": "ImageObject","url": "{{ site_config.site_logo | default(site_config.home_url ~ '/assets/logo.png') }}"}
   },
   {% if post.featured_image %}
   "image": {
-    "@type": "ImageObject",
-    "@id": "{{ post.url | trim }}/#featuredimage",
-    "url": "{{ post.featured_image }}",
-    "caption": {{ post.image_caption | default(post.title) | tojson }},
-    "width": {{ post.image_width | default(1200) | int }},
-    "height": {{ post.image_height | default(630) | int }}
+    "@type": "ImageObject","@id": "{{ post.url | trim }}/#featuredimage",
+    "url": "{{ post.featured_image }}","caption": {{ post.image_caption | default(post.title) | tojson }},
+    "width": {{ post.image_width | default(1200) | int }},"height": {{ post.image_height | default(630) | int }}
    },{% endif %}
-{# THE UNIFIED COLLECTION CONTAINER NODE #}
+   {% if post.about_entities %}
+   "about": [
+     {% for entity in post.about_entities %}
+     {
+      "@type": "{{ entity.type | default('Thing') }}","name": {{ entity.name | tojson }},
+      "sameAs": "{{ entity.same_as_url | trim }}"
+     }{% if not loop.last %},{% endif %}
+    {% endfor %}
+   ],
+   {% endif %}
+   {% if post.mentioned_entities %}
+   "mentions": [
+     {% for entity in post.mentioned_entities %}
+     {
+       "@type": "{{ entity.type | default('Thing') }}","name": {{ entity.name | tojson }},
+       "sameAs": "{{ entity.same_as_url | trim }}"
+     }{% if not loop.last %},{% endif %}
+     {% endfor %}
+   ],
+   {% endif %}
   "hasPart": [
-{# 1. Inject your video node pointer safely #}
-    {% if post.video_embed_url %}
-    {"@id": "{{ post.url | trim }}/#video"}
-    {% endif %}
-{# 2. Inject your physical text layout sections #}
+    {% if post.video_embed_url %}{"@id": "{{ post.url | trim }}/#video"}{% endif %}
     {% if post.editorial_sections %},
       {% for section in post.editorial_sections %}
       {
-        "@type": "ArticleSection",
-        "@id": "{{ post.url | trim }}/#{{ section.anchor_slug }}",
-        "name": {{ section.heading_title | tojson }},
-        "url": "{{ post.url | trim }}#{{ section.anchor_slug }}",
+        "@type": "ArticleSection","@id": "{{ post.url | trim }}/#{{ section.anchor_slug }}",
+        "name": {{ section.heading_title | tojson }},"url": "{{ post.url | trim }}#{{ section.anchor_slug }}",
         "description": {{ section.brief_summary | tojson }}
       }{% if not loop.last %},{% endif %}
       {% endfor %}
@@ -80,41 +66,128 @@
   ],
    "publishingPrinciples": "{{ site_config.home_url | trim }}/editorial-policy/"
 }
-{# 3. PLATFORM-AWARE VIDEO OBJECT DATA NODE (Completely Streamlined) #}
-{% if post.video_embed_url %}
-,{
-   "@type": "VideoObject",
-   "@id": "{{ post.url | trim }}/#video",
-   "name": {{ post.video_title | default(post.title) | tojson }},
-   "description": {{ post.video_description | default(post.meta_description) | tojson }},
-   "thumbnailUrl": [
-        "{{ post.video_thumbnail_url | default(post.featured_image) }}"
-      ],
-   "uploadDate": "{{ post.video_upload_date | default(post.date_published_iso) }}",
-   "embedUrl": "{{ post.video_embed_url | trim }}",
-   "publisher": {
-     "@type": "Organization",
-     "@id": "{{ site_config.home_url | trim }}/#organization"
-    }
-   {% if post.video_duration_iso %}, "duration": "{{ post.video_duration_iso }}"{% endif %}
-
-{# DYNAMIC VIDEO CHAPTERS LOOP (Runs only if chapters exist on the post state) #}
-   {% if post.video_chapters %}
-   ,"hasPart": [
-   {% for chapter in post.video_chapters %}
-   {
-     "@type": "Clip",
-     "name": {{ chapter.title | tojson }},
-     "startOffset": {{ chapter.start_seconds | int }},
-     "endOffset": {{ chapter.end_seconds | int }},    
-     {# Resolves time parameters safely for both YouTube and Dailymotion networks #}
+{% if post.video_embed_url %},
+{
+  "@type": "VideoObject","@id": "{{ post.url | trim }}/#video",
+  "name": {{ post.video_title | default(post.title) | tojson }},"description": {{ post.video_description | default(post.meta_description) | tojson }},
+  "thumbnailUrl": ["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
+  "uploadDate": "{{ post.video_upload_date | default(post.date_published_iso) }}",
+  "embedUrl": "{{ post.video_embed_url | trim }}",
+  "publisher": {"@type": "Organization","@id": "{{ site_config.home_url | trim }}/#organization"}
+  {% if post.video_duration_iso %}, "duration": "{{ post.video_duration_iso }}"{% endif %}
+  {% if post.video_chapters %},
+  "hasPart": [
+  {% for chapter in post.video_chapters %}
+    {
+     "@type": "Clip","name": {{ chapter.title | tojson }},
+     "startOffset": {{ chapter.start_seconds | int }},"endOffset": {{ chapter.end_seconds | int }},    
      "url": "{% if 'youtube' in post.video_embed_url|lower or 'youtu.be' in post.video_embed_url|lower %}{{ post.video_embed_url | trim }}?t={{ chapter.start_seconds | int }}{% else %}{{ post.video_embed_url | trim }}?start={{ chapter.start_seconds | int }}{% endif %}"
     }{% if not loop.last %},{% endif %}
-    {% endfor %}
-   ]
+  {% endfor %}
+  ]
   {% endif %}
 }
 {% endif %}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  "site_config": {
+    "home_url": "https://thenexusjournal.com",
+    "site_name": "The Nexus Journal",
+    "site_logo": "https://thenexusjournal.com"
+  },
+  "post": {
+    "url": "https://thenexusjournal.com",
+    "title": "Mastering Advanced Python Automation Scripts for Enterprise Systems",
+    "meta_description": "A comprehensive deep dive into setting up custom automation scripts with Python, featuring native execution frameworks and optimization strategies.",
+    "language": "en-IN",
+    "schema_type": "TechArticle",
+    "date_published_iso": "2026-09-05T10:00:00+05:30",
+    "date_modified_iso": "2026-09-05T14:30:00+05:30",
+    "word_count": 1850,
+    "parent_page_url": "https://thenexusjournal.com",
+    
+    "featured_image": "https://thenexusjournal.com",
+    "image_caption": "Python system automation dashboard rendering data metrics.",
+    "image_width": 1200,
+    "height": 630,
+
+    "video_embed_url": "https://youtube.com",
+    "video_title": "Enterprise Python Automation Code Walkthrough",
+    "video_description": "Watch our complete deployment guide for setting up background workers using native Python libraries.",
+    "video_thumbnail_url": "https://thenexusjournal.com",
+    "video_upload_date": "2026-09-05T10:15:00+05:30",
+    "video_duration_iso": "PT12M45S",
+
+    "video_chapters": [
+      {
+        "title": "Setting up the Environment",
+        "start_seconds": 0,
+        "end_seconds": 180
+      },
+      {
+        "title": "Writing the Core Worker Logic",
+        "start_seconds": 181,
+        "end_seconds": 540
+      },
+      {
+        "title": "Deployment and Production Edge Cases",
+        "start_seconds": 541,
+        "end_seconds": 765
+      }
+    ],
+
+    "about_entities": [
+      {
+        "type": "ComputerLanguage",
+        "name": "Python",
+        "same_as_url": "https://wikipedia.org"
+      },
+      {
+        "type": "Automation",
+        "name": "Robotic Process Automation",
+        "same_as_url": "https://wikipedia.org"
+      }
+    ],
+
+    "mentioned_entities": [
+      {
+        "type": "OperatingSystem",
+        "name": "Linux",
+        "same_as_url": "https://wikipedia.org"
+      },
+      {
+        "type": "SoftwareApplication",
+        "name": "Docker",
+        "same_as_url": "https://wikipedia.org"
+      }
+    ],
+
+    "editorial_sections": [
+      {
+        "anchor_slug": "environment-prerequisites",
+        "heading_title": "1. Environment Prerequisites and Configuration",
+        "brief_summary": "An analysis of required core dependencies and native operating system flags required to initialize the background automation daemon safely."
+      },
+      {
+        "anchor_slug": "structuring-the-worker",
+        "heading_title": "2. Structuring the Multiprocessing Worker Pool",
+        "brief_summary": "Step-by-step breakdown of using Python's concurrent execution modules to handle file synchronization locks."
+      }
+    ]
+  }
+}
 
 
 
