@@ -251,14 +251,28 @@ page=
 
 
 {# category/tags/topic cluster pages #}
+{# sub component that is used as common for category n pillar pages #}
+{% macro render_topics_subschema(topics_array) %}
+  [ {%- for type, slug, name, sameAs in topics_array -%}
+    {
+      "@type": "{{ type | default('Thing') }}","@id": {{ (slug ~ "#topic") | tojson }},"name": {{ name | tojson }},"sameAs": {{ sameAs | tojson }}
+    }{{ "," if not loop.last }}
+  {%- endfor -%} ]
+{% endmacro %}
+
+eg:
+# The optimized tuple/array array format: [ (type, slug, name, sameAs), ... ]
+"topics_array": [
+  ["Organization","search-engine-optimization", 
+  "Search Engine Optimization","https://wikipedia.org"],
+  ["Thing","content-marketing", 
+  "Content Marketing", ["https://wikipedia.org","https://wikidata.org"] ]
+]
+
+
+
 
 {% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
-
-
-
-
-
-
   {
   "@type": "{{ node_type }}","@id": (page_data.url ~ "/#webpage"),
   "url": "{{ page_data.url }}","name": {{ page_data.title | tojson }},
