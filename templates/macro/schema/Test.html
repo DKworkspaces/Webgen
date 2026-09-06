@@ -119,6 +119,16 @@ page=
 
 
 
+{# sub macros #}
+
+{% macro render_tiu(type,id,url) %}
+  "@type":"{{ type }}","@id":"{{ id }}","url":"{{ url }}"
+{% endmacro %}
+
+{% macro render_nd(name,desc) %}
+  {% if name %},"name":"{{ name }}"{% endif %}
+  {% if desc %},"description":"{{ desc }}"{% endif %}
+{% endmacro %}
 
 
 
