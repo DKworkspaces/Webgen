@@ -121,14 +121,72 @@ page=
 
 {# sub macros #}
 
-{% macro render_tiu(type,id,url) %}
-  "@type":"{{ type }}","@id":"{{ id }}","url":"{{ url }}"
-{% endmacro %}
-
-{% macro render_nd(name,desc) %}
+{% macro _core(type,id,url=none,name=none,desc=none) %}
+  "@type":"{{ type }}","@id":"{{ id }}"
+  {% if url %},"url":"{{ url }}"{% endif %}
   {% if name %},"name":"{{ name }}"{% endif %}
   {% if desc %},"description":"{{ desc }}"{% endif %}
 {% endmacro %}
+{% macro _Img_obj(id,url,caption=none,width=512,height=512) %}
+  {"@type":"ImageObject","@id":"{{ id }}","url":"{{ url }}",
+  {% if caption %}"caption":"{{ caption }}",{% endif %}
+  "width":{{ width | int }},"height":{{ height | int }} }
+{% endmacro %}
+{% macro _Vid_obj(id,thumbnail_url, upload_date) %}
+  "@type":"VideoObject","@id": "{{ url }}",
+  "thumbnailUrl": {{ thumbnail_url | tojson }},
+  "uploadDate": "{{ upload_date }}","embedUrl": "{{ embed_url }}",
+  {% if duration %}"duration": "{{ duration }}"{% endif %}
+{% endmacro %}
+{% macro _Org_lite(id,name=none,url=none,img_id=none,img_url=none) %}
+  {"@type":"Organization","@id":"{{ id }}"
+  {% if name %},"name":"{{ name }}"{% endif %}
+  {% if url %},"url":"{{ url }}"{% endif %}
+  {% if img_id and img_url %},"logo":{{ _Img_obj(img_id,img_url) }} {% endif %} }
+{% endmacro %}
+{% macro _Lang(lang='en-US') %}
+  "inLanguage":"{{ lang }}"
+{% endmacro %}
+{% macro _Published(publish,modified=none) %}
+  "datePublished":"{{ publish }}","dateModified":"{{ modified | default(publish) }}"
+{% endmacro %}
+{% macro _Breadcrumb_lite(id) %}
+  {"@type":"BreadcrumbList","@id":"{{ id }}" }
+{% endmacro %}
+{% macro _PartOf(type,id,url) %}
+  {"@type":"{{ type }}","@id":"{{ id }}","url":"{{ url }}" }
+{% endmacro %}
+
+{% macro _topics(topics) %}
+  {%- for topic in topics -%}
+    {"@type":"{{ topic.type | default('Thing') }}","@id":"{{ topic.slug }}/#topic","name":"{{ topic.name }}","sameAs":{{ topic.sameAs | tojson }} }
+    {{ "," if not loop.last }}
+    {%- endfor -%}
+{% endmacro %}
+{% macro _items(items) %}
+  {%- for item in items -%}
+    {"@type":"{{ item.type | default('BlogPosting') }}","@id":"{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}","position":{{ loop.index }},
+    {% if item.name %}"name":"{{ item.name }}",{% endif %}
+    {% if item.desc %}"description":"{{ item.desc }}",{% endif %}
+    "url":"{{ item.url }}" } {{ "," if not loop.last }}
+    {%- endfor -%}
+{% endmacro %}
+{% macro _article_sec(post_url,sections) %}
+  {%- for sec in sections -%}
+    {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ sec.slug_id }}","name":"{{ sec.title }}","description":"{{ sec.desc }}","url":"{{ post.url }}#{{ sec.slug_id }}" } {{ "," if not loop.last }}
+    {%- endfor -%}
+{% endmacro %}
+{% macro _vid_chap(video_url,chapters) %}
+  {%- for chap in chapters -%}
+    {"@type":"Clip","name":"{{ chap.title }}","startOffset":{{ chap.start | int }},"endOffset":{{ chap.end | int }},"url":"{{ video_url }}?start={{ chat.start | int }}" } {{ "," if not loop.last }}
+    {%- endfor -%}
+{% endmacro %}
+
+
+
+
+
+
 
 
 
@@ -173,15 +231,14 @@ page=
   {%- if poli.has_fact_check %},"verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
   {% endwith %}
   {% with addr = comp.address %}
-  {%- if addr -%},"address": {
+  ,"address": {
     "@type": "PostalAddress",
     {% if addr.street %}"streetAddress": "{{ addr.street }}",{% endif %}
     "addressLocality": "{{ addr.locality | default('San Francisco') }}",
     "addressRegion": "{{ addr.region | default('CA') }}",
     "postalCode": "{{ addr.pin | default('94107') }}",
     "addressCountry": "{{ addr.country | default('US') }}"
-  }{%- endif -%}
-  {% endwith %}
+  }{% endwith %}
   },{
   "@type": "WebSite","@id": "{{ web_id }}",
   "url": "{{ site_url }}","name": "{{ web.site_name }}",
