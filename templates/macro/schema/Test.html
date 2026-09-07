@@ -346,10 +346,10 @@ eg:
 
 
 
-{% macro render_schema_node(page_data, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
+{% macro render_schema_node(page_data,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
   {
   "@type":"{{ node_type }}","@id":"{{ (page_data.url ~ "/#webpage") }}",
-  "url":"{{ page_data.url }}","name":"{{ page_data.title }},
+  "url":"{{ page_data.url }}","name":"{{ page_data.title }}",
   "description":"{{ (page_data.desc or page_data.meta_description) }}",
   "breadcrumb":{"@id":"{{ (page_data.url ~ "/#breadcrumb") }}"}
   {%- with is_parent = (parent_page and parent_page.url) -%}
@@ -364,7 +364,7 @@ eg:
     }|tojson }}{{ "," if not loop.last }}
   {%- endfor -%}]
   {%- endif -%}
-  {%- if page_data.topics -%},"mentions":[
+  {%- if page_data.mention_topics -%},"mentions":[
   {%- for topic in page_data.mention_topics -%}
   {{ {"@type":topic.type | default('Thing'),"@id":topic.slug ~ "#topic",
     "name":topic.name,"sameAs":topic.sameAs
@@ -373,18 +373,18 @@ eg:
   {%- endif -%}
 {#.  this is place where i have to add article of cluster or category page for ranking purpose #}
   ,"mainEntity":{
-    "@type":"Article","@id":"{{ page_url }}#article",
-    "headline":"{{ article_headline }}","description":"{{ article_intro_summary }}",
-    "articleBody":"{{ article_content }}",
-    {% if about_entities %}"about":[
-    {% for entity in about_entities %}{
+    "@type":"Article","@id":"{{ page_data.url }}#article",
+    "headline":"{{ article.headline }}","description":"{{ article.intro }}",
+    "articleBody":"{{ article.content }}",
+    {% if article.abouts %}"about":[
+    {% for entity in article.abouts %}{
       "@type":"Thing","name":"{{ entity.name }}",
       "sameAs":{{ entity.url | tojson }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}],
     {% endif %}
-    {% if mentions_entities %}"mentions":[
-    {% for entity in mentions_entities %}{
+    {% if article.mentions %}"mentions":[
+    {% for entity in article.mentions %}{
       "@type":"Thing","name":"{{ entity.name }}",
       "sameAs":{{ entity.url | tojson }}
     }{% if not loop.last %},{% endif %}
@@ -530,21 +530,21 @@ how to use
 
 
 {# Person Schema #}
-{% macro render_person_schema(website_data,member) %}
+{% macro render_person_schema(web,member) %}
   {
-  "@type":"Person","@id":"{{ website_data.website.site_url }}/authors/{{ member.slug }}/#person",
+  "@type":"Person","@id":"{{ web.site_url }}/authors/{{ member.slug }}/#person",
   "name":"{{ member.name }}","jobTitle":"{{ member.job_title }}",
   "description":"{{ member.short_bio }}","image":"{{ member.avatar_url }}",
-  "url":"{{ website_data.website.site_url }}/authors/{{ member.slug }}/",
+  "url":"{{ web.site_url }}/authors/{{ member.slug }}/",
   "sameAs":{{ member.social_profiles | tojson }},
-  "worksFor":{"@id":"{{ website_data.website.site_url }}/#organization"},
+  "worksFor":{"@id":"{{ web.site_url }}/#organization"},
   "knowsAbout":[
   {%- for topic in member.knows_about -%}
-    {"@type":"Thing","@id":"{{ topic.wikidata_url }}",
-      "name":"{{ topic.name }}","sameAs":"{{ topic.wikipedia_url }}"
+    {"@type":"Thing","@id":"{{ topic.id }}",
+      "name":"{{ topic.name }}","sameAs":"{{ topic.urls }}"
       }{% if not loop.last %},{% endif %}
   {%- endfor -%}],
-  "affiliation":{"@id":"{{ website_data.website.site_url }}/#organization"}
+  "affiliation":{"@id":"{{ web.site_url }}/#organization"}
   }
 {% endmacro %}
 
@@ -582,7 +582,167 @@ how to use
 
 
 
+## organization website schema function 
 
+
+{
+  "site_url": "https://techcorp.com",
+  "comp": {
+    "name": "TechCorp Solutions",
+    "legal_name": "TechCorp International LLC",
+    "desc": "A leading provider of enterprise AI software and cloud infrastructure solutions.",
+    "founded_year": "2018",
+    "logo": {"url": "https://techcorp.com","caption": "TechCorp Solutions Official Logo","width": 1024,"height": 1024},
+    "contact": {"email": "support@techcorp.com","lang": ["en", "es"]},
+    "address": {"locality": "Austin","region": "Texas","pin": "78701","country": "US"}
+  },
+  "web": {
+    "site_name": "TechCorp Hub",
+    "alt_name": "TechCorp Online",
+    "site_desc": "Resource portal for enterprise tech innovations.",
+    "site_lang": "en-US",
+    "knows_about_list": ["Artificial Intelligence","Cloud Computing","Enterprise Software"],
+    "slogan": "Empowering Tomorrow's Infrastructure",
+    "social_links": ["https://linkedin.com","https://twitter.com"],
+    "policies": {"has_terms": true,"has_privacy": true,"has_editorial": true,"has_fact_check": true}
+  }
+}
+
+## breadcrumbs 
+
+
+{
+  "site_url": "https://techcorp.com",
+  "data": {
+    "page_url": "https://techcorp.com",
+    "breadcrumbs": [
+      ["Blog", "https://techcorp.com"],
+      ["Artificial Intelligence", "https://techcorp.com/ai"],
+      ["Enterprise Solutions", "https://techcorp.com"]
+    ]
+  }
+}
+
+
+## webpage schema
+
+{
+  "website_data": {
+    "website": {
+      "site_url": "https://techcorp.com",
+      "site_name": "TechCorp Hub",
+      "site_lang": "en-US"
+    },
+    "company": {
+      "logo": {"url": "https://techcorp.com"}
+    }
+  },
+  "page": {
+    "url": "https://techcorp.com",
+    "title": "Privacy Policy",
+    "desc": "This policy details how TechCorp Solutions handles and protects your user information.",
+    "hero_image": "https://techcorp.com",
+    "date_published": "2026-01-15T09:00:00+00:00",
+    "date_modified": "2026-09-07T12:00:00+00:00"
+  }
+}
+
+
+
+
+
+
+## schema schema
+
+{
+  "node_type": "CollectionPage",
+  "page_data": {
+    "url": "https://techcorp.com",
+    "site_url": "https://techcorp.com",
+    "title": "Artificial Intelligence Hub",
+    "desc": "Explore our curated collection of expert insights and tutorials on artificial intelligence.",
+    "meta_description": "Curated articles covering Machine Learning, LLMs, and Enterprise Data Infrastructure.",
+    "topics": [{"type": "Thing","slug": "https://techcorp.com","name": "Artificial Intelligence","sameAs": "https://wikipedia.org"}],
+    "mention_topics": [{"type": "Thing","slug": "https://techcorp.com","name": "Cloud Computing","sameAs": "https://wikipedia.org"}]
+  },
+  "article": {
+    "headline": "The Ultimate Guide to Enterprise AI Transformation",
+    "intro": "An in-depth look at how modern corporations deploy generative AI platforms securely.",
+    "content": "Enterprise AI requires foundational shifts in cloud data architecture, vector storage, and fine-tuning governance frameworks...",
+    "abouts": [{"name": "Large Language Models","url": "https://wikipedia.org"}],
+    "mentions": [{"name": "Data Governance","url": "https://wikipedia.org"}]
+  },
+  "parent_page": {"url": "https://techcorp.com"},
+  "items": [{"type": "BlogPosting","url": "https://techcorp.com/getting-started-with-llms","title": "Getting Started with Large Language Models","desc": "A beginner's path into understanding foundational model architectures."}]
+}
+
+
+
+
+
+
+## blogpost schema
+
+
+
+{
+  "site_config": {
+    "home_url": "https://techcorp.com",
+    "site_name": "TechCorp Insights",
+    "site_logo": "https://techcorp.com"
+  },
+  "post": {
+    "url": "https://techcorp.com",
+    "title": "The Future of Generative AI in Enterprise Systems",
+    "meta_description": "An analysis of vector databases, prompt engineering, and LLM fine-tuning trends.",
+    "language": "en-IN",
+    "parent_page_url": "https://techcorp.com",
+    "schema_type": "BlogPosting",
+    "date_published_iso": "2026-09-01T08:00:00+05:30",
+    "date_modified_iso": "2026-09-07T14:30:00+05:30",
+    "word_count": 1450,
+    "featured_image": "https://techcorp.com",
+    "image_caption": "Concept rendering of neural processing clusters.",
+    "image_width": 1200,
+    "image_height": 630,
+    "about_entities": [{"type": "Thing","name": "Generative Artificial Intelligence","same_as_url": "https://wikipedia.org"}],
+    "mentioned_entities": [{"type": "Thing","name": "Vector Database","same_as_url": "https://wikipedia.org"}],
+    "editorial_sections": [
+      {"anchor_slug": "introduction-to-llms","heading_title": "1. Foundation Models in the Enterprise","brief_summary": "Understanding why generic LLMs require fine-tuning boundaries for security."},
+      {"anchor_slug": "vector-search-architectures","heading_title": "2. Deploying Vector Search Solutions","brief_summary": "Deep dive into production-grade embedding indexing configurations."}
+    ],
+    "video_embed_url": "https://youtube.com",
+    "video_title": "Enterprise Generative AI Masterclass",
+    "video_description": "Video walkthrough covering model evaluation and hosting parameters.",
+    "video_thumbnail_url": "https://techcorp.com",
+    "video_upload_date": "2026-09-02T10:00:00+05:30",
+    "video_duration_iso": "PT12M30S",
+    "video_chapters": [
+      {"title": "Introduction to Weights","start_sec": 0,"end_sec": 180},
+      {"title": "Optimizing Vector Indexes","start_sec": 181,"end_sec": 750}
+    ]
+  }
+}
+
+
+## person schema
+
+
+{
+  "web": {"site_url": "https://qname.ai"},
+  "member": {
+    "name": "Jane Doe",
+    "slug": "jane-doe",
+    "job_title": "Lead Domain Researcher & Content Editor",
+    "short_bio": "Jane oversees the programmatic WHOIS parsing models, RDAP data mapping architectures, and emerging AI model taxonomy timelines at QName AI.",
+    "avatar_url": "https://qname.ai",
+    "social_profiles": ["https://linkedin.com","https://twitter.com"],
+    "knows_about": [
+      {"id": "https://wikidata.org","name": "Domain Name System","urls": "https://wikipedia.org"},
+      {"id": "https://wikidata.org","name": "Registration Data Access Protocol","urls": "https://wikipedia.org"}
+    ]
+  }
+}
 
 
 
