@@ -197,12 +197,36 @@ page=
 
 
 
+{%- macro render_entities(entities) -%}
+  [{%- for type,name,slug,sameas in entities -%}
+  {"@type":"{{ type }}","name":"{{ name }}",
+    "@id":"{{ slug }}/#topic","sameAs":{{ sameas | tojson }}
+  }{% if not loop.last %},{% endif %}
+  {%- endfor -%}]
+{%- endmacro -%}
+
+
+eg:
+# The optimized tuple/array array format: [ (type, slug, name, sameAs), ... ]
+"topics_array": [
+  ["Organization","search-engine-optimization", "Search Engine Optimization","https://wikipedia.org"],
+  ["Thing","content-marketing", "Content Marketing", ["https://wikipedia.org","https://wikidata.org"] ]
+]
 
 
 
 
 
 
+
+
+
+{% if about_entities %}
+  "about": {{ render_entities(about_entities, 'about') }},
+{%- endif %}
+{% if mentions_entities -%}
+  "mentions": {{ render_entities(mentions_entities, 'mentions') }}
+{%- endif %}
 
 
 
@@ -327,11 +351,12 @@ page=
 {# category/tags/topic cluster pages #}
 {# sub component that is used as common for category n pillar pages #}
 {% macro render_topics_subschema(topics_array) %}
-  [ {%- for type, slug, name, sameAs in topics_array -%}
+  [{%- for type, slug, name, sameAs in topics_array -%}
     {
-      "@type":"{{ type | default('Thing') }}","@id":"{{ (slug ~ "#topic") }}","name":"{{ name }}","sameAs":{{ sameAs | tojson }}
+      "@type":"{{ type | default('Thing') }}","@id":"{{ (slug ~ "#topic") }}",
+      "name":"{{ name }}","sameAs":{{ sameAs | tojson }}
     }{{ "," if not loop.last }}
-  {%- endfor -%} ]
+  {%- endfor -%}]
 {% endmacro %}
 
 eg:
