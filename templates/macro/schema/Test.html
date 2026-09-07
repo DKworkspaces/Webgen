@@ -158,31 +158,86 @@ page=
 {% endmacro %}
 
 
+
 {% macro _topics(topics) %}
   {%- for topic in topics -%}
     {"@type":"{{ topic.type | default('Thing') }}","@id":"{{ topic.slug }}/#topic","name":"{{ topic.name }}","sameAs":{{ topic.sameAs | tojson }} }
-    {{ "," if not loop.last }}
-    {%- endfor -%}
+  {{- "," if not loop.last }} {%- endfor -%}
 {% endmacro %}
-
 {% macro _items(items) %}
   {%- for item in items -%}
     {"@type":"{{ item.type | default('BlogPosting') }}","@id":"{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}","position":{{ loop.index }},
     {% if item.name %}"name":"{{ item.name }}",{% endif %}
     {% if item.desc %}"description":"{{ item.desc }}",{% endif %}
-    "url":"{{ item.url }}" } {{ "," if not loop.last }}
-    {%- endfor -%}
+    "url":"{{ item.url }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
 {% endmacro %}
 {% macro _article_sec(post_url,sections) %}
   {%- for sec in sections -%}
-    {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ sec.slug_id }}","name":"{{ sec.title }}","description":"{{ sec.desc }}","url":"{{ post.url }}#{{ sec.slug_id }}" } {{ "," if not loop.last }}
-    {%- endfor -%}
+    {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ sec.slug_id }}","name":"{{ sec.title }}","description":"{{ sec.desc }}","url":"{{ post.url }}#{{ sec.slug_id }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
 {% endmacro %}
 {% macro _vid_chap(video_url,chapters) %}
   {%- for chap in chapters -%}
-    {"@type":"Clip","name":"{{ chap.title }}","startOffset":{{ chap.start | int }},"endOffset":{{ chap.end | int }},"url":"{{ video_url }}?start={{ chat.start | int }}" } {{ "," if not loop.last }}
-    {%- endfor -%}
+    {"@type":"Clip","name":"{{ chap.title }}","startOffset":{{ chap.start | int }},"endOffset":{{ chap.end | int }},"url":"{{ video_url }}?start={{ chat.start | int }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
 {% endmacro %}
+
+
+
+
+
+{% macro _Comp(logo_id,comp,cont,addr) %}
+  "image": {"@id": "{{ logo_id }}"},
+  "legalName": "{{ comp.legal_name | default(comp.name) }}",
+  "contactPoint": [{"@type": "ContactPoint",
+    "contactType": "customer service","availableLanguage": {{ cont.lang | default(["en"]) | tojson }},
+    {% if cont.phone %}"telephone": "{{ cont.phone }}",{% endif %}
+    "email": "{{ cont.email }}"
+  }],
+  "address": {"@type": "PostalAddress",
+    {% if addr.street %}"streetAddress": "{{ addr.street }}",{% endif %}
+    "addressLocality": "{{ addr.locality | default('San Francisco') }}","addressRegion": "{{ addr.region | default('CA') }}",
+    "postalCode": "{{ addr.pin | default('94107') }}","addressCountry": "{{ addr.country | default('US') }}"
+  }
+  {% if comp.founded_year %},"foundingDate": "{{ comp.founded_year }}"{% endif %}
+{% endmacro %}
+{% macro _Web(web) %}
+  "knowsAbout": {{ web.knows_about_list | default([]) | tojson }},
+  "sameAs": {{ web.social_links | default([]) | tojson }}
+  {% if web.slogan %},"slogan": "{{ web.slogan }}"{% endif %}
+{% endmacro %}
+
+{% macro _Policy(poli) %}
+  {%- if poli.has_terms %},"publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
+  {%- if poli.has_privacy %},"privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
+  {%- if poli.has_editorial %},"correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
+  {%- if poli.has_fact_check %},"verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
+{% endmacro %}
+
+
+{# making basic schemas #}
+
+{% macro render_organization_schema(site_url,web,comp,logo) %}
+  {% with org_id = site_url ~ "/#organization",logo_id = site_url ~ "/#logo",web_id = site_url ~ "/#website" %}
+  {
+    {{ _core(type="Organization",id=org_id,url=site_url,name=comp.name,desc=comp.desc) }},
+    "logo":{{ _Img_obj(id=logo_id,url=logo.url,caption=logo.caption,width=logo.width,height=logo.height) }},
+    {{ _Comp(logo_id=logo_id,comp=comp,cont=comp.contact,addr=comp.address) }},{{ _Web(web=web) }},
+    {%- if web.policies %}{{ _Policy(poli=web.policies) }}{% endif -%}
+  },{
+    {{ _core(type="WebSite",id=web_id,url=site_url,name=web.site_name,desc=web.site_desc) }},
+    {{ _Lang() }},"publisher":{{ _Org_lite(id=org_id) }},
+    {% if web.alt_name %}"alternateName": "{{ web.alt_name }}",{% endif %}
+    "potentialAction": [{"@type": "SearchAction","target": {"@type": "EntryPoint","urlTemplate": "{{ site_url }}/search?q={search_term_string}"},"query-input": "required name=search_term_string" }]
+  }
+  {% endwith %}
+{% endmacro %}
+
+
+
+
+
 
 
 
