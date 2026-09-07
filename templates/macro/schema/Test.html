@@ -197,52 +197,57 @@ page=
 
 
 
-{%- macro render_entities(entities) -%}
-  [{%- for type,name,slug,sameas in entities -%}
-  {"@type":"{{ type }}","name":"{{ name }}",
-    "@id":"{{ slug }}/#topic","sameAs":{{ sameas | tojson }}
-  }{% if not loop.last %},{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{# sub component that is used as common for category n pillar pages #}
+{% macro _topics(topics_array) %}
+  [{%- for type, slug, name, sameAs in topics_array -%}
+    {"@type":"{{ type }}","@id":"{{ (slug ~ "#topic") }}","name":"{{ name }}","sameAs":{{ sameAs | tojson }} }
+    {{ "," if not loop.last }}
   {%- endfor -%}]
-{%- endmacro -%}
+{% endmacro %}
+
+{% macro _items(items) %}
+  {%- for item in items -%}
+    {"@type":"{{ item.type | default('BlogPosting') }}","@id":"{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}","position":{{ loop.index }},
+    {% if item.name %}"name":"{{ item.name }}",{% endif %}
+    {% if item.desc %}"description":"{{ item.desc }}",{% endif %}
+    "url":"{{ item.url }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
+{% endmacro %}
 
 
-eg:
-# The optimized tuple/array array format: [ (type, slug, name, sameAs), ... ]
-"topics_array": [
-  ["Organization","search-engine-optimization", "Search Engine Optimization","https://wikipedia.org"],
-  ["Thing","content-marketing", "Content Marketing", ["https://wikipedia.org","https://wikidata.org"] ]
-]
-
-
-
-
-
-
-
-
-
-{% if about_entities %}
-  "about": {{ render_entities(about_entities, 'about') }},
-{%- endif %}
-{% if mentions_entities -%}
-  "mentions": {{ render_entities(mentions_entities, 'mentions') }}
-{%- endif %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+{% macro _article_sec(post_url,sections) %}
+  {%- for slug,title,desc in sections -%}
+    {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ slug }}","name":"{{ title }}","description":"{{ desc }}","url":"{{ post.url }}#{{ slug }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
+{% endmacro %}
+{% macro _vid_chap(video_url,chapters) %}
+  [{%- for title,start,end in chapters -%}
+    {"@type":"Clip","name":"{{ title }}","startOffset":{{ start | int }},"endOffset":{{ end | int }},"url":"{{ video_url }}?start={{ start | int }}" }
+  {{- "," if not loop.last }} {%- endfor -%}]
+{% endmacro %}
 
 
 
@@ -258,7 +263,7 @@ eg:
   {"@type":"Organization","@id":"{{ org_id }}",
   "name":"{{ comp.name }}","url":"{{ site_url }}",
   "legalName":"{{ comp.legal_name | default(comp.name) }}","description":"{{ comp.desc }}",
-  "knowsAbout":{{ web.knows_about_list | default([]) | tojson }},
+  "knowsAbout":{{ _topics(web.knows_about_list) }},
   {% if web.slogan %}"slogan":"{{ web.slogan }}",{% endif %}{% if comp.founded_year %}"foundingDate":"{{ comp.founded_year }}",{% endif %}
   {% with logo = comp.logo %}"logo":{
     "@type":"ImageObject","@id":"{{ logo_id }}",
@@ -349,27 +354,6 @@ eg:
 
 
 {# category/tags/topic cluster pages #}
-{# sub component that is used as common for category n pillar pages #}
-{% macro render_topics_subschema(topics_array) %}
-  [{%- for type, slug, name, sameAs in topics_array -%}
-    {
-      "@type":"{{ type | default('Thing') }}","@id":"{{ (slug ~ "#topic") }}",
-      "name":"{{ name }}","sameAs":{{ sameAs | tojson }}
-    }{{ "," if not loop.last }}
-  {%- endfor -%}]
-{% endmacro %}
-
-eg:
-# The optimized tuple/array array format: [ (type, slug, name, sameAs), ... ]
-"topics_array": [
-  ["Organization","search-engine-optimization", 
-  "Search Engine Optimization","https://wikipedia.org"],
-  ["Thing","content-marketing", 
-  "Content Marketing", ["https://wikipedia.org","https://wikidata.org"] ]
-]
-
-
-
 
 {% macro render_schema_node(page_data,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
   {
@@ -382,39 +366,15 @@ eg:
     "@type": node_type if is_parent else "WebSite","@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
     "url": parent_page.url if is_parent else page_data.site_url
   }|tojson }}{%- endwith -%}
-  {%- if page_data.topics -%},"about":[
-  {%- for topic in page_data.topics -%}
-  {{ {"@type":topic.type | default('Thing'),"@id":topic.slug ~ "#topic",
-    "name":topic.name,"sameAs":topic.sameAs
-    }|tojson }}{{ "," if not loop.last }}
-  {%- endfor -%}]
-  {%- endif -%}
-  {%- if page_data.mention_topics -%},"mentions":[
-  {%- for topic in page_data.mention_topics -%}
-  {{ {"@type":topic.type | default('Thing'),"@id":topic.slug ~ "#topic",
-    "name":topic.name,"sameAs":topic.sameAs
-    }|tojson }}{{ "," if not loop.last }}
-  {%- endfor -%}]
-  {%- endif -%}
+  {%- if page_data.topics -%},"about":{{ _topics(page_data.topics) }} {%- endif -%}
+  {%- if page_data.mention_topics -%},"mentions":{{ _topics(page_data.mention_topics) }} {%- endif -%}
 {#.  this is place where i have to add article of cluster or category page for ranking purpose #}
   ,"mainEntity":{
     "@type":"Article","@id":"{{ page_data.url }}#article",
     "headline":"{{ article.headline }}","description":"{{ article.intro }}",
     "articleBody":"{{ article.content }}",
-    {% if article.abouts %}"about":[
-    {% for entity in article.abouts %}{
-      "@type":"Thing","name":"{{ entity.name }}",
-      "sameAs":{{ entity.url | tojson }}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}],
-    {% endif %}
-    {% if article.mentions %}"mentions":[
-    {% for entity in article.mentions %}{
-      "@type":"Thing","name":"{{ entity.name }}",
-      "sameAs":{{ entity.url | tojson }}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}]
-    {% endif %} }
+    {% if article.abouts %}"about":{{ _topics(article.abouts) }},{% endif %}
+    {% if article.mentions %}"mentions":{{ _topics(article.mentions) }} {% endif %} }
   {%- if items -%},"hasPart":[
   {%- for item in items -%}
     {%- with type_val = item.type | default('BlogPosting') -%}
@@ -462,32 +422,16 @@ eg:
     "url":"{{ post.featured_image }}","caption":"{{ post.image_caption | default(post.title) }}",
     "width":{{ post.image_width | default(1200) | int }},"height":{{ post.image_height | default(630) | int }}
    },{% endif %}
-   {% if post.about_entities %}"about":[
-    {% for entity in post.about_entities %}
-      {"@type":"{{ entity.type | default('Thing') }}","name":"{{ entity.name }}",
-      "sameAs":{{ entity.same_as_url | tojson }}
-      }{% if not loop.last %},{% endif %}
-    {% endfor %}],
-   {% endif %}
-   {% if post.mentioned_entities %}"mentions":[
-     {% for entity in post.mentioned_entities %}
-     {"@type":"{{ entity.type | default('Thing') }}","name":"{{ entity.name }}",
-     "sameAs":{{ entity.same_as_url | tojson }}
-     }{% if not loop.last %},{% endif %}
-   {% endfor %}],
-  {% endif %}
+    {% if post.about_entities %}"about":{{ _topics(post.about_entities) }},{% endif %}
+    {% if post.mentioned_entities %}"mentions":{{ _topics(post.mentioned_entities) }} {% endif %} }
   "hasPart":[
   {% if post.video_embed_url %}{"@id":"{{ post.url }}/#video"}{% endif %}
-  {% if post.editorial_sections %},
-  {% for section in post.editorial_sections %}
-    {"@type":"ArticleSection","@id":"{{ post.url }}/#{{ section.anchor_slug }}",
-    "name":"{{ section.heading_title }}","url":"{{ post.url }}#{{ section.anchor_slug }}",
-    "description":"{{ section.brief_summary }}"
-    }{% if not loop.last %},{% endif %}
-  {% endfor %}
-  {% endif %}],
+  {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
+    {{ _article_sec(post.url,post.editorial_sections) }} {% endif %}],
   "publishingPrinciples":"{{ site_config.home_url }}/editorial-policy/"
-  } {% if post.video_embed_url %},{
+  }
+  {% if post.video_embed_url %}
+  ,{
   "@type":"VideoObject","@id":"{{ post.url }}/#video",
   "name":"{{ post.video_title | default(post.title) }}","description":"{{ post.video_description | default(post.meta_description) }}",
   "thumbnailUrl":["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
@@ -495,14 +439,7 @@ eg:
   "embedUrl":"{{ post.video_embed_url }}",
   "publisher":{"@type":"Organization","@id":"{{ site_config.home_url }}/#organization"}
   {% if post.video_duration_iso %},"duration":"{{ post.video_duration_iso }}"{% endif %}
-  {% if post.video_chapters %},"hasPart":[
-  {% for chapter in post.video_chapters %}
-    {"@type":"Clip","name":"{{ chapter.title }}",
-     "startOffset":{{ chapter.start_sec | int }},"endOffset":{{ chapter.end_sec | int }},    
-     "url":"{% if 'youtube' in post.video_embed_url|lower or 'youtu.be' in post.video_embed_url|lower %}{{ post.video_embed_url }}?t={{ chapter.start_sec | int }}{% else %}{{ post.video_embed_url }}?start={{ chapter.start_sec | int }}{% endif %}"
-    }{% if not loop.last %},{% endif %}
-  {% endfor %}]
-  {% endif %}
+  {% if post.video_chapters %},"hasPart":{{ _vid_chap(post.video_embed_url,post.video_chapters) }} {% endif %}
   }{% endif %}
 {% endmacro %}
 
@@ -563,12 +500,7 @@ how to use
   "url":"{{ web.site_url }}/authors/{{ member.slug }}/",
   "sameAs":{{ member.social_profiles | tojson }},
   "worksFor":{"@id":"{{ web.site_url }}/#organization"},
-  "knowsAbout":[
-  {%- for topic in member.knows_about -%}
-    {"@type":"Thing","@id":"{{ topic.id }}",
-      "name":"{{ topic.name }}","sameAs":"{{ topic.urls }}"
-      }{% if not loop.last %},{% endif %}
-  {%- endfor -%}],
+  "knowsAbout":{{ _topics(member.knows_about) }},
   "affiliation":{"@id":"{{ web.site_url }}/#organization"}
   }
 {% endmacro %}
@@ -627,8 +559,8 @@ how to use
     "site_desc": "Resource portal for enterprise tech innovations.",
     "site_lang": "en-US",
     "knows_about_list": [
-    {"@type": "Thing","name": "Dental Implants","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-    {"@type": "Thing","name": "Invisalign","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"}
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ],
     "slogan": "Empowering Tomorrow's Infrastructure",
     "social_links": ["https://linkedin.com","https://twitter.com"],
@@ -691,18 +623,26 @@ how to use
     "desc": "Explore our curated collection of expert insights and tutorials on artificial intelligence.",
     "meta_description": "Curated articles covering Machine Learning, LLMs, and Enterprise Data Infrastructure.",
     "topics": [
-      {"@type": "Thing","name": "Hybrid Vehicle","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-      {"@type": "Thing","name": "Toyota","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"}],
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
     "mention_topics": [
-      {"@type": "Thing","name": "Lithium-ion Battery","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-      {"@type": "Thing","name": "Tesla, Inc.","@id": "https://wikidata.org","sameAs": "https://wikipedia.org."}]
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ]
   },
   "article": {
     "headline": "The Ultimate Guide to Enterprise AI Transformation",
     "intro": "An in-depth look at how modern corporations deploy generative AI platforms securely.",
     "content": "Enterprise AI requires foundational shifts in cloud data architecture, vector storage, and fine-tuning governance frameworks...",
-    "abouts": [{"name": "Large Language Models","url": "https://wikipedia.org"}],
-    "mentions": [{"name": "Data Governance","url": "https://wikipedia.org"}]
+    "abouts": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "mentions": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ]
   },
   "parent_page": {"url": "https://techcorp.com"},
   "items": [{"type": "BlogPosting","url": "https://techcorp.com/getting-started-with-llms","title": "Getting Started with Large Language Models","desc": "A beginner's path into understanding foundational model architectures."}]
@@ -738,14 +678,16 @@ how to use
     "image_width": 1200,
     "image_height": 630,
     "about_entities": [
-      {"@type": "Thing","name": "Hybrid Vehicle","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-      {"@type": "Thing","name": "Toyota","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"}],
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
     "mentioned_entities": [
-      {"@type": "Thing","name": "Lithium-ion Battery","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-      {"@type": "Thing","name": "Tesla, Inc.","@id": "https://wikidata.org","sameAs": "https://wikipedia.org."}]
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
     "editorial_sections": [
-      {"anchor_slug": "introduction-to-llms","heading_title": "1. Foundation Models in the Enterprise","brief_summary": "Understanding why generic LLMs require fine-tuning boundaries for security."},
-      {"anchor_slug": "vector-search-architectures","heading_title": "2. Deploying Vector Search Solutions","brief_summary": "Deep dive into production-grade embedding indexing configurations."}
+      ["introduction-to-llms","1. Foundation Models in the Enterprise","Understanding why generic LLMs require fine-tuning boundaries for security."],
+      ["vector-search-architectures","2. Deploying Vector Search Solutions","Deep dive into production-grade embedding indexing configurations."]
     ],
     "video_embed_url": "https://youtube.com",
     "video_title": "Enterprise Generative AI Masterclass",
@@ -754,8 +696,8 @@ how to use
     "video_upload_date": "2026-09-02T10:00:00+05:30",
     "video_duration_iso": "PT12M30S",
     "video_chapters": [
-      {"title": "Introduction to Weights","start_sec": 0,"end_sec": 180},
-      {"title": "Optimizing Vector Indexes","start_sec": 181,"end_sec": 750}
+      ["Introduction to Weights",0, 180],
+      ["Optimizing Vector Indexes", 181, 750]
     ]
   }
 }
@@ -774,8 +716,8 @@ how to use
     "avatar_url": "https://qname.ai",
     "social_profiles": ["https://linkedin.com","https://twitter.com"],
     "knows_about": [
-      {"@type": "Thing","name": "Dental Implants","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"},
-      {"@type": "Thing","name": "Invisalign","@id": "https://wikidata.org","sameAs": "https://wikipedia.org"}
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ]
   }
 }
