@@ -157,12 +157,14 @@ page=
   {"@type":"{{ type }}","@id":"{{ id }}","url":"{{ url }}" }
 {% endmacro %}
 
+
 {% macro _topics(topics) %}
   {%- for topic in topics -%}
     {"@type":"{{ topic.type | default('Thing') }}","@id":"{{ topic.slug }}/#topic","name":"{{ topic.name }}","sameAs":{{ topic.sameAs | tojson }} }
     {{ "," if not loop.last }}
     {%- endfor -%}
 {% endmacro %}
+
 {% macro _items(items) %}
   {%- for item in items -%}
     {"@type":"{{ item.type | default('BlogPosting') }}","@id":"{{ item.url }}/#{{ item.type | default('BlogPosting') | lower }}","position":{{ loop.index }},
