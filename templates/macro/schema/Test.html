@@ -236,6 +236,73 @@ page=
 
 
 
+{% macro render_breadcrumb_schema(site_url,data) %}
+  {% with crumbs = data.breadcrumbs ,page_url = data.page_url ~ "/#breadcrumb" %}
+  {
+{{ _core(type="BreadcrumbList",id=page_url) }},
+
+
+  "itemListElement": [{"@type": "ListItem","position": 1,"name": "Home","item": "{{ site_url }}"}
+  {%- if crumbs -%}
+    {%- for name, url in crumbs -%}
+    ,{"@type": "ListItem","position": {{ loop.index + 1 }},"name": "{{ name | tojson }}","item": "{{ url }}"}
+    {%- endfor -%}
+  {%- endif -%}
+  ]}{% endwith %}
+{% endmacro %}
+
+{% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
+  {% with web = website_data.website, comp = website_data.company,
+    is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
+    site_url = web.site_url,
+    org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
+    web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
+    crumb_id = page.url ~ "/#breadcrumb" %}
+  {
+{{ _core(type=page_type,id=page_id,url=page.url,name=page.title,desc=page.desc) }},
+
+  "isPartOf": {"@type": "WebSite","@id": "{{ web_id }}"},
+  "inLanguage": "{{ web.site_lang | default('en-US') }}"
+  {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
+  "mainEntity": {
+    "@type": "Organization","@id": "{{ org_id }}",
+    "name": "{{ web.site_name | escape }}"
+  }{%- endif -%}
+  {%- if is_policy -%},
+  "about": { "@type": "Organization","@id": "{{ org_id }}","name": "{{ web.site_name | escape }}"},
+  "publishingPrinciples": { "@type": "CreativeWork","@id": "{{ pol_id }}"}
+  {%- endif -%}
+  {%- if page.hero_image or comp.logo.url -%},
+  "primaryImageOfPage": {
+    "@type": "ImageObject","@id": (page.url ~ "/#primaryimage"),
+    "url": "{{ page.hero_image | default(comp.logo.url) | trim }}","caption": "{{ page.title | escape }} Visual Asset"
+  }{%- endif -%}
+  {%- if not is_home -%},"breadcrumb": { "@type": "BreadcrumbList", "@id": "{{ crumb_id }}"}{%- endif -%}
+  {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+  }{%- if is_policy -%},{
+{{ _core(type="CreativeWork",id=pol_id,url=page.url,name=page.title,desc=page.desc) }},
+
+
+
+   "headline": "{{ page.title | escape }}",
+   "inLanguage": "{{ web.site_lang | default('en-US') }}",
+   "author": {"@type": "Organization","@id": "{{ org_id }}"},
+   "publisher": {"@type": "Organization","@id": "{{ org_id }}"},
+   "copyrightHolder": {"@type": "Organization","@id": "{{ org_id }}"}
+   {%- if page.date_published -%},"datePublished": "{{ page.date_published }}","dateModified": "{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+  }{%- endif -%}
+  {% endwith %}
+{% endmacro %}
+
+
+
+
+
+
+
+
+
+
 
 
 
