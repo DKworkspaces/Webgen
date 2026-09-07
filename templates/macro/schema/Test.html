@@ -228,7 +228,7 @@ page=
 
 
 
-{% macro render_organization_schema(data) %}
+{% macro render_organization_schema(web,comp,site_url) %}
   {% with web = data.website, comp = data.company,
   site_url = web.site_url,org_id = site_url ~ "/#organization",
   logo_id = site_url ~ "/#logo",web_id = site_url ~ "/#website" %}
@@ -247,30 +247,25 @@ page=
   {% endwith %}
   "image": {"@id": "{{ logo_id }}"},
   "sameAs": {{ web.social_links | default([]) | tojson | safe }},
-  {% with cont = comp.contact %}
+  {% with cont = comp.contact, addr = comp.address %}
   "contactPoint": [{
-    "@type": "ContactPoint",
-    "contactType": "customer service",
-    "availableLanguage": {{ cont.lang | default(["en"]) | tojson | safe }},
-    {% if cont.phone %}"telephone": "{{ cont.phone }}",{% endif %}
-    "email": "{{ cont.email }}"
-  }]
-  {% endwith %}
+    "@type": "ContactPoint","contactType": "customer service",
+    "email": "{{ cont.email }}","availableLanguage": {{ cont.lang | default(["en"]) | tojson | safe }}
+    {% if cont.phone %},"telephone": "{{ cont.phone }}"{% endif %}
+  }],
+  "address": {
+    "@type": "PostalAddress",
+    {% if addr.street %}"streetAddress": "{{ addr.street }}",{% endif %}
+    "addressLocality": "{{ addr.locality }}","addressRegion": "{{ addr.region  }}",
+    "postalCode": "{{ addr.pin }}","addressCountry": "{{ addr.country }}"
+  }{% endwith %}
+
   {% with poli = web.policies %}
   {%- if poli.has_terms %},"publishingPrinciples": "{{ site_url }}/terms/"{% endif -%}
   {%- if poli.has_privacy %},"privacyPolicy": "{{ site_url }}/privacy/"{% endif -%}
   {%- if poli.has_editorial %},"correctionsPolicy": "{{ site_url }}/editorial-policy/"{% endif -%}
   {%- if poli.has_fact_check %},"verificationFactCheckingPolicy": "{{ site_url }}/fact-check-policy/"{% endif -%}
   {% endwith %}
-  {% with addr = comp.address %}
-  ,"address": {
-    "@type": "PostalAddress",
-    {% if addr.street %}"streetAddress": "{{ addr.street }}",{% endif %}
-    "addressLocality": "{{ addr.locality | default('San Francisco') }}",
-    "addressRegion": "{{ addr.region | default('CA') }}",
-    "postalCode": "{{ addr.pin | default('94107') }}",
-    "addressCountry": "{{ addr.country | default('US') }}"
-  }{% endwith %}
   },{
   "@type": "WebSite","@id": "{{ web_id }}",
   "url": "{{ site_url }}","name": "{{ web.site_name }}",
