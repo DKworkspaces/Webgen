@@ -257,8 +257,8 @@ page=
 
 
 
-{% macro render_organization_schema(web,comp,site_url) %}
-  {% with org_id = site_url ~ "/#organization",
+{% macro render_organization_schema(web,comp) %}
+  {% with site_url = web.site_url, org_id = site_url ~ "/#organization",
   logo_id = site_url ~ "/#logo",web_id = site_url ~ "/#website" %}
   {"@type":"Organization","@id":"{{ org_id }}",
   "name":"{{ comp.name }}","url":"{{ site_url }}",
@@ -298,19 +298,17 @@ page=
 {% endmacro %}
 
 
-{% macro render_breadcrumb_schema(site_url,data) %}
-  {% with crumbs = data.breadcrumbs ,page_url = data.page_url ~ "/#breadcrumb" %}
+{% macro render_breadcrumb_schema(web,page) %}
+  {% with crumbs = page.breadcrumbs ,page_url = page.url ~ "/#breadcrumb" %}
   {"@type":"BreadcrumbList","@id":"{{ page_url }}",
-  "itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ site_url }}"}
+  "itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ web.site_url }}"}
   {%- if crumbs -%}
     {%- for name, url in crumbs -%} ,{"@type":"ListItem","position":{{ loop.index + 1 }},"name":"{{ name }}","item":"{{ url }}"} {%- endfor -%}
   {%- endif -%} ]}{% endwith %}
 {% endmacro %}
 
-{% macro render_webpage_schema(website_data, page, page_type="WebPage", is_home=False) %}
-  {% with web = website_data.website, comp = website_data.company,
-    is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
-    site_url = web.site_url,
+{% macro render_webpage_schema(web,comp, page, page_type="WebPage", is_home=False) %}
+  {% with site_url= web.site_url, is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
     org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
     crumb_id = page.url ~ "/#breadcrumb" %}
@@ -355,22 +353,22 @@ page=
 
 {# category/tags/topic cluster pages #}
 
-{% macro render_schema_node(page_data,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
+{% macro render_schema_node(page,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
   {
-  "@type":"{{ node_type }}","@id":"{{ (page_data.url ~ "/#webpage") }}",
-  "url":"{{ page_data.url }}","name":"{{ page_data.title }}",
-  "description":"{{ (page_data.desc or page_data.meta_description) }}",
-  "breadcrumb":{"@id":"{{ (page_data.url ~ "/#breadcrumb") }}"}
+  "@type":"{{ node_type }}","@id":"{{ (page.url ~ "/#webpage") }}",
+  "url":"{{ page.url }}","name":"{{ page.title }}",
+  "description":"{{ page.desc }}",
+  "breadcrumb":{"@id":"{{ (page.url ~ "/#breadcrumb") }}"}
   {%- with is_parent = (parent_page and parent_page.url) -%}
   ,"isPartOf":{{ {
     "@type": node_type if is_parent else "WebSite","@id": (parent_page.url ~ "/#webpage") if is_parent else (page_data.site_url ~ "/#website"),
-    "url": parent_page.url if is_parent else page_data.site_url
+    "url": parent_page.url if is_parent else page.site_url
   }|tojson }}{%- endwith -%}
-  {%- if page_data.topics -%},"about":{{ _topics(page_data.topics) }} {%- endif -%}
-  {%- if page_data.mention_topics -%},"mentions":{{ _topics(page_data.mention_topics) }} {%- endif -%}
+  {%- if page.about -%},"about":{{ _topics(page.about) }} {%- endif -%}
+  {%- if page.mention -%},"mentions":{{ _topics(page.mention) }} {%- endif -%}
 {#.  this is place where i have to add article of cluster or category page for ranking purpose #}
   ,"mainEntity":{
-    "@type":"Article","@id":"{{ page_data.url }}#article",
+    "@type":"Article","@id":"{{ page.url }}#article",
     "headline":"{{ article.headline }}","description":"{{ article.intro }}",
     "articleBody":"{{ article.content }}",
     {% if article.abouts %}"about":{{ _topics(article.abouts) }},{% endif %}
@@ -396,48 +394,48 @@ page=
 
 
 
-{% macro render_blogging_schema(post, site_config) %}
+{% macro render_blogging_schema(post, web) %}
   {
   "@type":"WebPage","@id":"{{ post.url }}/#webpage",
   "url":"{{ post.url }}","name":"{{ post.title }}",
-  "description":"{{ post.meta_description }}","inLanguage":"{{ post.language | default('en-IN') }}",
-  "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(site_config.home_url) }}/#webpage"},
+  "description":"{{ post.desc }}","inLanguage":"{{ post.lang | default('en-IN') }}",
+  "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(web.site_url) }}/#webpage"},
   "breadcrumb":{"@id":"{{ post.url }}/#breadcrumb"},
   "mainEntity":{"@id":"{{ post.url }}/#article"}
   },{
   "@type":"{{ post.schema_type | default('BlogPosting') }}","@id":"{{ post.url }}/#article",
   "isPartOf":{"@id":"{{ post.url }}/#webpage"},"mainEntityOfPage":{"@id":"{{ post.url }}/#webpage"},
-  "headline":"{{ post.title }}","description":"{{ post.meta_description }}",
+  "headline":"{{ post.title }}","description":"{{ post.desc }}",
   "url":"{{ post.url }}",
   "datePublished":"{{ post.date_published_iso }}","dateModified":"{{ post.date_modified_iso | default(post.date_published_iso) }}",
   "wordCount":{{ post.word_count | int }},"inLanguage":"{{ post.language | default('en-IN') }}",
-  "author":{"@type":"Organization","@id":"{{ site_config.home_url }}/#organization",
-    "name":"{{ site_config.site_name }}","url":"{{ site_config.home_url }}",
-    "logo":{"@type":"ImageObject","url":"{{ site_config.site_logo }}"} },
-  "publisher":{"@type":"Organization","@id":"{{ site_config.home_url  }}/#organization",
-    "name":"{{ site_config.site_name }}",
-    "logo":{"@type":"ImageObject","url":"{{ site_config.site_logo }}"} },
+  "author":{"@type":"Organization","@id":"{{ web.site_url }}/#organization",
+    "name":"{{ web.site_name }}","url":"{{ web.site_url }}",
+    "logo":{"@type":"ImageObject","url":"{{ web.logo.url }}"} },
+  "publisher":{"@type":"Organization","@id":"{{ web.site_url  }}/#organization",
+    "name":"{{ web.site_name }}",
+    "logo":{"@type":"ImageObject","url":"{{ web.logo.url }}"} },
   {% if post.featured_image %}"image":{
     "@type":"ImageObject","@id":"{{ post.url }}/#featuredimage",
     "url":"{{ post.featured_image }}","caption":"{{ post.image_caption | default(post.title) }}",
     "width":{{ post.image_width | default(1200) | int }},"height":{{ post.image_height | default(630) | int }}
    },{% endif %}
-    {% if post.about_entities %}"about":{{ _topics(post.about_entities) }},{% endif %}
-    {% if post.mentioned_entities %}"mentions":{{ _topics(post.mentioned_entities) }} {% endif %} }
+    {% if post.about %}"about":{{ _topics(post.about) }},{% endif %}
+    {% if post.mentioned %}"mentions":{{ _topics(post.mentioned) }} {% endif %} }
   "hasPart":[
   {% if post.video_embed_url %}{"@id":"{{ post.url }}/#video"}{% endif %}
   {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
     {{ _article_sec(post.url,post.editorial_sections) }} {% endif %}],
-  "publishingPrinciples":"{{ site_config.home_url }}/editorial-policy/"
+  "publishingPrinciples":"{{ web.site_url }}/editorial-policy/"
   }
   {% if post.video_embed_url %}
   ,{
   "@type":"VideoObject","@id":"{{ post.url }}/#video",
-  "name":"{{ post.video_title | default(post.title) }}","description":"{{ post.video_description | default(post.meta_description) }}",
+  "name":"{{ post.video_title | default(post.title) }}","description":"{{ post.video_description | default(post.desc) }}",
   "thumbnailUrl":["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
   "uploadDate":"{{ post.video_upload_date | default(post.date_published_iso) }}",
   "embedUrl":"{{ post.video_embed_url }}",
-  "publisher":{"@type":"Organization","@id":"{{ site_config.home_url }}/#organization"}
+  "publisher":{"@type":"Organization","@id":"{{ web.site_url }}/#organization"}
   {% if post.video_duration_iso %},"duration":"{{ post.video_duration_iso }}"{% endif %}
   {% if post.video_chapters %},"hasPart":{{ _vid_chap(post.video_embed_url,post.video_chapters) }} {% endif %}
   }{% endif %}
@@ -543,7 +541,6 @@ how to use
 
 
 {
-  "site_url": "https://techcorp.com",
   "comp": {
     "name": "TechCorp Solutions",
     "legal_name": "TechCorp International LLC",
@@ -555,6 +552,7 @@ how to use
   },
   "web": {
     "site_name": "TechCorp Hub",
+    "site_url": "https://techcorp.com",
     "alt_name": "TechCorp Online",
     "site_desc": "Resource portal for enterprise tech innovations.",
     "site_lang": "en-US",
@@ -572,9 +570,9 @@ how to use
 
 
 {
-  "site_url": "https://techcorp.com",
-  "data": {
-    "page_url": "https://techcorp.com",
+  "web":{"site_url": "https://techcorp.com"},
+  "page": {
+    "url": "https://techcorp.com",
     "breadcrumbs": [
       ["Blog", "https://techcorp.com"],
       ["Artificial Intelligence", "https://techcorp.com/ai"],
@@ -587,25 +585,26 @@ how to use
 ## webpage schema
 
 {
-  "website_data": {
-    "website": {
-      "site_url": "https://techcorp.com",
-      "site_name": "TechCorp Hub",
-      "site_lang": "en-US"
-    },
-    "company": {
-      "logo": {"url": "https://techcorp.com"}
-    }
+  "web": {
+    "site_name": "Acme Global Solutions",
+    "site_url": "https://example.com",
+    "site_lang": "en-US"
+  },
+  "comp": {
+    "logo": {"url": "https://example.com"}
   },
   "page": {
-    "url": "https://techcorp.com",
+    "url": "https://example.com/privacy-policy",
     "title": "Privacy Policy",
-    "desc": "This policy details how TechCorp Solutions handles and protects your user information.",
-    "hero_image": "https://techcorp.com",
-    "date_published": "2026-01-15T09:00:00+00:00",
-    "date_modified": "2026-09-07T12:00:00+00:00"
-  }
+    "desc": "This privacy policy outlines how Acme Global Solutions handles and protects your personal data.",
+    "hero_image": "https://example.com/assets/privacy-hero.jpg",
+    "date_published": "2026-01-15T08:00:00Z",
+    "date_modified": "2026-09-08T12:00:00Z"
+  },
+  "page_type": "PrivacyPolicy",
+  "is_home": false
 }
+
 
 
 
@@ -616,17 +615,16 @@ how to use
 
 {
   "node_type": "CollectionPage",
-  "page_data": {
+  "page": {
     "url": "https://techcorp.com",
     "site_url": "https://techcorp.com",
     "title": "Artificial Intelligence Hub",
     "desc": "Explore our curated collection of expert insights and tutorials on artificial intelligence.",
-    "meta_description": "Curated articles covering Machine Learning, LLMs, and Enterprise Data Infrastructure.",
-    "topics": [
+    "about": [
       ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
       ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ],
-    "mention_topics": [
+    "mention": [
       ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
       ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ]
@@ -645,7 +643,11 @@ how to use
     ]
   },
   "parent_page": {"url": "https://techcorp.com"},
-  "items": [{"type": "BlogPosting","url": "https://techcorp.com/getting-started-with-llms","title": "Getting Started with Large Language Models","desc": "A beginner's path into understanding foundational model architectures."}]
+  "items": [
+    {"type": "BlogPosting","url": "https://techcorp.com/getting-started-with-llms","title": "Getting Started with Large Language Models","desc": "A beginner's path into understanding foundational model architectures."}
+    {"type": "BlogPosting","url": "https://example.com","title": "Keyword Research for Pillar Pages","desc": "How to map search intent to your structural hubs."},
+    {"type": "BlogPosting","url": "https://example.com","title": "Perfecting Your Internal Links","desc": "The correct anchor text strategies for topic clusters."}
+  ]
 }
 
 
@@ -658,15 +660,15 @@ how to use
 
 
 {
-  "site_config": {
-    "home_url": "https://techcorp.com",
+  "web": {
+    "site_url": "https://techcorp.com",
     "site_name": "TechCorp Insights",
     "site_logo": "https://techcorp.com"
   },
   "post": {
     "url": "https://techcorp.com",
     "title": "The Future of Generative AI in Enterprise Systems",
-    "meta_description": "An analysis of vector databases, prompt engineering, and LLM fine-tuning trends.",
+    "desc": "An analysis of vector databases, prompt engineering, and LLM fine-tuning trends.",
     "language": "en-IN",
     "parent_page_url": "https://techcorp.com",
     "schema_type": "BlogPosting",
@@ -677,11 +679,11 @@ how to use
     "image_caption": "Concept rendering of neural processing clusters.",
     "image_width": 1200,
     "image_height": 630,
-    "about_entities": [
+    "about": [
       ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
       ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ],
-    "mentioned_entities": [
+    "mentioned": [
       ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
       ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
     ],
