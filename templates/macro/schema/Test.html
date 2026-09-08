@@ -728,6 +728,7 @@ how to use
 
 {% macro render_webpage_schema(web,comp, page,article,page_type="WebPage",is_home=False, parent_page=none, items=none) %}
   {% with site_url= web.site_url, is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
+    org_pointer = '{"@type":"Organization","@id":"'~ web.site_url ~ '"/#organization","name":"' ~ web.site_name ~ '"}',
     org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
     crumb_id = page.url ~ "/#breadcrumb" %}
@@ -741,9 +742,9 @@ how to use
   {%- if page.hero_image -%}"primaryImageOfPage":{"@type":"ImageObject","@id":"{{ (page.url ~ "/#primaryimage") }}","url":"{{ page.hero_image }}","caption":"{{ page.title }}"},{%- endif -%}
 
   {%- if page_type == "AboutPage" or page_type == "ContactPage" -%}
-    "mainEntity":{"@type":"Organization","@id":"{{ org_id }}","name":"{{ web.site_name }}" },
+    "mainEntity":{{ org_pointer }},
   {%- elif is_policy -%}
-    "about":{"@type":"Organization","@id":"{{ org_id }}","name":"{{ web.site_name }}"},
+    "about":{{ org_pointer }},
     "publishingPrinciples":{"@type":"CreativeWork","@id":"{{ pol_id }}"}
   {%- elif page_type == "CollectionPage" or page_type == "WebPage" -%}
     {%- if page.about -%}"about":{{ _topics(page.about) }},{%- endif -%}
@@ -763,9 +764,7 @@ how to use
    "name":"{{ page.title }}","headline":"{{ page.title }}",
    "description":"{{ page.desc }}","url":"{{ page.url }}",
    "inLanguage":"{{ web.site_lang | default('en-US') }}",
-   "author":{"@type":"Organization","@id":"{{ org_id }}"},
-   "publisher":{"@type":"Organization","@id":"{{ org_id }}"},
-   "copyrightHolder":{"@type":"Organization","@id":"{{ org_id }}"}
+   "author":{{ org_pointer }},"publisher":{{ org_pointer }},"copyrightHolder":{{ org_pointer }}
    {%- if page.date_published -%},"datePublished":"{{ page.date_published }}","dateModified":"{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
   }{%- endif -%}
 {% endmacro %}
