@@ -26,49 +26,20 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 data=
 {
   "website": {
-    "site_url": "https://example.com",
-    "site_name": "Example Corp Tech Portal",
-    "alt_name": "ExampleCorp",
-    "site_desc": "The leading provider of enterprise automation software solutions.",
+    "site_url": "https://example.com","site_name": "Example Corp Tech Portal",
+    "alt_name": "ExampleCorp","site_desc": "The leading provider of enterprise automation software solutions.",
     "site_lang": "en-US",
-    "knows_about_list": [
-      "Artificial Intelligence",
-      "Cloud Infrastructure",
-      "Automation Architecture"
-    ],
+    "knows_about_list": ["Artificial Intelligence","Cloud Infrastructure","Automation Architecture"],
     "slogan": "Automating the future, today.",
-    "social_links": [
-      "https://twitter.com",
-      "https://linkedin.com",
-      "https://github.com"
-    ],
-    "policies": {
-      "has_terms": true,
-      "has_privacy": true,
-      "has_editorial": true,
-      "has_fact_check": true
-    }
+    "social_links": ["https://twitter.com","https://linkedin.com","https://github.com"],
+    "policies": {"has_terms": true,"has_privacy": true,"has_editorial": true,"has_fact_check": true}
   },
   "company": {
-    "name": "Example Corporation LLC",
-    "legal_name": "Example Corporate Solutions International Inc.",
-    "desc": "A global technology company specializing in high-performance computing systems.",
-    "founded_year": "2018",
-    "logo": {
-      "url": "https://example.com/assets/images/logo.png",
-      "caption": "Example Corporation Official Logo",
-      "width": 512,"height": 512
-    },
-    "contact": {
-      "lang": ["en", "es", "fr"],
-      "email": "support@example.com"
-    },
-    "address": {
-      "locality": "San Francisco",
-      "region": "CA",
-      "pin": "94107",
-      "country": "US"
-    }
+    "name": "Example Corporation LLC","legal_name": "Example Corporate Solutions International Inc.",
+    "desc": "A global technology company specializing in high-performance computing systems.","founded_year": "2018",
+    "logo": {"url": "https://example.com/assets/images/logo.png","caption": "Example Corporation Official Logo","width": 512,"height": 512},
+    "contact": {"lang": ["en", "es", "fr"],"email": "support@example.com"},
+    "address": {"locality": "San Francisco","region": "CA","pin": "94107","country": "US"}
   }
 }
 
@@ -89,16 +60,9 @@ data=
 
 data=
 {
-  "website": {
-    "site_url": "https://example.com",
-    "site_name": "Example Corp Tech Portal",
-    "site_lang": "en-US"
-  },
-  "company": {
-    "logo": {
-      "url": "https://example.com/assets/images/logo.png"
-    }
-  }
+  "website": {"site_url": "https://example.com",
+    "site_name": "Example Corp Tech Portal","site_lang": "en-US"},
+  "company": {"logo": {"url": "https://example.com/assets/images/logo.png"} }
 }
 
 
@@ -227,17 +191,12 @@ page=
     {{ "," if not loop.last }}
   {%- endfor -%}]
 {% endmacro %}
-
 {% macro _items(items) %}
-  [{%- for item in items -%}
-    {"@type":"{{ item.type }}","@id":"{{ item.url }}/#{{ item.type | lower }}","position":{{ loop.index }},
-    {% if item.name %}"name":"{{ item.name }}",{% endif %}
-    {% if item.desc %}"description":"{{ item.desc }}",{% endif %}
-    "url":"{{ item.url }}" }
-  {{- "," if not loop.last }} {%- endfor -%}]
+  [{%- for type, url, name, desc in items -%}
+    {"@type":"{{ type }}","@id":"{{ url }}/#{{ type | lower }}","position":{{ loop.index }},"name":"{{ name }}","description":"{{ desc }}","url":"{{ url }}"}
+    {{- "," if not loop.last }}
+  {%- endfor -%}]
 {% endmacro %}
-
-
 {% macro _article_sec(post_url,sections) %}
   {%- for slug,title,desc in sections -%}
     {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ slug }}","name":"{{ title }}","description":"{{ desc }}","url":"{{ post.url }}#{{ slug }}" }
@@ -281,12 +240,12 @@ page=
     "addressLocality":"{{ addr.locality }}","addressRegion":"{{ addr.region }}",
     "postalCode":"{{ addr.pin }}","addressCountry":"{{ addr.country }}"
   }{% endwith %}
-  {% with poli = web.policies %}
+  {%- if web.policies -%}{% with poli = web.policies %}
   {%- if poli.has_terms %},"publishingPrinciples":"{{ site_url }}/terms/"{% endif -%}
   {%- if poli.has_privacy %},"privacyPolicy":"{{ site_url }}/privacy/"{% endif -%}
   {%- if poli.has_editorial %},"correctionsPolicy":"{{ site_url }}/editorial-policy/"{% endif -%}
   {%- if poli.has_fact_check %},"verificationFactCheckingPolicy":"{{ site_url }}/fact-check-policy/"{% endif -%}
-  {% endwith %}
+  {% endwith %}{%- endif -%}
   },{
   "@type":"WebSite","@id":"{{ web_id }}",
   "url":"{{ site_url }}","name":"{{ web.site_name }}",
@@ -296,7 +255,6 @@ page=
   "publisher":{"@id":"{{ org_id }}"},
   "potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}]}{% endwith %}
 {% endmacro %}
-
 
 {% macro render_breadcrumb_schema(web,page) %}
   {% with crumbs = page.breadcrumbs ,page_url = page.url ~ "/#breadcrumb" %}
@@ -329,8 +287,7 @@ page=
   }{%- endif -%}
   {%- if not is_home -%},"breadcrumb":{"@type":"BreadcrumbList","@id":"{{ crumb_id }}"}{%- endif -%}
   {%- if page.date_published -%},"datePublished":"{{ page.date_published }}","dateModified":"{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
-  }
-  {%- if is_policy -%},
+  }{%- if is_policy -%},
   {"@type":"CreativeWork","@id":"{{ pol_id }}",
    "name":"{{ page.title }}","headline":"{{ page.title }}",
    "description":"{{ page.desc }}","url":"{{ page.url }}",
@@ -353,8 +310,7 @@ page=
 {# category/tags/topic cluster pages #}
 
 {% macro render_schema_node(page,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
-  {
-  "@type":"{{ node_type }}","@id":"{{ (page.url ~ "/#webpage") }}",
+  {"@type":"{{ node_type }}","@id":"{{ (page.url ~ "/#webpage") }}",
   "url":"{{ page.url }}","name":"{{ page.title }}",
   "description":"{{ page.desc }}",
   "breadcrumb":{"@id":"{{ (page.url ~ "/#breadcrumb") }}"}
@@ -374,18 +330,10 @@ page=
   {%- if items -%},"hasPart":{{ _items(items) }} {%- endif -%} }
 {% endmacro %}
 
-
-
-
-
-
 {# blogpost/Article/TechArticle etc #}
 
-
-
 {% macro render_blogging_schema(post, web) %}
-  {
-  "@type":"WebPage","@id":"{{ post.url }}/#webpage",
+  {"@type":"WebPage","@id":"{{ post.url }}/#webpage",
   "url":"{{ post.url }}","name":"{{ post.title }}",
   "description":"{{ post.desc }}","inLanguage":"{{ post.lang | default('en-IN') }}",
   "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(web.site_url) }}/#webpage"},
@@ -416,9 +364,7 @@ page=
   {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
     {{ _article_sec(post.url,post.editorial_sections) }} {% endif %}],
   "publishingPrinciples":"{{ web.site_url }}/editorial-policy/"
-  }
-  {% if post.video_embed_url %}
-  ,{
+  }{% if post.video_embed_url %},{
   "@type":"VideoObject","@id":"{{ post.url }}/#video",
   "name":"{{ post.video_title | default(post.title) }}","description":"{{ post.video_description | default(post.desc) }}",
   "thumbnailUrl":["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
@@ -480,16 +426,14 @@ how to use
 
 {# Person Schema #}
 {% macro render_person_schema(web,member) %}
-  {
-  "@type":"Person","@id":"{{ web.site_url }}/authors/{{ member.slug }}/#person",
+  {"@type":"Person","@id":"{{ web.site_url }}/authors/{{ member.slug }}/#person",
   "name":"{{ member.name }}","jobTitle":"{{ member.job_title }}",
   "description":"{{ member.short_bio }}","image":"{{ member.avatar_url }}",
   "url":"{{ web.site_url }}/authors/{{ member.slug }}/",
   "sameAs":{{ member.social_profiles | tojson }},
   "worksFor":{"@id":"{{ web.site_url }}/#organization"},
   "knowsAbout":{{ _topics(member.knows_about) }},
-  "affiliation":{"@id":"{{ web.site_url }}/#organization"}
-  }
+  "affiliation":{"@id":"{{ web.site_url }}/#organization"} }
 {% endmacro %}
 
 
@@ -633,9 +577,9 @@ how to use
   },
   "parent_page": {"url": "https://techcorp.com"},
   "items": [
-    {"type": "BlogPosting","url": "https://techcorp.com/getting-started-with-llms","title": "Getting Started with Large Language Models","desc": "A beginner's path into understanding foundational model architectures."}
-    {"type": "BlogPosting","url": "https://example.com","title": "Keyword Research for Pillar Pages","desc": "How to map search intent to your structural hubs."},
-    {"type": "BlogPosting","url": "https://example.com","title": "Perfecting Your Internal Links","desc": "The correct anchor text strategies for topic clusters."}
+    ["BlogPosting","https://techcorp.com/getting-started-with-llms","Getting Started with Large Language Models", "A beginner's path into understanding foundational model architectures."],
+    ["BlogPosting","https://example.com","Keyword Research for Pillar Pages", "How to map search intent to your structural hubs."],
+    ["BlogPosting","https://example.com","Perfecting Your Internal Links", "The correct anchor text strategies for topic clusters."]
   ]
 }
 
@@ -722,7 +666,7 @@ how to use
 
 
 
-
+modified 
 
 
 
@@ -732,8 +676,9 @@ how to use
     org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
     crumb_id = page.url ~ "/#breadcrumb" %}
-  {
-  "@type":"{{ page_type }}","@id":"{{ page_id }}","url":"{{ page.url }}","name":"{{ page.title }}","description":"{{ page.desc }}",
+  {"@type":"{{ page_type }}","@id":"{{ page_id }}",
+  "url":"{{ page.url }}","name":"{{ page.title }}",
+  "description":"{{ page.desc }}",
   {%- if parent_page -%}"isPartOf":{"@type":"{{ parent_page.type }}","@id":"{{ parent_page.url }}/#webpage","url":"{{ parent_page.url }}"},
     {%- else -%}"isPartOf":{"@type":"WebSite","@id":"{{ web_id }}","url":"{{ web.site_url }}"},{%- endif -%}
   {%- if not is_home -%}"breadcrumb":{"@type":"BreadcrumbList","@id":"{{ crumb_id }}"},{%- endif -%}
@@ -758,9 +703,8 @@ how to use
       {% if article.mentions %},"mentions":{{ _topics(article.mentions) }}{% endif %} }
     {%- if items -%},"hasPart":{{ _items(items) }} {%- endif -%}
   {%- endif -%}
-  }
-  {%- if is_policy -%},
-  {"@type":"CreativeWork","@id":"{{ pol_id }}",
+  }{%- if is_policy -%}
+  ,{"@type":"CreativeWork","@id":"{{ pol_id }}",
    "name":"{{ page.title }}","headline":"{{ page.title }}",
    "description":"{{ page.desc }}","url":"{{ page.url }}",
    "inLanguage":"{{ web.site_lang | default('en-US') }}",
