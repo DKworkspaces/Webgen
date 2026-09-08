@@ -324,9 +324,9 @@ page=
   ,"mainEntity":{
     "@type":"Article","@id":"{{ page.url }}#article",
     "headline":"{{ article.headline }}","description":"{{ article.intro }}",
-    "articleBody":"{{ article.content }}",
-    {% if article.abouts %}"about":{{ _topics(article.abouts) }},{% endif %}
-    {% if article.mentions %}"mentions":{{ _topics(article.mentions) }} {% endif %} }
+    "articleBody":"{{ article.content }}"
+    {% if article.abouts %},"about":{{ _topics(article.abouts) }}{% endif %}
+    {% if article.mentions %},"mentions":{{ _topics(article.mentions) }} {% endif %} }
   {%- if items -%},"hasPart":{{ _items(items) }} {%- endif -%} }
 {% endmacro %}
 
@@ -336,7 +336,7 @@ page=
   {"@type":"WebPage","@id":"{{ post.url }}/#webpage",
   "url":"{{ post.url }}","name":"{{ post.title }}",
   "description":"{{ post.desc }}","inLanguage":"{{ post.lang | default('en-IN') }}",
-  "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(web.site_url) }}/#webpage"},
+  "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(web.site_url) }}/#website"},
   "breadcrumb":{"@id":"{{ post.url }}/#breadcrumb"},
   "mainEntity":{"@id":"{{ post.url }}/#article"}
   },{
@@ -359,10 +359,11 @@ page=
    },{% endif %}
     {% if post.about %}"about":{{ _topics(post.about) }},{% endif %}
     {% if post.mentioned %}"mentions":{{ _topics(post.mentioned) }} {% endif %} }
-  "hasPart":[
-  {% if post.video_embed_url %}{"@id":"{{ post.url }}/#video"}{% endif %}
-  {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
+  {% if post.video_embed_url or post.editorial_sections %} "hasPart":[
+    {% if post.video_embed_url %}{"@id":"{{ post.url }}/#video"}{% endif %}
+    {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
     {{ _article_sec(post.url,post.editorial_sections) }} {% endif %}],
+  {% endif %}
   "publishingPrinciples":"{{ web.site_url }}/editorial-policy/"
   }{% if post.video_embed_url %},{
   "@type":"VideoObject","@id":"{{ post.url }}/#video",
@@ -672,10 +673,11 @@ modified
 
 {% macro render_webpage_schema(web,comp, page,article,page_type="WebPage",is_home=False, parent_page=none, items=none) %}
   {% with site_url= web.site_url, is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
-    org_pointer = '{"@type":"Organization","@id":"'~ web.site_url ~ '"/#organization","name":"' ~ web.site_name ~ '"}',
     org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
-    crumb_id = page.url ~ "/#breadcrumb" %}
+    crumb_id = page.url ~ "/#breadcrumb",
+    org_pointer = '{"@type":"Organization","@id":"' ~ org_id ~ ',"name":"' ~ web.site_name ~ '"}' %}
+
   {"@type":"{{ page_type }}","@id":"{{ page_id }}",
   "url":"{{ page.url }}","name":"{{ page.title }}",
   "description":"{{ page.desc }}",
