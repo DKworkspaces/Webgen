@@ -59,6 +59,12 @@
   {% if code.f -%}<meta name="facebook-domain-verification" content="{{ code.f }}">{%- endif %}
 {%- endmacro %}
 
+
+
+
+
+
+
 ##og
 {
   "web": {"site_name": "TechCraft Insights"},
@@ -97,132 +103,82 @@
 
 
 
-base html
-
-
-  {# Import social media macro library natively #}
-  {% import "macros/social_meta.html" as social with context %}
-  
-  {# Social Media Metadata Injector Engine #}
-  {% block seo_meta %}{% endblock %}
 
 
 Homepage (templates/home.html)
 
-{% block seo_meta %}
-  {{ social.image_social_card(
-      type='website',
-      url=site_config.base_url,
-      title=site_config.homepage_title,
-      description=site_config.homepage_desc | truncate(150),
-      horizontal_image=site_config.default_og_image,
-      image_alt=site_config.name ~ ' Homepage Preview'
-  ) }}
-{% endblock %}
+{{ _og(web, page, type='website') }}{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 About Us (templates/about.html)
 
-{% block seo_meta %}
-  {{ social.image_social_card(
-      type='website',
-      url=site_config.base_url ~ '/about',
-      title='About Us - ' ~ site_config.name,
-      description='Learn more about our team, vision, mission, and tracking metrics.',
-      horizontal_image=site_config.default_og_image,
-      image_alt='About the team behind ' ~ site_config.name
-  ) }}
-{% endblock %}
+{{ _og(web, page, type='website') }}{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 Contact Us (templates/contact.html)
 
-{% block seo_meta %}
-  {{ social.image_social_card('website', site_config.base_url ~ '/contact', 'Contact Us', 'Get in touch with our support and news desks.', site_config.default_og_image, 'Contact portal banner') }}
-{% endblock %}
+{{ _og(web, page, type='website') }}
+{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
 
 
 Policies (editorial_policy.html, fact_check_policy.html, terms.html, privacy.html)
 (Tip: You can use this unified structure for all four policy templates—just swap content blocks!)
 
-{% block seo_meta %}
-  {{ social.image_social_card('website', policy.url, policy.title, policy.summary, site_config.default_og_image, policy.title ~ ' Documentation') }}
-{% endblock %}
+{{ _og(web, page, type='website') }}{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 Categories / Tags / Archive Index Lists (templates/taxonomy_list.html)(Used to list all existing categories/tags/months globally)
 
-{% block seo_meta %}
-  {{ social.image_social_card('website', taxonomy.index_url, 'Browse Topics by ' ~ taxonomy.type, 'Explore comprehensive index lists across our collections.', site_config.default_og_image, 'Taxonomy Directory Image') }}
-{% endblock %}
+{{ _og(web, page, type='website') }}{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
 
 
 Individual Category / Tag / Archive Listing Page (templates/taxonomy_single.html)
 
-{% block seo_meta %}
-  {{ social.image_social_card('website', term.url, term.name ~ ' Articles', term.description, term.og_image | default(site_config.default_og_image), term.name ~ ' Collection preview') }}
-{% endblock %}
+{{ _og(web, page, type='website') }}{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
 
-Standard BlogPost (Without Video) (templates/post_standard.html)
 
-{% block seo_meta %}
-  {% call social.base_social_card(
-      type='article',
-      url=post.url,
-      title=post.title,
-      description=post.description | truncate(150),
-      horizontal_image=post.og_banner_url,
-      image_alt=post.image_alt_text | default(post.title),
-      vertical_image=post.pinterest_pin_url,
-      pinterest_code=site_config.pinterest_verify
-  ) -%}
-    {{ social.meta_tag('twitter:card', 'summary_large_image') }}
-    {{ social.metap_tag('article:published_time', post.published_at.strftime('%Y-%m-%dT%H:%M:%SZ')) }}
-    {{ social.metap_tag('article:author', post.author_name) }}
-    {% for tag in post.tags -%}
-      {{ social.metap_tag('article:tag', tag) }}
-    {%- endfor %}
-  {%- endcall %}
-{% endblock %}
+Standard BlogPost blogPosting within any cluster or pillar page (Without Video) (templates/post_standard.html)
+
+{{ _og(web, page, type='article',article=article) }}{{ _twitter(web, page, author=author) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 BlogPost with Inline Video Player (templates/post_video.html)
 
-{% block seo_meta %}
-  {{ social.video_social_card(
-      url=post.url,
-      title=post.title,
-      description=post.description | truncate(150),
-      horizontal_image=post.og_banner_url,
-      image_alt=post.image_alt_text,
-      video_url=post.video.file_url,
-      embed_url=post.video.embed_url,
-      vertical_image=post.pinterest_pin_url,
-      width=post.video.width | default('1280'),
-      height=post.video.height | default('720'),
-      pinterest_code=site_config.pinterest_verify
-  ) }}
-{% endblock %}
+{{ _og(web, page, type='article', vid=video, article=article) }}
+{{ _twitter(web, page, author=author, vid=video) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
+
 
 5.1 The Master Pillar Page (templates/pillar_page.html)
 The high-level semantic hub mapping a core topic strategy out comprehensively.
 
-{% block seo_meta %}
-  {{ social.image_social_card('article', pillar.url, pillar.title, pillar.summary, pillar.og_banner_url, pillar.title ~ ' Hub Layout') }}
-{% endblock %}
+{{ _og(web, page, type='website') }}
+{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 5.2 Standard Cluster / Category Sub-Hub (templates/cluster_page.html)
-NA
 
-5.3 Blog Post Inside a Specific Pillar/Cluster Page (templates/post_within_silo.html)
+{{ _og(web, page, type='website') }}
+{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
 
-{% block seo_meta %}
-  {% call social.base_social_card('article', post.url, post.title, post.description | truncate(150), post.og_banner_url, post.image_alt_text) -%}
-    {{ social.meta_tag('twitter:card', 'summary_large_image') }}
-    {{ social.metap_tag('article:section', cluster.name) }}
-  {%- endcall %}
-{% endblock %}
 
-5.4 Sub-Pillar / Sub-Cluster Intermediate Page (templates/sub_pillar_cluster.html)
+5.3 Sub-Pillar / Sub-Cluster Intermediate Page (templates/sub_pillar_cluster.html)
 Handles layered parent-child thematic patterns (e.g., Pillar [Fitness] → Sub-Pillar [Weightlifting] → Cluster [Squat Technique]).
 
-NA
+{{ _og(web, page, type='website') }}
+{{ _twitter(web, page) }}
+{% if pin_data %}{{ _pin(pin_data) }}{% endif %}
+
 
 
 
@@ -264,27 +220,61 @@ NA
 
 
 
-for home page             {{ org_schema(web=website_data,comp=company_data,site_url=home_url) }},{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
-about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
-contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
-Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
-Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
-Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
-Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+for home page 
+{{ org_schema(web=website_data,comp=company_data,site_url=home_url) }},
+{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
+about us page
+{{ render_webpage_schema(website_data, page, page_type="AboutPage") }},
+{{ breadcrumb_schema(site_url,json_data) }}
+contact us page
+{{ render_webpage_schema(website_data, page, page_type="ContactPage") }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Privacy Policy Page
+{{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy") }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Terms of Service Page
+{{ render_webpage_schema(website_data, page, page_type="TermsAndConditions") }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Editorial Policy Page
+{{ render_webpage_schema(website_data, page, page_type="PolicyPage") }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Fact Check Policy Page
+{{ render_webpage_schema(website_data, page, page_type="PolicyPage") }},
+{{ breadcrumb_schema(site_url,json_data) }}
 
-Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ breadcrumb_schema(site_url,json_data) }}
+Index Page (Root Category Hub)
+{{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Individual Category Page
+{{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Category Page
+{{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},
+{{ breadcrumb_schema(site_url,json_data) }}
 
-Index Page (Root archive Hub).             {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Individual Archive Page.                   {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Sub-Archive Page.                          {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ breadcrumb_schema(site_url,json_data) }}
+Index Page (Root archive Hub)
+{{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Individual Archive Page
+{{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Archive Page
+{{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},
+{{ breadcrumb_schema(site_url,json_data) }}
 
-Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ breadcrumb_schema(site_url,json_data) }}
-Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ breadcrumb_schema(site_url,json_data) }}
+Pillar Page (Core Hub)
+{{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Cluster Page
+{{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},
+{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Cluster Page (Deepest Content Layer)
+{{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},
+{{ breadcrumb_schema(site_url,json_data) }}
 
-blogpost.                                  {{ blog_schema() }},{{ breadcrumb_schema(site_url,json_data) }}
+blogpost.                                  
+{{ blog_schema(post,web) }},
+{{ breadcrumb_schema(site_url,json_data) }}
 
 
 ## organization website schema function 
