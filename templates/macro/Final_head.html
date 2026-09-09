@@ -221,60 +221,48 @@ Handles layered parent-child thematic patterns (e.g., Pillar [Fitness] → Sub-P
 
 
 for home page 
-{{ org_schema(web=website_data,comp=company_data,site_url=home_url) }},
-{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
+{{ org_schema(web,comp) }},
+{{ webpage_schema(web,comp,page,page_type="WebPage",is_home=True) }}
 about us page
-{{ render_webpage_schema(website_data, page, page_type="AboutPage") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="AboutPage") }},{{ breadcrumb_schema(web,page,crumbs) }}
 contact us page
-{{ render_webpage_schema(website_data, page, page_type="ContactPage") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="ContactPage") }},{{ breadcrumb_schema(web,page,crumbs) }}
 Privacy Policy Page
-{{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="PrivacyPolicy") }},{{ breadcrumb_schema(web,page,crumbs) }}
 Terms of Service Page
-{{ render_webpage_schema(website_data, page, page_type="TermsAndConditions") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="TermsAndConditions") }},{{ breadcrumb_schema(web,page,crumbs) }}
 Editorial Policy Page
-{{ render_webpage_schema(website_data, page, page_type="PolicyPage") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="PolicyPage") }},{{ breadcrumb_schema(web,page,crumbs) }}
 Fact Check Policy Page
-{{ render_webpage_schema(website_data, page, page_type="PolicyPage") }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="PolicyPage") }},{{ breadcrumb_schema(web,page,crumbs) }}
 
-Index Page (Root Category Hub)
-{{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
-Individual Category Page
-{{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
-Sub-Category Page
-{{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},
-{{ breadcrumb_schema(site_url,json_data) }}
 
-Index Page (Root archive Hub)
-{{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
-Individual Archive Page
-{{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
-Sub-Archive Page
-{{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},
-{{ breadcrumb_schema(site_url,json_data) }}
+
+
+
+Index Page (Root Category/Tag/Archive Hub)
+{{ webpage_schema(web,comp,page,page_type="CollectionPage",article,items=categories_list) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
+Individual Category/Tag/Archive Page
+{{ webpage_schema(web,comp,page,page_type="CollectionPage", article,parent_page=index_page_data, items=sub_categories_list) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
+Sub-Category/Sub-Tag/ Sub-Archive Page
+{{ webpage_schema(web,comp,page,page_type="CollectionPage", article,parent_page=category_page_data, items=product_or_article_items) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
 
 Pillar Page (Core Hub)
-{{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="WebPage",article, items=cluster_pages_list) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
 Cluster Page
-{{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="WebPage",article,parent_page=pillar_page_data, items=sub_cluster_pages_list) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
 Sub-Cluster Page (Deepest Content Layer)
-{{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ webpage_schema(web,comp,page,page_type="WebPage", parent_page=cluster_page_data, items=article_items) }},
+{{ breadcrumb_schema(web,page,crumbs) }}
 
 blogpost.                                  
 {{ blog_schema(post,web) }},
-{{ breadcrumb_schema(site_url,json_data) }}
+{{ breadcrumb_schema(web,page,crumbs) }}
 
 
 ## organization website schema function 
@@ -307,27 +295,18 @@ blogpost.
 ## breadcrumbs 
 {
   "web":{"site_url": "https://techcorp.com"},
-  "page": {
-    "url": "https://techcorp.com",
-    "breadcrumbs": [
+  "page": {"url": "https://techcorp.com"},
+
+  "crumbs": [
       ["Blog", "https://techcorp.com"],
       ["Artificial Intelligence", "https://techcorp.com/ai"],
       ["Enterprise Solutions", "https://techcorp.com"]
-    ]
-  }
+  ]
 }
 
 
 ## webpage schema
 {
-  "web": {
-    "site_name": "Acme Global Solutions",
-    "site_url": "https://example.com",
-    "site_lang": "en-US"
-  },
-  "comp": {
-    "logo": {"url": "https://example.com"}
-  },
   "page": {
     "url": "https://example.com/privacy-policy",
     "title": "Privacy Policy",
@@ -535,8 +514,8 @@ blogpost.
   "potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}]}{% endwith %}
 {% endmacro %}
 
-{% macro breadcrumb_schema(web,page) %}
-  {% with crumbs = page.breadcrumbs ,page_url = page.url ~ "/#breadcrumb" %}
+{% macro breadcrumb_schema(web,page,crumbs) %}
+  {% with page_url = page.url ~ "/#breadcrumb" %}
   {"@type":"BreadcrumbList","@id":"{{ page_url }}",
   "itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ web.site_url }}"}
   {%- if crumbs -%}
@@ -605,7 +584,7 @@ blogpost.
 
 {# modified #}
 
-{% macro render_webpage_schema(web,comp, page,article,page_type="WebPage",is_home=False, parent_page=none, items=none) %}
+{% macro webpage_schema(web,comp, page,page_type="WebPage",article=none,is_home=False, parent_page=none, items=none) %}
   {% with site_url= web.site_url, is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
     org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
     web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
@@ -627,7 +606,7 @@ blogpost.
   {%- elif is_policy -%}
     "about":{{ org_pointer }},
     "publishingPrinciples":{"@type":"CreativeWork","@id":"{{ pol_id }}"},
-  {%- elif page_type == "CollectionPage" or page_type == "WebPage" -%}
+  {%- elif page_type == "CollectionPage" or page_type == "WebPage" and not is_home -%}
     {%- if page.about -%}"about":{{ _topics(page.about) }},{%- endif -%}
     {%- if page.mention -%}"mentions":{{ _topics(page.mention) }}{%- endif -%}
 {#.  this is place where i have to add article of cluster or category page for ranking purpose #}
