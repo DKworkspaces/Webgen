@@ -42,6 +42,123 @@ Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pilla
 Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 
+## organization website schema function 
+
+
+{
+  "comp": {
+    "name": "TechCorp Solutions",
+    "legal_name": "TechCorp International LLC",
+    "desc": "A leading provider of enterprise AI software and cloud infrastructure solutions.",
+    "founded_year": "2018",
+    "logo": {"url": "https://techcorp.com","caption": "TechCorp Solutions Official Logo","width": 1024,"height": 1024},
+    "contact": {"email": "support@techcorp.com","lang": ["en", "es"]},
+    "address": {"locality": "Austin","region": "Texas","pin": "78701","country": "US"}
+  },
+  "web": {
+    "site_name": "TechCorp Hub",
+    "site_url": "https://techcorp.com",
+    "alt_name": "TechCorp Online",
+    "site_desc": "Resource portal for enterprise tech innovations.",
+    "site_lang": "en-US",
+    "knows_about_list": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "slogan": "Empowering Tomorrow's Infrastructure",
+    "social_links": ["https://linkedin.com","https://twitter.com"],
+    "policies": {"has_terms": true,"has_privacy": true,"has_editorial": true,"has_fact_check": true}
+  }
+}
+
+## breadcrumbs 
+
+
+{
+  "web":{"site_url": "https://techcorp.com"},
+  "page": {
+    "url": "https://techcorp.com",
+    "breadcrumbs": [
+      ["Blog", "https://techcorp.com"],
+      ["Artificial Intelligence", "https://techcorp.com/ai"],
+      ["Enterprise Solutions", "https://techcorp.com"]
+    ]
+  }
+}
+
+
+## webpage schema
+
+{
+  "web": {
+    "site_name": "Acme Global Solutions",
+    "site_url": "https://example.com",
+    "site_lang": "en-US"
+  },
+  "comp": {
+    "logo": {"url": "https://example.com"}
+  },
+  "page": {
+    "url": "https://example.com/privacy-policy",
+    "title": "Privacy Policy",
+    "desc": "This privacy policy outlines how Acme Global Solutions handles and protects your personal data.",
+    "hero_image": "https://example.com/assets/privacy-hero.jpg",
+    "date_published": "2026-01-15T08:00:00Z",
+    "date_modified": "2026-09-08T12:00:00Z"
+  },
+  "page_type": "PrivacyPolicy",
+  "is_home": false
+}
+
+
+
+
+
+
+
+## schema schema
+
+{
+  "node_type": "CollectionPage",
+  "page": {
+    "url": "https://techcorp.com",
+    "site_url": "https://techcorp.com",
+    "title": "Artificial Intelligence Hub",
+    "desc": "Explore our curated collection of expert insights and tutorials on artificial intelligence.",
+    "about": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "mention": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ]
+  },
+  "article": {
+    "headline": "The Ultimate Guide to Enterprise AI Transformation",
+    "intro": "An in-depth look at how modern corporations deploy generative AI platforms securely.",
+    "content": "Enterprise AI requires foundational shifts in cloud data architecture, vector storage, and fine-tuning governance frameworks...",
+    "abouts": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "mentions": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ]
+  },
+  "parent_page": {"url": "https://techcorp.com"},
+  "items": [
+    ["BlogPosting","https://techcorp.com/getting-started-with-llms","Getting Started with Large Language Models", "A beginner's path into understanding foundational model architectures."],
+    ["BlogPosting","https://example.com","Keyword Research for Pillar Pages", "How to map search intent to your structural hubs."],
+    ["BlogPosting","https://example.com","Perfecting Your Internal Links", "The correct anchor text strategies for topic clusters."]
+  ]
+}
+
+
+
+
+
 
 
 
