@@ -1,0 +1,60 @@
+{
+  "@type": "WebPage",
+  "@id": "{{ page.url }}#webpage",
+  "url": "{{ page.url }}",
+  "name": "{{ page.title }}",
+  "description": "{{ page.meta_description }}",
+  "isPartOf": {
+    "@id": "{{ web.base_url }}#website"
+  },
+  
+  {# Main Content Block combining Recent and Popular sections #}
+  "mainContentOfPage": {
+    "@type": "WebPageElement",
+    "cssSelector": "#main-content",
+    "description": "Main blog feed featuring recent and popular articles."
+  },
+
+  {# Mapping your sections using ItemLists #}
+  "mainEntity": [
+    {% if recent_posts %}
+    {
+      "@type": "ItemList",
+      "name": "Recent Blog Posts",
+      "numberOfItems": {{ recent_posts|length }},
+      "itemListElement": [
+        {% for post in recent_posts %}
+        {
+          "@type": "ListItem",
+          "position": {{ loop.index }},
+          "url": "{{ post.url }}",
+          "name": "{{ post.title }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+    
+    {% if popular_posts %}
+    {% if recent_posts %},{% endif %}
+    {
+      "@type": "ItemList",
+      "name": "Popular Blog Posts",
+      "numberOfItems": {{ popular_posts|length }},
+      "itemListElement": [
+        {% for post in popular_posts %}
+        {
+          "@type": "ListItem",
+          "position": {{ loop.index }},
+          "url": "{{ post.url }}",
+          "name": "{{ post.title }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+  ]
+}
+
+
+
