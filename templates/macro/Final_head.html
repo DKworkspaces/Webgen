@@ -71,3 +71,71 @@
     {%- for name, url in crumbs -%},{"@type":"ListItem","position":{{ loop.index + 1 }},"name":"{{ name }}","item":"{{ url }}"} {%- endfor -%}
   {%- endif -%} ]}{% endwith %}
 {% endmacro %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% macro webpage_schema(web,comp, page, page_type="WebPage", is_home=False) %}
+  {% with site_url= web.site_url, is_policy = page_type in ['TermsAndConditions', 'PrivacyPolicy', 'PolicyPage'],
+    org_id = site_url ~ "/#organization",pol_id = page.url ~ "/#policy",
+    web_id = site_url ~ "/#website",page_id = page.url ~ "/#webpage",
+    crumb_id = page.url ~ "/#breadcrumb" %}
+  {"@type":"{{ page_type }}","@id":"{{ page_id }}",
+  "url":"{{ page.url }}","name":"{{ page.title }}",
+  "description":"{{ page.desc }}",
+  "isPartOf":{"@type":"WebSite","@id":"{{ web_id }}"},
+  "inLanguage":"{{ web.site_lang | default('en-US') }}"
+  {%- if page_type == "AboutPage" or page_type == "ContactPage" -%},
+  "mainEntity":{"@type":"Organization","@id":"{{ org_id }}","name":"{{ web.site_name }}" }{%- endif -%}
+  {%- if is_policy -%},
+  "about":{"@type":"Organization","@id":"{{ org_id }}","name":"{{ web.site_name }}"},
+  "publishingPrinciples":{"@type":"CreativeWork","@id":"{{ pol_id }}"}
+  {%- endif -%}
+  {%- if page.hero_image or comp.logo.url -%},
+  "primaryImageOfPage":{"@type":"ImageObject","@id":"{{ (page.url ~ "/#primaryimage") }}",
+    "url":"{{ page.hero_image | default(comp.logo.url) }}","caption":"{{ page.title }} Visual Asset"
+  }{%- endif -%}
+  {%- if not is_home -%},"breadcrumb":{"@type":"BreadcrumbList","@id":"{{ crumb_id }}"}{%- endif -%}
+  {%- if page.date_published -%},"datePublished":"{{ page.date_published }}","dateModified":"{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+  }{%- if is_policy -%},
+  {"@type":"CreativeWork","@id":"{{ pol_id }}",
+   "name":"{{ page.title }}","headline":"{{ page.title }}",
+   "description":"{{ page.desc }}","url":"{{ page.url }}",
+   "inLanguage":"{{ web.site_lang | default('en-US') }}",
+   "author":{"@type":"Organization","@id":"{{ org_id }}"},
+   "publisher":{"@type":"Organization","@id":"{{ org_id }}"},
+   "copyrightHolder":{"@type":"Organization","@id":"{{ org_id }}"}
+   {%- if page.date_published -%},"datePublished":"{{ page.date_published }}","dateModified":"{{ page.date_modified | default(page.date_published) }}"{%- endif -%}
+  }{%- endif -%}
+  {% endwith %}
+{% endmacro %}
+
+{% macro schema_node(page,article, node_type="CollectionPage", parent_page=none, parent_topic=none, items=none) %}
+  {"@type":"{{ node_type }}","@id":"{{ (page.url ~ "/#webpage") }}",
+  "url":"{{ page.url }}","name":"{{ page.title }}",
+  "description":"{{ page.desc }}",
+  "breadcrumb":{"@id":"{{ (page.url ~ "/#breadcrumb") }}"}
+  ,"isPartOf":{
+     {%- if parent_page and parent_page.url -%}"@type":"{{ node_type }}","@id":"{{ parent_page.url }}/#webpage","url":"{{ parent_page.url }}"
+     {%- else -%}"@type":"WebSite","@id":"{{ web.site_url }}/#website","url":"{{ web.site_url }}"
+  {%- endif -%} }
+  {%- if page.about -%},"about":{{ _topics(page.about) }} {%- endif -%}
+  {%- if page.mention -%},"mentions":{{ _topics(page.mention) }} {%- endif -%}
+{#.  this is place where i have to add article of cluster or category page for ranking purpose #}
+  ,"mainEntity":{
+    "@type":"Article","@id":"{{ page.url }}#article",
+    "headline":"{{ article.headline }}","description":"{{ article.intro }}",
+    "articleBody":"{{ article.content }}"
+    {% if article.abouts %},"about":{{ _topics(article.abouts) }}{% endif %}
+    {% if article.mentions %},"mentions":{{ _topics(article.mentions) }} {% endif %} }
+  {%- if items -%},"hasPart":{{ _items(items) }} {%- endif -%} }
+{% endmacro %}
