@@ -23,6 +23,9 @@
 {% endmacro %}
 
 
+
+
+
 {% macro org_schema(web,comp) %}
   {% with site_url = web.site_url, org_id = site_url ~ "/#organization",
   logo_id = site_url ~ "/#logo",web_id = site_url ~ "/#website" %}
@@ -70,6 +73,18 @@
   {%- if crumbs -%}
     {%- for name, url in crumbs -%},{"@type":"ListItem","position":{{ loop.index + 1 }},"name":"{{ name }}","item":"{{ url }}"} {%- endfor -%}
   {%- endif -%} ]}{% endwith %}
+{% endmacro %}
+
+
+{% macro person_schema(web,member) %}
+  {"@type":"Person","@id":"{{ web.site_url }}/authors/{{ member.slug }}/#person",
+  "name":"{{ member.name }}","jobTitle":"{{ member.job_title }}",
+  "description":"{{ member.short_bio }}","image":"{{ member.avatar_url }}",
+  "url":"{{ web.site_url }}/authors/{{ member.slug }}/",
+  "sameAs":{{ member.social_profiles | tojson }},
+  "worksFor":{"@id":"{{ web.site_url }}/#organization"},
+  "knowsAbout":{{ _topics(member.knows_about) }},
+  "affiliation":{"@id":"{{ web.site_url }}/#organization"} }
 {% endmacro %}
 
 {% macro blog_schema(post, web) %}
