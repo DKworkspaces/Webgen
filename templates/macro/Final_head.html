@@ -1,0 +1,23 @@
+{# sub component that is used as common for category n pillar pages #}
+{% macro _topics(topics_array) %}
+  [{%- for type, slug, name, sameAs in topics_array -%}
+    {"@type":"{{ type }}","@id":"{{ (slug ~ "#topic") }}","name":"{{ name }}","sameAs":{{ sameAs | tojson }} }
+    {{ "," if not loop.last }}
+  {%- endfor -%}]
+{% endmacro %}
+{% macro _items(items) %}
+  [{%- for type, url, name, desc in items -%}
+    {"@type":"{{ type }}","@id":"{{ url }}/#{{ type | lower }}","position":{{ loop.index }},"name":"{{ name }}","description":"{{ desc }}","url":"{{ url }}"}
+    {{- "," if not loop.last }}
+  {%- endfor -%}]
+{% endmacro %}
+{% macro _article_sec(post_url,sections) %}
+  {%- for slug,title,desc in sections -%}
+    {"@type":"ArticleSection","@id":"{{ post_url }}/#{{ slug }}","name":"{{ title }}","description":"{{ desc }}","url":"{{ post.url }}#{{ slug }}" }
+  {{- "," if not loop.last }} {%- endfor -%}
+{% endmacro %}
+{% macro _vid_chap(video_url,chapters) %}
+  [{%- for title,start,end in chapters -%}
+    {"@type":"Clip","name":"{{ title }}","startOffset":{{ start | int }},"endOffset":{{ end | int }},"url":"{{ video_url }}?start={{ start | int }}" }
+  {{- "," if not loop.last }} {%- endfor -%}]
+{% endmacro %}
