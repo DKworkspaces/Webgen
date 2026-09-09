@@ -1,3 +1,13 @@
+The Magazine Layout (Most Popular)
+
+Visual Layout: A massive, full-width "Hero" card for the latest featured post. 
+Directly below it is a 2-column or 3-column masonry grid splitting into independent sections
+(e.g., "Popular Reads", "Trending Videos"). 
+Schema Strategy: The homepage maps a single dominant mainEntity (the featured article) 
+along with secondary ItemList collections representing your curated rows.
+
+
+
 {
   "@type": "WebPage",
   "@id": "{{ page.url }}#webpage",
@@ -8,19 +18,29 @@
     "@id": "{{ web.base_url }}#website"
   },
   
-  {# Main Content Block combining Recent and Popular sections #}
+{# 1. Defines the visual container holding your main grid/feed #}
   "mainContentOfPage": {
     "@type": "WebPageElement",
-    "cssSelector": "#main-content",
-    "description": "Main blog feed featuring recent and popular articles."
+    "cssSelector": "main#content",
+    "description": "Primary content zone showcasing our featured columns and video logs."
   },
-
-  {# Mapping your sections using ItemLists #}
+{# Mapping your sections using ItemLists #}
   "mainEntity": [
+{# SECTION A: The Big Visual Hero / Featured Post #}
+    {% if featured_post %}
+    {
+      "@type": "BlogPosting",
+      "headline": "{{ featured_post.title }}",
+      "url": "{{ featured_post.url }}",
+      "description": "{{ featured_post.excerpt }}",
+      "image": "{{ featured_post.image_url }}"
+    },
+    {% endif %}
+{# SECTION B: Curated Recent Post Lists #}
     {% if recent_posts %}
     {
       "@type": "ItemList",
-      "name": "Recent Blog Posts",
+      "name": "Recent Dynamic Updates",
       "numberOfItems": {{ recent_posts|length }},
       "itemListElement": [
         {% for post in recent_posts %}
@@ -34,20 +54,27 @@
       ]
     }
     {% endif %}
-    
-    {% if popular_posts %}
+{# SECTION C: Most Watched YouTube Feed #}
+    {% if youtube_videos %}
     {% if recent_posts %},{% endif %}
     {
       "@type": "ItemList",
-      "name": "Popular Blog Posts",
-      "numberOfItems": {{ popular_posts|length }},
+      "name": "Trending YouTube Videos",
+      "numberOfItems": {{ youtube_videos|length }},
       "itemListElement": [
-        {% for post in popular_posts %}
+        {% for video in youtube_videos %}
         {
           "@type": "ListItem",
           "position": {{ loop.index }},
-          "url": "{{ post.url }}",
-          "name": "{{ post.title }}"
+          "url": "{{ video.youtube_url }}",
+          "item": {
+            "@type": "VideoObject",
+            "name": "{{ video.title }}",
+            "description": "{{ video.short_description }}",
+            "thumbnailUrl": "{{ video.thumbnail_url }}",
+            "uploadDate": "{{ video.upload_date }}",
+            "embedUrl": "{{ video.embed_url }}"
+          }
         }{% if not loop.last %},{% endif %}
         {% endfor %}
       ]
@@ -58,3 +85,299 @@
 
 
 
+
+
+
+
+
+
+
+Pagination 
+
+meta tag structure 
+
+ page 1
+
+<title>Latest Tech Tips and Insights</title>
+<meta name="description" content="Explore our complete collection of developer guides, tips, and articles.">
+<link rel="canonical" href="https://example.com">
+
+<!-- Pagination Link Elements -->
+<link rel="next" href="https://example.com?page=2">
+
+page 2
+
+<title>Latest Tech Tips and Insights - Page 2</title>
+<meta name="description" content="Explore our complete collection of developer guides, tips, and articles - Page 2.">
+<link rel="canonical" href="https://example.com?page=2">
+
+<!-- Pagination Link Elements -->
+<link rel="prev" href="https://example.com">
+<link rel="next" href="https://example.com?page=3">
+
+
+
+ page3 
+<title>Latest Tech Tips and Insights - Page 3</title>
+<meta name="description" content="Explore our complete collection of developer guides, tips, and articles - Page 3.">
+<link rel="canonical" href="https://example.com?page=3">
+
+<!-- Pagination Link Elements -->
+<link rel="prev" href="https://example.com?page=2">
+<link rel="next" href="https://example.com?page=4">
+
+
+page 4 last page
+<title>Latest Tech Tips and Insights - Page 4</title>
+<meta name="description" content="Explore our complete collection of developer guides, tips, and articles - Page 4.">
+<link rel="canonical" href="https://example.com?page=4">
+
+<!-- Pagination Link Elements -->
+<link rel="prev" href="https://example.com?page=3">
+
+
+
+
+
+
+collection page 
+1page
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://example.com",
+      "url": "https://example.com",
+      "name": "Latest Tech Tips and Insights",
+      "description": "Explore our complete collection of developer guides, tips, and articles.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://example.com",
+        "url": "https://example.com/"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Blog Post Feed - Page 1",
+        "numberOfItems": 3,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "url": "https://example.com/intro-to-jinja", "name": "Introduction to Jinja2" },
+          { "@type": "ListItem", "position": 2, "url": "https://example.com/seo-basics", "name": "SEO Basics for Developers" },
+          { "@type": "ListItem", "position": 3, "url": "https://example.com/understanding-jsonld", "name": "Understanding JSON-LD Schema" }
+        ]
+      }
+    }
+  ]
+}
+
+
+
+2page
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://example.com",
+      "url": "https://example.com",
+      "name": "Latest Tech Tips and Insights - Page 2",
+      "description": "Explore our complete collection of developer guides, tips, and articles - Page 2.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://example.com",
+        "url": "https://example.com/"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Blog Post Feed - Page 2",
+        "numberOfItems": 3,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 4, "url": "https://example.com", "name": "Advanced Python Patterns" },
+          { "@type": "ListItem", "position": 5, "url": "https://example.com", "name": "Complete Guide to CSS Grid" },
+          { "@type": "ListItem", "position": 6, "url": "https://example.com", "name": "Docker Containerization Basics" }
+        ]
+      }
+    }
+  ]
+}
+
+
+
+3page
+
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://example.com",
+      "url": "https://example.com",
+      "name": "Latest Tech Tips and Insights - Page 3",
+      "description": "Explore our complete collection of developer guides, tips, and articles - Page 3.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://example.com",
+        "url": "https://example.com/"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Blog Post Feed - Page 3",
+        "numberOfItems": 3,
+        "itemListElement": [
+          { "@type": "ListItem", "position": 7, "url": "https://example.com", "name": "Optimizing Postgres Queries" },
+          { "@type": "ListItem", "position": 8, "url": "https://example.com", "name": "Scaling with Redis Caching" },
+          { "@type": "ListItem", "position": 9, "url": "https://example.com", "name": "Deploying Web Apps to AWS" }
+        ]
+      }
+    }
+  ]
+}
+
+
+
+
+
+
+example
+
+
+{% macro collection_schema(web, page, items_list, pagination) %}
+{# 1. Calculate the starting position offset for the list items #}
+{# Example: If items_per_page = 10, page 2 starts at index position 11 #}
+{% set items_per_page = items_list|length %}
+{% set start_offset = ((pagination.current_page - 1) * items_per_page) if pagination else 0 %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "{{ page.current_url }}#collectionpage",
+      "url": "{{ page.current_url }}",
+      "name": "{{ page.title }}{% if pagination and pagination.current_page > 1 %} - Page {{ pagination.current_page }}{% endif %}",
+      "description": "{{ page.meta_description }}{% if pagination and pagination.current_page > 1 %} - Page {{ pagination.current_page }}{% endif %}",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "{{ web.base_url }}#website",
+        "url": "{{ web.base_url }}",
+        "name": "{{ web.site_name }}"
+      },
+      
+      {# 2. The Main Dynamic Item List Block #}
+      {% if items_list %}
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "{{ page.title }} Feed{% if pagination %} - Page {{ pagination.current_page }}{% endif %}",
+        "numberOfItems": {{ items_list|length }},
+        "itemListElement": [
+          {% for item in items_list %}
+          {
+            "@type": "ListItem",
+            "position": {{ start_offset + loop.index }},
+            "url": "{{ item.url }}",
+            "name": "{{ item.title }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+      {% endif %}
+    }
+  ]
+}
+</script>
+{% endmacro %}
+
+
+{{ collection_schema(web, page, categories_list, pagination) }}
+
+
+
+
+
+
+in webPage 
+first page have article and list as part of main entity 
+
+then in second page its all about list
+
+
+
+{% macro topic_cluster_schema(web, page, articles, pagination) %}
+{# Calculate the position offset for pages 2+ #}
+{% set items_per_page = articles|length %}
+{% set start_offset = ((pagination.current_page - 1) * items_per_page) if pagination else 0 %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "{{ page.current_url }}#webpage",
+      "url": "{{ page.current_url }}",
+      "name": "{{ page.title }}{% if pagination.current_page > 1 %} - Page {{ pagination.current_page }}{% endif %}",
+      "description": "{{ page.meta_description }}",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "{{ web.base_url }}#website",
+        "url": "{{ web.base_url }}"
+      },
+
+      /* --- PAGE 1: COMBINED ARTICLE + SUBTOPICS LIST --- */
+      {% if pagination.current_page == 1 %}
+      "mainEntity": {
+        "@type": "Article",
+        "@id": "{{ page.current_url }}#article",
+        "headline": "{{ page.title }}",
+        "description": "{{ page.meta_description }}",
+        "datePublished": "{{ page.date_published }}",
+        "author": {
+          "@type": "Person",
+          "name": "{{ page.author_name }}"
+        },
+        "publisher": {
+          "@id": "{{ web.base_url }}#organization"
+        }
+      },
+      {# Attach the sub-topic item list as parts of the main pillar page #}
+      "hasPart": {
+        "@type": "ItemList",
+        "name": "{{ page.title }} - Cluster Resources",
+        "numberOfItems": {{ articles|length }},
+        "itemListElement": [
+          {% for art in articles %}
+          {
+            "@type": "ListItem",
+            "position": {{ loop.index }},
+            "url": "{{ art.url }}",
+            "name": "{{ art.title }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+
+      /* --- PAGES 2+: ARCHIVE FEED MODE ONLY --- */
+      {% else %}
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "{{ page.title }} Archive Feed - Page {{ pagination.current_page }}",
+        "numberOfItems": {{ articles|length }},
+        "itemListElement": [
+          {% for art in articles %}
+          {
+            "@type": "ListItem",
+            "position": {{ start_offset + loop.index }},
+            "url": "{{ art.url }}",
+            "name": "{{ art.title }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+      {% endif %}
+    }
+  ]
+}
+</script>
+{% endmacro %}
