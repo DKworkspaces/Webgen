@@ -72,6 +72,51 @@
   {%- endif -%} ]}{% endwith %}
 {% endmacro %}
 
+{% macro blog_schema(post, web) %}
+  {"@type":"WebPage","@id":"{{ post.url }}/#webpage",
+  "url":"{{ post.url }}","name":"{{ post.title }}",
+  "description":"{{ post.desc }}","inLanguage":"{{ post.lang | default('en-IN') }}",
+  "isPartOf":{"@type":"{% if post.parent_page_url %}WebPage{% else %}WebSite{% endif %}","@id":"{{ post.parent_page_url | default(web.site_url) }}/#website"},
+  "breadcrumb":{"@id":"{{ post.url }}/#breadcrumb"},
+  "mainEntity":{"@id":"{{ post.url }}/#article"}
+  },{
+  "@type":"{{ post.schema_type | default('BlogPosting') }}","@id":"{{ post.url }}/#article",
+  "isPartOf":{"@id":"{{ post.url }}/#webpage"},"mainEntityOfPage":{"@id":"{{ post.url }}/#webpage"},
+  "headline":"{{ post.title }}","description":"{{ post.desc }}",
+  "url":"{{ post.url }}",
+  "datePublished":"{{ post.date_published_iso }}","dateModified":"{{ post.date_modified_iso | default(post.date_published_iso) }}",
+  "wordCount":{{ post.word_count | int }},"inLanguage":"{{ post.language | default('en-IN') }}",
+  "author":{"@type":"Organization","@id":"{{ web.site_url }}/#organization",
+    "name":"{{ web.site_name }}","url":"{{ web.site_url }}",
+    "logo":{"@type":"ImageObject","url":"{{ web.logo.url }}"} },
+  "publisher":{"@type":"Organization","@id":"{{ web.site_url  }}/#organization",
+    "name":"{{ web.site_name }}",
+    "logo":{"@type":"ImageObject","url":"{{ web.logo.url }}"} },
+  {% if post.featured_image %}"image":{
+    "@type":"ImageObject","@id":"{{ post.url }}/#featuredimage",
+    "url":"{{ post.featured_image }}","caption":"{{ post.image_caption | default(post.title) }}",
+    "width":{{ post.image_width | default(1200) | int }},"height":{{ post.image_height | default(630) | int }}
+   },{% endif %}
+    {% if post.about %}"about":{{ _topics(post.about) }},{% endif %}
+    {% if post.mentioned %}"mentions":{{ _topics(post.mentioned) }} {% endif %} }
+  {% if post.video_embed_url or post.editorial_sections %} "hasPart":[
+    {% if post.video_embed_url %}{"@id":"{{ post.url }}/#video"}{% endif %}
+    {% if post.editorial_sections %}{% if post.video_embed_url %},{% endif %}
+    {{ _article_sec(post.url,post.editorial_sections) }} {% endif %}],
+  {% endif %}
+  "publishingPrinciples":"{{ web.site_url }}/editorial-policy/"
+  }{% if post.video_embed_url %},{
+  "@type":"VideoObject","@id":"{{ post.url }}/#video",
+  "name":"{{ post.video_title | default(post.title) }}","description":"{{ post.video_description | default(post.desc) }}",
+  "thumbnailUrl":["{{ post.video_thumbnail_url | default(post.featured_image) }}"],
+  "uploadDate":"{{ post.video_upload_date | default(post.date_published_iso) }}",
+  "embedUrl":"{{ post.video_embed_url }}",
+  "publisher":{"@type":"Organization","@id":"{{ web.site_url }}/#organization"}
+  {% if post.video_duration_iso %},"duration":"{{ post.video_duration_iso }}"{% endif %}
+  {% if post.video_chapters %},"hasPart":{{ _vid_chap(post.video_embed_url,post.video_chapters) }} {% endif %}
+  }{% endif %}
+{% endmacro %}
+
 
 
 
