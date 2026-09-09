@@ -1,3 +1,124 @@
+The Ideal Homepage Schema Architecture
+Since you have already handled the global Organization and WebSite schemas, 
+your homepage's WebPage schema should implement three advanced properties:
+about: To explicitly define your website's exact core niches (Geopolitics, Science, History) using standardized concept links (Wikipedia/Wikidata references).
+mainContentOfPage: To define your main visible content grid.
+mainEntity: A grouped array of ItemList elements mapping out your separate editorial zones (e.g., Featured Hero Documentaries, Recent Articles, and Category Hubs).
+
+eg
+
+{
+  "@type": "WebPage",
+  "@id": "{{ page.url }}#webpage",
+  "url": "{{ page.url }}",
+  "name": "{{ page.title }}",
+  "description": "{{ page.meta_description }}",
+  "isPartOf": {
+    "@id": "{{ web.base_url }}#website"
+  },
+  
+  /* 1. Explicitly Define Your Niches to Build E-E-A-T Entity Connections */
+  "about": [
+    {
+      "@type": "Thing",
+      "name": "Geopolitics",
+      "sameAs": "https://wikipedia.org"
+    },
+    {
+      "@type": "Thing",
+      "name": "Science",
+      "sameAs": "https://wikipedia.org"
+    },
+    {
+      "@type": "Thing",
+      "name": "History",
+      "sameAs": "https://wikipedia.org"
+    }
+  ],
+
+  "mainContentOfPage": {
+    "@type": "WebPageElement",
+    "cssSelector": "#homepage-main",
+    "description": "Curated hub for geopolitical analysis, scientific insights, and historical documentaries."
+  },
+
+  /* 2. Structured Sections Mapping Your Homepage Visual Components */
+  "mainEntity": [
+    
+    {# ZONE A: Featured History/Science Documentaries (VideoObjects) #}
+    {% if featured_documentaries %}
+    {
+      "@type": "ItemList",
+      "name": "Featured Geopolitical & History Documentaries",
+      "numberOfItems": {{ featured_documentaries|length }},
+      "itemListElement": [
+        {% for doc in featured_documentaries %}
+        {
+          "@type": "ListItem",
+          "position": {{ loop.index }},
+          "url": "{{ doc.internal_url }}",
+          "item": {
+            "@type": "VideoObject",
+            "name": "{{ doc.title }}",
+            "description": "{{ doc.short_description }}",
+            "thumbnailUrl": "{{ doc.thumbnail_url }}",
+            "uploadDate": "{{ doc.upload_date }}",
+            "embedUrl": "{{ doc.embed_url }}"
+          }
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+
+    {# ZONE B: Recent Geopolitical Analysis & Science Articles #}
+    {% if recent_posts %}
+    {% if featured_documentaries %},{% endif %}
+    {
+      "@type": "ItemList",
+      "name": "Latest Analysis & Insights",
+      "numberOfItems": {{ recent_posts|length }},
+      "itemListElement": [
+        {% for post in recent_posts %}
+        {
+          "@type": "ListItem",
+          "position": {{ loop.index }},
+          "url": "{{ post.url }}",
+          "name": "{{ post.title }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+  ]
+}
+
+
+
+
+VideoObject list
+
+
+
+{
+  "@type": "ListItem",
+  "position": {{ loop.index }},
+  "url": "{{ doc.internal_url }}",  {# Points to the page on YOUR site where they watch #}
+  
+  "item": {
+    "@type": "VideoObject",
+    "name": "{{ doc.title }}",               {# REQUIRED: The specific title of the video #}
+    "description": "{{ doc.description }}",   {# REQUIRED by Google guidelines #}
+    "thumbnailUrl": "{{ doc.thumbnail }}",    {# REQUIRED: Image preview link #}
+    "uploadDate": "{{ doc.upload_date }}",    {# REQUIRED: ISO 8601 Date Format (YYYY-MM-DD) #}
+    "embedUrl": "{{ doc.embed_url }}"         {# HIGHLY RECOMMENDED for embedded players #}
+  }
+}
+
+
+
+
+
 The Magazine Layout (Most Popular)
 
 Visual Layout: A massive, full-width "Hero" card for the latest featured post. 
