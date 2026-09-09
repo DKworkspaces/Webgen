@@ -21,3 +21,53 @@
     {"@type":"Clip","name":"{{ title }}","startOffset":{{ start | int }},"endOffset":{{ end | int }},"url":"{{ video_url }}?start={{ start | int }}" }
   {{- "," if not loop.last }} {%- endfor -%}]
 {% endmacro %}
+
+
+{% macro org_schema(web,comp) %}
+  {% with site_url = web.site_url, org_id = site_url ~ "/#organization",
+  logo_id = site_url ~ "/#logo",web_id = site_url ~ "/#website" %}
+  {"@type":"Organization","@id":"{{ org_id }}",
+  "name":"{{ comp.name }}","url":"{{ site_url }}",
+  "legalName":"{{ comp.legal_name | default(comp.name) }}","description":"{{ comp.desc }}",
+  "knowsAbout":{{ _topics(web.knows_about_list) }},
+  {% if web.slogan %}"slogan":"{{ web.slogan }}",{% endif %}{% if comp.founded_year %}"foundingDate":"{{ comp.founded_year }}",{% endif %}
+  {% with logo = comp.logo %}"logo":{
+    "@type":"ImageObject","@id":"{{ logo_id }}",
+    "url":"{{ logo.url }}","caption":"{{ logo.caption }}",
+    "width":{{ logo.width | default(512) }},"height":{{ logo.height | default(512) }} },
+  {% endwith %}
+  "image":{"@id":"{{ logo_id }}"},
+  "sameAs":{{ web.social_links | default([]) | tojson }},
+  {% with cont = comp.contact, addr = comp.address %}
+  "contactPoint":[{"@type":"ContactPoint","contactType":"customer service",
+    "email":"{{ cont.email }}","availableLanguage":{{ cont.lang | default(["en"]) | tojson }}
+    {% if cont.phone %},"telephone":"{{ cont.phone }}"{% endif %}
+  }],"address":{"@type":"PostalAddress",
+    {% if addr.street %}"streetAddress":"{{ addr.street }}",{% endif %}
+    "addressLocality":"{{ addr.locality }}","addressRegion":"{{ addr.region }}",
+    "postalCode":"{{ addr.pin }}","addressCountry":"{{ addr.country }}"
+  }{% endwith %}
+  {%- if web.policies -%}{% with poli = web.policies %}
+  {%- if poli.has_terms %},"publishingPrinciples":"{{ site_url }}/terms/"{% endif -%}
+  {%- if poli.has_privacy %},"privacyPolicy":"{{ site_url }}/privacy/"{% endif -%}
+  {%- if poli.has_editorial %},"correctionsPolicy":"{{ site_url }}/editorial-policy/"{% endif -%}
+  {%- if poli.has_fact_check %},"verificationFactCheckingPolicy":"{{ site_url }}/fact-check-policy/"{% endif -%}
+  {% endwith %}{%- endif -%}
+  },{
+  "@type":"WebSite","@id":"{{ web_id }}",
+  "url":"{{ site_url }}","name":"{{ web.site_name }}",
+  {% if web.alt_name %}"alternateName":"{{ web.alt_name }}",{% endif %}
+  "description":"{{ web.site_desc }}",
+  "inLanguage":"{{ web.site_lang | default('en-US') }}",
+  "publisher":{"@id":"{{ org_id }}"},
+  "potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ site_url }}/search?q={search_term_string}"},"query-input":"required name=search_term_string"}]}{% endwith %}
+{% endmacro %}
+
+{% macro breadcrumb_schema(web,page) %}
+  {% with crumbs = page.breadcrumbs ,page_url = page.url ~ "/#breadcrumb" %}
+  {"@type":"BreadcrumbList","@id":"{{ page_url }}",
+  "itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ web.site_url }}"}
+  {%- if crumbs -%}
+    {%- for name, url in crumbs -%},{"@type":"ListItem","position":{{ loop.index + 1 }},"name":"{{ name }}","item":"{{ url }}"} {%- endfor -%}
+  {%- endif -%} ]}{% endwith %}
+{% endmacro %}
