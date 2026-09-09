@@ -15,6 +15,27 @@
     <meta property="og:image:alt" content="{{ page.img.alt or ('Cover photo for ' ~ page.title) }}">
     <meta property="og:image:height" content="{{ page.img.h }}">
     <meta property="og:image:width" content="{{ page.img.w }}">
+
+
+
+<meta property="article:published_time" content="2026-09-09T11:41:00Z">
+<meta property="article:modified_time" content="2026-09-09T11:41:00Z">
+<meta property="article:author" content="https://facebook.com">
+<meta property="article:section" content="Technology">
+<meta property="article:tag" content="SEO">
+
+
+    {{ social.metap_tag('article:section', cluster.name) }}
+  {%- endcall %}
+
+    {{ social.metap_tag('article:published_time', post.published_at.strftime('%Y-%m-%dT%H:%M:%SZ')) }}
+    {{ social.metap_tag('article:author', post.author_name) }}
+    {% for tag in post.tags -%}
+      {{ social.metap_tag('article:tag', tag) }}
+    {%- endfor %}
+
+
+
 {%- endmacro %}
 {% macro _pin(pin,code) -%}
   <meta name="p:domain_verify" content="{{ code }}">
@@ -24,6 +45,11 @@
 {%- endmacro %}
 
 {% macro _twitter(page,card='summary_large_image',vid=none) -%}
+<meta name="twitter:site" content="{{}}">
+<meta name="twitter:creator" content="{{}}">
+
+
+
   <meta name="twitter:card" content="{{ 'player' if vid else card }}">
   <meta name="twitter:url" content="{{ page.url }}">
   <meta name="twitter:title" content="{{ page.title }}">
@@ -34,6 +60,7 @@
     <meta name="twitter:player:height" content="{{ vid.h or '720' }}">
   {%- endif %}
     <meta name="twitter:image" content="{{ page.img.url }}">
+    <meta name="twitter:image:alt" content="{{ page.img.altyer
     <meta name="twitter:image:alt" content="{{ page.img.alt or ('Cover photo for ' ~ page.title) }}">
 {%- endmacro %}
 
