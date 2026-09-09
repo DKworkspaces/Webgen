@@ -42,9 +42,9 @@ Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pilla
 Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ render_breadcrumb_schema(site_url,json_data) }}
 
+
+
 ## organization website schema function 
-
-
 {
   "comp": {
     "name": "TechCorp Solutions",
@@ -72,8 +72,6 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 }
 
 ## breadcrumbs 
-
-
 {
   "web":{"site_url": "https://techcorp.com"},
   "page": {
@@ -88,7 +86,6 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 
 
 ## webpage schema
-
 {
   "web": {
     "site_name": "Acme Global Solutions",
@@ -111,13 +108,7 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
 }
 
 
-
-
-
-
-
 ## schema schema
-
 {
   "node_type": "CollectionPage",
   "page": {
@@ -153,6 +144,70 @@ Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_c
     ["BlogPosting","https://example.com","Keyword Research for Pillar Pages", "How to map search intent to your structural hubs."],
     ["BlogPosting","https://example.com","Perfecting Your Internal Links", "The correct anchor text strategies for topic clusters."]
   ]
+}
+
+## blogpost schema
+{
+  "web": {
+    "site_url": "https://techcorp.com",
+    "site_name": "TechCorp Insights",
+    "site_logo": "https://techcorp.com"
+  },
+  "post": {
+    "url": "https://techcorp.com",
+    "title": "The Future of Generative AI in Enterprise Systems",
+    "desc": "An analysis of vector databases, prompt engineering, and LLM fine-tuning trends.",
+    "language": "en-IN",
+    "parent_page_url": "https://techcorp.com",
+    "schema_type": "BlogPosting",
+    "date_published_iso": "2026-09-01T08:00:00+05:30",
+    "date_modified_iso": "2026-09-07T14:30:00+05:30",
+    "word_count": 1450,
+    "featured_image": "https://techcorp.com",
+    "image_caption": "Concept rendering of neural processing clusters.",
+    "image_width": 1200,
+    "image_height": 630,
+    "about": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "mentioned": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ],
+    "editorial_sections": [
+      ["introduction-to-llms","1. Foundation Models in the Enterprise","Understanding why generic LLMs require fine-tuning boundaries for security."],
+      ["vector-search-architectures","2. Deploying Vector Search Solutions","Deep dive into production-grade embedding indexing configurations."]
+    ],
+    "video_embed_url": "https://youtube.com",
+    "video_title": "Enterprise Generative AI Masterclass",
+    "video_description": "Video walkthrough covering model evaluation and hosting parameters.",
+    "video_thumbnail_url": "https://techcorp.com",
+    "video_upload_date": "2026-09-02T10:00:00+05:30",
+    "video_duration_iso": "PT12M30S",
+    "video_chapters": [
+      ["Introduction to Weights",0, 180],
+      ["Optimizing Vector Indexes", 181, 750]
+    ]
+  }
+}
+
+
+## person schema
+{
+  "web": {"site_url": "https://qname.ai"},
+  "member": {
+    "name": "Jane Doe",
+    "slug": "jane-doe",
+    "job_title": "Lead Domain Researcher & Content Editor",
+    "short_bio": "Jane oversees the programmatic WHOIS parsing models, RDAP data mapping architectures, and emerging AI model taxonomy timelines at QName AI.",
+    "avatar_url": "https://qname.ai",
+    "social_profiles": ["https://linkedin.com","https://twitter.com"],
+    "knows_about": [
+      ["Organization","search-engine-optimization","Search Engine Optimization",["https://wikipedia.org"]],
+      ["Thing","content-marketing","Content Marketing",["https://wikipedia.org","https://wikidata.org"]]
+    ]
+  }
 }
 
 
