@@ -1,3 +1,108 @@
+{% macro _og(web,page,type='website',vid=none,article=none) -%}
+  <meta property="og:site_name" content="{{ web.site_name }}">
+  <meta property="og:type" content="{{ 'video.other' if vid else type }}">
+  <meta property="og:url" content="{{ page.url }}">
+  <meta property="og:title" content="{{ page.title }}">
+  <meta property="og:description" content="{{ page.desc }}">
+  {% if vid -%}
+    <meta property="og:video" content="{{ vid.url }}">
+    <meta property="og:video:secure_url" content="{{ vid.url }}">
+    <meta property="og:video:type" content="text/html">
+    <meta property="og:video:width" content="{{ vid.w if vid.w else '1280' }}">
+    <meta property="og:video:height" content="{{ vid.h if vid.h else '720' }}">
+  {%- endif %}
+    <meta property="og:image" content="{{ page.img.url }}">
+    <meta property="og:image:alt" content="{{ page.img.alt or ('Cover photo for ' ~ page.title) }}">
+    <meta property="og:image:height" content="{{ page.img.h if page.img.h else '1280' }}">
+    <meta property="og:image:width" content="{{ page.img.w if page.img.w else '720' }}">
+  {% if article -%}
+    <meta property="article:published_time" content="{{ article.pub }}T12:00:00Z">
+    <meta property="article:modified_time" content="{{ article.mod if article.mod else article.pub }}T12:00:00Z">
+    <meta property="article:author" content="{{ article.author_url if article.author_url else web.site_url }}">
+    {% if article.about and article.about|length > 0 %}
+      <meta property="article:section" content="{{ article.about[0] }}">
+      {% for tag in article.about[1:] -%}
+        <meta property="article:tag" content="{{ tag }}">
+      {%- endfor %}
+    {%- endif %}
+  {%- endif %}
+{%- endmacro %}
+{% macro _pin(pin) -%}
+  <meta name="pinterest:image" content="{{ pin.url }}">
+  <meta name="pinterest:image:width" content="{{ pin.w if pin.w else '1000' }}">
+  <meta name="pinterest:image:height" content="{{ pin.h if pin.h else '1500' }}">
+{%- endmacro %}
+{% macro _twitter(web,page,author=none,card='summary_large_image',vid=none) -%}
+  <meta name="twitter:site" content="{{ web.site_handler }}">
+  <meta name="twitter:creator" content="{{ author.handler if author.handler else web.site_handler }}">
+  <meta name="twitter:card" content="{{ 'player' if vid else card }}">
+  <meta name="twitter:url" content="{{ page.url }}">
+  <meta name="twitter:title" content="{{ page.title }}">
+  <meta name="twitter:description" content="{{ page.desc }}">
+  {% if vid -%}
+    <meta name="twitter:player" content="{{ vid.url }}">
+    <meta name="twitter:player:width" content="{{ vid.w if vid.w else '1280' }}">
+    <meta name="twitter:player:height" content="{{ vid.h if vid.h else '720' }}">
+  {%- endif %}
+    <meta name="twitter:image" content="{{ page.img.url }}">
+    <meta name="twitter:image:alt" content="{{ page.img.alt or ('Cover photo for ' ~ page.title) }}">
+{%- endmacro %}
+
+
+
+{#. add to only home page for domain verification #}
+{% macro _verify(code) -%}
+  {% if code.g -%}<meta name="google-site-verification" content="{{ code.g }}">{%- endif %}
+  {% if code.y -%}<meta name="yandex-verification" content="{{ code.y }}">{%- endif %}
+  {% if code.b -%}<meta name="msvalidate.01" content="{{ code.b }}">{%- endif %}
+  {% if code.p -%}<meta name="p:domain_verify" content="{{ code.p }}">{%- endif %}
+  {% if code.f -%}<meta name="facebook-domain-verification" content="{{ code.f }}">{%- endif %}
+{%- endmacro %}
+
+##og
+{
+  "web": {"site_name": "TechCraft Insights"},
+  "page": {
+    "url": "https://techcraftinsights.com",
+    "title": "The Future of AI: Trends to Watch",
+    "desc": "An in-depth look at upcoming AI breakthroughs.",
+    "img": {"url": "https://techcraftinsights.com","alt": "Abstract digital network visualization","w": "1200","h": "630"}
+  },
+  "type": "article",
+  "vid": {"url": "https://techcraftinsights.com","w": "1920","h": "1080"},
+  "article": {
+    "pub": "2026-03-15","mod": "2026-03-18",
+    "author_url": "https://techcraftinsights.com",
+    "about": ["Artificial Intelligence", "Web Development", "Tech Trends"]
+  }
+}
+##pin
+{
+  "pin": {"url": "https://techcraftinsights.com","w": "1000","h": "1500"}
+}
+##twiiter
+{
+  "web": {"site_handler": "@TechCraft"},
+  "page": {
+    "url": "https://techcraftinsights.com",
+    "title": "The Future of AI: Trends to Watch",
+    "desc": "An in-depth look at upcoming AI breakthroughs.",
+    "img": {"url": "https://techcraftinsights.com","alt": "Abstract digital network visualization"}
+  },
+  "author": {"handler": "@alex_dev_26},
+  "card": "summary_large_image",
+  "vid": {"url": "https://techcraftinsights.com","w": "1280","h": "720"}
+}
+
+
+
+
+
+        
+
+
+
+
 {# sub component that is used as common for category n pillar pages #}
 {% macro _topics(topics_array) %}
   [{%- for type, slug, name, sameAs in topics_array -%}
@@ -24,24 +129,27 @@
 
 
 
-for home page             {{ render_organization_schema(web=website_data,comp=company_data,site_url=home_url) }},{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
-about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+for home page             {{ org_schema(web=website_data,comp=company_data,site_url=home_url) }},{{ render_webpage_schema(website_data, page, page_type="WebPage", is_home=True) }}
+about us page             {{ render_webpage_schema(website_data, page, page_type="AboutPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+contact us page           {{ render_webpage_schema(website_data, page, page_type="ContactPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+Privacy Policy Page       {{ render_webpage_schema(website_data, page, page_type="PrivacyPolicy", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+Terms of Service Page     {{ render_webpage_schema(website_data, page, page_type="TermsAndConditions", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+Editorial Policy Page     {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
+Fact Check Policy Page    {{ render_webpage_schema(website_data, page, page_type="PolicyPage", is_home=False) }},{{ breadcrumb_schema(site_url,json_data) }}
 
-Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Index Page (Root archive Hub).             {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Individual Archive Page.                   {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Sub-Archive Page.                          {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ render_breadcrumb_schema(site_url,json_data) }}
-Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ render_breadcrumb_schema(site_url,json_data) }}
+Index Page (Root Category Hub).            {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Individual Category Page.                  {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Category Page.                         {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ breadcrumb_schema(site_url,json_data) }}
 
+Index Page (Root archive Hub).             {{ render_schema_node(page_data=index_page_data, node_type="CollectionPage", items=categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Individual Archive Page.                   {{ render_schema_node(page_data=category_page_data, node_type="CollectionPage", parent_page=index_page_data, items=sub_categories_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Archive Page.                          {{ render_schema_node(page_data=sub_category_data, node_type="CollectionPage", parent_page=category_page_data, items=product_or_article_items) }},{{ breadcrumb_schema(site_url,json_data) }}
+
+Pillar Page (Core Hub).                    {{ render_schema_node(page_data=pillar_page_data, node_type="WebPage", items=cluster_pages_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Cluster Page.                              {{ render_schema_node(page_data=cluster_page_data, node_type="WebPage", parent_page=pillar_page_data, parent_topic=pillar_topic_data, items=sub_cluster_pages_list) }},{{ breadcrumb_schema(site_url,json_data) }}
+Sub-Cluster Page (Deepest Content Layer).  {{ render_schema_node(page_data=sub_cluster_page_data, node_type="WebPage", parent_page=cluster_page_data, parent_topic=cluster_topic_data, items=none) }},{{ breadcrumb_schema(site_url,json_data) }}
+
+blogpost.                                  {{ blog_schema() }},{{ breadcrumb_schema(site_url,json_data) }}
 
 
 ## organization website schema function 
