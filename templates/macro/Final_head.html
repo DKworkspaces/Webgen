@@ -50,6 +50,24 @@
 
 
 
+
+
+{% macro _twitter(web,is_sitemap=true) -%}
+
+
+{% if is_sitemap -%}
+  <link rel="alternate" type="application/rss+xml" title="{{ web.site_name }} | Global RSS Feed" href="{{ web.site_url }}/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="{{ web.site_name }} | Global Atom Feed" href="{{ web.site_url }}/atom.xml">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ web.site_url }}/sitemap.xml">
+{%- endif %}
+  <link rel="icon" type="image/x-icon" href="{{ web.site_url }}/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ web.site_url }}/assets/icons/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ web.site_url }}/assets/icons/apple-touch-icon.png">
+{%- endmacro %}
+
+
+
+
 {#. add to only home page for domain verification #}
 {% macro _verify(code) -%}
   {% if code.g -%}<meta name="google-site-verification" content="{{ code.g }}">{%- endif %}
