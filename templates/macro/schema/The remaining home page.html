@@ -28,9 +28,7 @@ anonymous srafss n founder
       "additionalName": "Anonymous Founder", 
       "jobTitle": "Founder & Chief Architect",
       "description": "The pseudonymous founder and lead vision architect behind the platform.",
-      "worksFor": {
-        "@id": "{{ web.base_url }}#organization"
-      },
+      "worksFor": {"@id": "{{ web.base_url }}#organization"},
       "founderOf": {"@id": "{{ web.base_url }}#organization"},
       "knowsAbout": ["Software Architecture","Systems Engineering","Content Strategy"],
       "sameAs": ["{{ web.base_url }}/about/founder/"]
@@ -178,13 +176,9 @@ updated
       "url": "{{ page.url }}",
       "name": "{{ page.title }}",
       "description": "{{ page.meta_description }}",
-      "isPartOf": {
-        "@id": "{{ web.base_url }}#website"
-      },
+      "isPartOf": {"@id": "{{ web.base_url }}#website"},
       /* 1. LINKING THE WEBPAGE MAIN ENTITY TO THE ORGANIZATION */
-      "mainEntity": {
-        "@id": "{{ web.base_url }}#organization"
-      },
+      "mainEntity": {"@id": "{{ web.base_url }}#organization"},
       "audience": {
         "@type": "Audience",
         "audienceType": "Historians, geopolitical analysts, scientific researchers, and global affairs enthusiasts"
@@ -195,33 +189,13 @@ updated
         "description": "Curated hub for geopolitical analysis, scientific insights, and historical documentaries."
       },
       "about": [
-        {
-          "@type": "Thing",
-          "name": "Geopolitics",
-          "sameAs": "https://wikipedia.org"
-        },
-        {
-          "@type": "Thing",
-          "name": "Science",
-          "sameAs": "https://wikipedia.org"
-        },
-        {
-          "@type": "Thing",
-          "name": "History",
-          "sameAs": "https://wikipedia.org"
-        }
+        {"@type": "Thing","name": "Geopolitics","sameAs": "https://wikipedia.org"},
+        {"@type": "Thing","name": "Science","sameAs": "https://wikipedia.org"},
+        {"@type": "Thing","name": "History","sameAs": "https://wikipedia.org"}
       ],
       "mentions": [
-        {
-          "@type": "Thing",
-          "name": "International Relations",
-          "sameAs": "https://wikipedia.org"
-        },
-        {
-          "@type": "Thing",
-          "name": "Documentary Film",
-          "sameAs": "https://wikipedia.org"
-        }
+        {"@type": "Thing","name": "International Relations","sameAs": "https://wikipedia.org"},
+        {"@type": "Thing","name": "Documentary Film","sameAs": "https://wikipedia.org"}
       ]
     },
 
@@ -236,10 +210,7 @@ updated
         "@id": "{{ web.base_url }}#logo",
         "url": "{{ web.base_url }}/assets/logo.png"
       },
-      "sameAs": [
-        "https://twitter.com",
-        "https://youtube.com"
-      ]
+      "sameAs": ["https://twitter.com","https://youtube.com"]
     },
 
     {# ZONE A: Featured History/Science Documentaries (VideoObjects) #}
@@ -248,9 +219,7 @@ updated
       "@type": "ItemList",
       "@id": "{{ page.url }}#featured-documentaries",
       "name": "Featured Geopolitical & History Documentaries",
-      "mainEntityOfPage": {
-        "@id": "{{ page.url }}#webpage"
-      },
+      "mainEntityOfPage": {"@id": "{{ page.url }}#webpage"},
       "numberOfItems": {{ featured_documentaries|length }},
       "itemListElement": [
         {% for doc in featured_documentaries %}
@@ -281,9 +250,7 @@ updated
       "@type": "ItemList",
       "@id": "{{ page.url }}#recent-analysis",
       "name": "Latest Analysis & Insights",
-      "mainEntityOfPage": {
-        "@id": "{{ page.url }}#webpage"
-      },
+      "mainEntityOfPage": {"@id": "{{ page.url }}#webpage"},
       "numberOfItems": {{ recent_posts|length }},
       "itemListElement": [
         {% for post in recent_posts %}
@@ -347,9 +314,7 @@ along with secondary ItemList collections representing your curated rows.
   "url": "{{ page.url }}",
   "name": "{{ page.title }}",
   "description": "{{ page.meta_description }}",
-  "isPartOf": {
-    "@id": "{{ web.base_url }}#website"
-  },
+  "isPartOf": {"@id": "{{ web.base_url }}#website"},
   
 {# 1. Defines the visual container holding your main grid/feed #}
   "mainContentOfPage": {
