@@ -13,16 +13,11 @@ anonymous srafss n founder
         "url": "{{ web.base_url }}/assets/logo.png"
       },
       /* 1. LINKING ANONYMOUS FOUNDER & EDITORIAL GROUP TO ORGANIZATION */
-      "founder": {
-        "@id": "{{ web.base_url }}#anonymous-founder"
-      },
-      "employee": {
-        "@id": "{{ web.base_url }}#editorial-staff"
-      },
-      "knowsAbout": [
-        "https://wikipedia.org",
-        "https://wikipedia.org"
-      ]
+      "founder": [
+        {"@id": "{{ web.base_url }}#anonymous-founder"},
+        {"@id": "{{ web.base_url }}#editorial-staff"}
+      ],
+      "knowsAbout": ["https://wikipedia.org","https://wikipedia.org"]
     },
 
     /* 2. THE ANONYMOUS FOUNDER NODE ARCHITECTURE */
@@ -36,15 +31,14 @@ anonymous srafss n founder
       "worksFor": {
         "@id": "{{ web.base_url }}#organization"
       },
-      /* Explicitly telling bots this is an intentional alias to protect E-E-A-T integrity */
-      "sameAs": [
-        "{{ web.base_url }}/about/founder/"
-      ]
+      "founderOf": {"@id": "{{ web.base_url }}#organization"},
+      "knowsAbout": ["Software Architecture","Systems Engineering","Content Strategy"],
+      "sameAs": ["{{ web.base_url }}/about/founder/"]
     },
 
     /* 3. THE ANONYMOUS/COLLECTIVE WRITERS TEAM NODE */
     {
-      "@type": "CollectiveGroup",
+      "@type": "Organisation",
       "@id": "{{ web.base_url }}#editorial-staff",
       "name": "Editorial Staff",
       "description": "An international collective of geopolitical analysts, historians, and researchers writing pseudonymously.",
