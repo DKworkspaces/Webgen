@@ -52,9 +52,22 @@
 
 
 
-{% macro _twitter(web,is_sitemap=true) -%}
+{% macro _basic_seo(page) -%}
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.desc }}">
+  <link rel="canonical" href="{{ page.url }}">
+  {% if page.is_search_page or page.is_privacy_policy %}
+    <meta name="robots" content="noindex, follow, noarchive, nosnippet">
+  {% elif page.isarticle or page.isblogpsot or page.is_pillar_page or page.is_topic_cluster %}
+    <meta name="robots" content="index, follow, max-snippet:-1,max-image-preview:large, max-video-preview:-1">
+  {% elif page.is_homepage or page.is_aboutpage or page.is_contactpage or page.is_category_index or page.is_category or page.is_subcategory %}
+    <meta name="robots" content="index, follow, max-image-preview:large">
+  {% else %}
+    <meta name="robots" content="noindex, nofollow">
+  {% endif %}
+{%- endmacro %}
 
-
+{% macro _rss_icon(web,is_sitemap=true) -%}
 {% if is_sitemap -%}
   <link rel="alternate" type="application/rss+xml" title="{{ web.site_name }} | Global RSS Feed" href="{{ web.site_url }}/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="{{ web.site_name }} | Global Atom Feed" href="{{ web.site_url }}/atom.xml">
